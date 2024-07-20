@@ -41,7 +41,7 @@ export default abstract class Engine
 
 	}
 
-	public abstract tick() : void;
+	protected abstract tick() : void;
 
 	public stop(){
 		this.active = false;

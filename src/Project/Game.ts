@@ -7,7 +7,6 @@ import Background from "./Background.ts";
 import Orbit from "./Orbit.ts";
 import Belt from "./Belt.ts";
 
-
 export default class Game extends Engine
 {
 
