@@ -8,18 +8,73 @@ export default class Background
 
 	public picture : string;
 	public opacity : number;
+	public sprites : THREE.Sprite[];
 
 	constructor(picture : string, opacity : number = 0.7) {
 		this.picture = picture;
 		this.opacity = opacity;
 		this.mesh = this.createBody();
 		this.points = this.createPoints();
+		this.sprites = this.createSprites();
 	}
 
 	public addToScene(scene : THREE.Scene) : void
 	{
 		scene.add(this.mesh);
 		scene.add(this.points);
+		this.sprites.forEach(sprite => scene.add(sprite));
+	}
+
+	protected generateSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
+	{
+
+		const smokeTexture = new THREE.TextureLoader().load(path);
+
+		let options : any = {
+			map: smokeTexture,
+			transparent: true,
+		};
+
+		if(color){
+			options = {
+				blending : THREE.AdditiveBlending,
+				depthWrite:false,
+				opacity,
+				color,
+				...options
+			}
+		}
+
+		const smokeMaterial = new THREE.SpriteMaterial(options);
+
+		const smokeSprite = new THREE.Sprite(smokeMaterial);
+
+		smokeSprite.position.set(
+			THREE.MathUtils.randInt(-30, 30),
+			THREE.MathUtils.randInt(-30, 30),
+			-1
+		);
+
+		smokeSprite.scale.set(
+			THREE.MathUtils.randInt(20, 100),
+			THREE.MathUtils.randInt(10, 40),
+			20
+		);
+
+		return smokeSprite;
+
+	}
+
+	protected createSprites() : THREE.Sprite[]
+	{
+
+		return [
+			this.generateSmoke('../../smokes/1.png', '#d98911', 0.8),
+			this.generateSmoke('../../smokes/1.png', '#887272', 0.8),
+			this.generateSmoke('../../smokes/3.png'),
+			// this.generateSmoke('../../smokes/2.png'),
+		]
+
 	}
 
 	protected createPoints() : THREE.Points

@@ -6,6 +6,7 @@ import Planet from "./Planet";
 import Background from "./Background.ts";
 import Orbit from "./Orbit.ts";
 import Belt from "./Belt.ts";
+import AsteroidBelt from "./AsteroidBelt.ts";
 
 export default class Game extends Engine
 {
@@ -21,6 +22,7 @@ export default class Game extends Engine
 	protected ship : Ship;
 	protected sun : Sun;
 	protected belt : Belt;
+	protected asteroidBelt : AsteroidBelt;
 	protected planets : Planet[] = [];
 
 	constructor() {
@@ -42,9 +44,15 @@ export default class Game extends Engine
 			glows[THREE.MathUtils.randInt(0, glows.length)]
 		);
 
+		let beltRadius = THREE.MathUtils.randInt(6, 20);
+
 		this.belt = new Belt(
-			THREE.MathUtils.randInt(5, 40),
-			THREE.MathUtils.randFloat(0.4, 1.5)
+			beltRadius,
+			THREE.MathUtils.randFloat(0.4, 2)
+		);
+
+		this.asteroidBelt = new AsteroidBelt(
+			beltRadius
 		);
 
 		/////////////////////
@@ -57,7 +65,13 @@ export default class Game extends Engine
 			planetRadius += THREE.MathUtils.randInt(5, 10);
 
 			this.planets.push(
-				new Planet(THREE.MathUtils.randFloat(0.2, 1.5), planetRadius, planetNames[i], planetTextures[i])
+				new Planet(
+					THREE.MathUtils.randFloat(0.2, 1.5),
+					planetRadius,
+					planetNames[i],
+					planetTextures[i],
+					THREE.MathUtils.randInt(0, 3)
+				)
 			);
 
 		}
@@ -66,6 +80,7 @@ export default class Game extends Engine
 
 	public async init(){
 		await this.ship.load();
+		await this.asteroidBelt.load();
 
 		this.initScene();
 		this.initListeners();
@@ -113,6 +128,7 @@ export default class Game extends Engine
 		this.ship.addToScene(this.scene);
 		this.sun.addToScene(this.scene);
 		this.background.addToScene(this.scene);
+		this.asteroidBelt.addToScene(this.scene);
 
 		this.planets.forEach(planet => planet.addToScene(this.scene));
 

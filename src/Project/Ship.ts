@@ -5,6 +5,7 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 // @ts-ignore
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
 import ShipEngine from "./ShipEngine.ts";
+import ModelLoader from "../Three/ModelLoader.ts";
 
 export default class Ship
 {
@@ -70,14 +71,7 @@ export default class Ship
 	protected async createBody() : Promise<THREE.Mesh>
 	{
 
-		let mtlLoader = new MTLLoader();
-		let objLoader = new OBJLoader();
-
-		const materials = await mtlLoader.loadAsync('../../ship.mtl');
-		materials.preload();
-		objLoader.setMaterials(materials);
-
-		let ship = await objLoader.loadAsync('../../ship.obj');
+		let ship = await new ModelLoader('../../ship.obj', '../../ship.mtl').load();
 
 		ship.scale.set(0.15, 0.15, 0.15);
 

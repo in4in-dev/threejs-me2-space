@@ -69,9 +69,31 @@ export default class Sparks
 
 	public animate(){
 
-		this.positions = this.positions.map(cord => {
-			return cord + (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
-		});
+		for(let i = 0; i< this.positions.length;i+=3){
+
+			let x = this.positions[i],
+				y = this.positions[i + 1],
+				z = this.positions[i + 2];
+
+			x += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
+			y += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
+			z += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
+
+			let distance = Math.sqrt(x * x + y * y + z * z),
+				maximum = this.maxRadius * 1.3,
+				scale = maximum / distance;
+
+			if (distance > maximum) {
+				x *= scale;
+				y *= scale;
+				z *= scale;
+			}
+
+			this.positions[i] = x;
+			this.positions[i + 1] = y;
+			this.positions[i + 2] = z;
+
+		}
 
 		const particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));

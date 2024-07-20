@@ -77,13 +77,12 @@ export default class Belt
 			const dz = mesh.position.z - positions[i + 2];
 			const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-			if (distance < 1) {
+			if (distance < 2) {
 
 				// Вычисление силы отталкивания
-				const repelForce = -5;
-				const forceX = (dx / distance) * repelForce;
-				const forceY = (dy / distance) * repelForce;
-				const forceZ = (dz / distance) * repelForce;
+				const forceX = (dx / distance) * -2;
+				const forceY = (dy / distance) * -2;
+				const forceZ = (dz / distance) * -0.5;
 
 				// Обновление позиции астероида
 				positions[i] += forceX;
