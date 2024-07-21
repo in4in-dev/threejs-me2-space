@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Asteroid from "./Asteroid.ts";
 import Component from "../Core/Component.ts";
+import Belt from "./Belt.ts";
 
 export default class AsteroidBelt extends Component
 {
@@ -9,6 +10,7 @@ export default class AsteroidBelt extends Component
 
 	public mesh : THREE.Group | null = null;
 	public asteroids : Asteroid[] | null = null;
+	public belt : Belt | null = null;
 
 	constructor(radius : number) {
 		super();
@@ -18,6 +20,7 @@ export default class AsteroidBelt extends Component
 	public async load() : Promise<this>
 	{
 
+		this.belt = await this.createBelt();
 		this.mesh = await this.createBody();
 		this.asteroids = await this.createAsteroids();
 
@@ -27,7 +30,10 @@ export default class AsteroidBelt extends Component
 
 	public addTo(scene : THREE.Scene)
 	{
+
+		this.belt!.addTo(this.mesh!);
 		this.asteroids!.forEach(asteroid => asteroid.addTo(this.mesh!));
+
 		scene.add(this.mesh!)
 	}
 
@@ -81,6 +87,15 @@ export default class AsteroidBelt extends Component
 	protected async createBody() : Promise<THREE.Group>{
 
 		return new THREE.Group();
+
+	}
+
+	protected async createBelt() : Promise<Belt>
+	{
+
+		let thickness = THREE.MathUtils.randFloat(0.4, 3);
+
+		return await new Belt(this.radius, thickness).load();
 
 	}
 

@@ -1,6 +1,11 @@
-import Game from "./src/Project/Core/SinglePlayer/Game";
+import SinglePlayerGame from "./src/Project/Core/SinglePlayer/SinglePlayerGame";
 
-let game = new Game();
+
+
+
+let game = new SinglePlayerGame(
+
+);
 
 await game.init();
 game.run();

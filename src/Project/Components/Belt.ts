@@ -24,9 +24,9 @@ export default class Belt extends Component
 
 	}
 
-	public addTo(scene : THREE.Scene)
+	public addTo(group : THREE.Group)
 	{
-		scene.add(this.mesh!);
+		group.add(this.mesh!);
 	}
 
 	protected async createBody() : Promise<THREE.Points>
