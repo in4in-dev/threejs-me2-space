@@ -6,23 +6,33 @@ import Sphere from "./Sphere.ts";
 export default class Moon extends Sphere
 {
 
-	constructor(planetRadius : number, radius : number, texture : string) {
+	public planetRadius : number;
 
+	constructor(planetRadius : number, radius : number, texture : string) {
 		super(radius, texture);
 
-		this.setRandomPosition(planetRadius);
-
+		this.planetRadius = planetRadius;
 	}
 
-	public addToMesh(mesh : THREE.Mesh){
-		mesh.add(this.mesh);
+	public async load() : Promise<this>
+	{
+
+		this.mesh = await this.createBody();
+
+		this.setRandomPosition(this.planetRadius);
+
+		return this;
+	}
+
+	public addTo(mesh : THREE.Mesh){
+		mesh.add(this.mesh!);
 	}
 
 	protected setRandomPosition(planetRadius : number)
 	{
 		let angle = Math.random() * 2 * Math.PI;
 
-		this.mesh.position.set(
+		this.mesh!.position.set(
 			(planetRadius * 1.2) * Math.cos(angle),
 			(planetRadius + 1.2) * Math.sin(angle),
 			0.5

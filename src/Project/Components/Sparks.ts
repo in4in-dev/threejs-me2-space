@@ -1,22 +1,38 @@
 import * as THREE from 'three';
+import Component from "../Core/Component.ts";
 
-export default class Sparks
+export default class Sparks extends Component
 {
 
-	public points : THREE.Points;
-	public positions : number[];
+	public points : THREE.Points | null = null;
 
 	public color : any;
 	public minRadius : number;
 	public maxRadius : number;
 
+	protected positions : number[];
+
 	constructor(radius : number, color : any) {
+
+		super();
+
 		this.minRadius = radius;
 		this.maxRadius = radius + 0.5;
 		this.color = color;
 
 		this.positions = this.generateRandomPositions();
-		this.points = this.createPoints();
+	}
+
+	public async load() : Promise<this>
+	{
+		this.points = await this.createPoints();
+
+		return this;
+	}
+
+	public addTo(mesh : THREE.Mesh)
+	{
+		mesh.add(this.points!);
 	}
 
 	protected generateRandomPositions() : number[]
@@ -24,7 +40,7 @@ export default class Sparks
 
 		let positions = [];
 
-		for (let i = 0; i < this.maxRadius * 5000; i++) {
+		for (let i = 0; i < this.maxRadius * 2000; i++) {
 
 			let phi = Math.acos(2 * Math.random() - 1);
 			let theta = 2 * Math.PI * Math.random();
@@ -41,7 +57,7 @@ export default class Sparks
 
 	}
 
-	protected createPoints() : THREE.Points
+	protected async createPoints() : Promise<THREE.Points>
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../sand.png');
@@ -60,11 +76,6 @@ export default class Sparks
 
 		return new THREE.Points(particleGeometry, material);
 
-	}
-
-	public addToMesh(mesh : THREE.Mesh)
-	{
-		mesh.add(this.points);
 	}
 
 	public animate(){
@@ -98,7 +109,7 @@ export default class Sparks
 		const particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		this.points.geometry.copy(particleGeometry);
+		this.points!.geometry.copy(particleGeometry);
 
 	}
 

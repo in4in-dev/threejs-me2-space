@@ -3,44 +3,50 @@ import * as THREE from 'three';
 import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 //@ts-ignore
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import ModelLoader from "../Three/ModelLoader.ts";
+import ModelLoader from "../../Three/ModelLoader.ts";
+import Component from "../Core/Component.ts";
 
-export default class Asteroid
+export default class Asteroid extends Component
 {
 
 	protected texture : string;
 	protected material : string;
 
-	public mesh : THREE.Mesh | null = null;
+	public mesh : THREE.Group | null = null;
 
 	constructor(texture : string, material : string) {
+
+		super();
+
 		this.texture = texture;
 		this.material = material;
+
 	}
 
-	public async load(){
+	public async load() : Promise<this>
+	{
 		this.mesh = await this.createBody();
+
+		return this;
 	}
 
-	public addToScene(scene : THREE.Scene){
-		scene.add(this.mesh!);
+	public addTo(group : THREE.Group) : void
+	{
+		group.add(this.mesh!);
 	}
 
-	protected async createBody(){
+	protected async createBody() : Promise<THREE.Group>
+	{
 
 		let asteroid = await new ModelLoader(this.texture, this.material).load();
 
 		let scale = THREE.MathUtils.randFloat(0.0001, 0.03);
 
 		asteroid.scale.set(scale, scale, scale);
+
 		asteroid.rotation.x = Math.PI * THREE.MathUtils.randFloat(-2, 2);
 		asteroid.rotation.y = Math.PI * THREE.MathUtils.randFloat(-2, 2);
 		asteroid.rotation.z = Math.PI * THREE.MathUtils.randFloat(-2, 2);
-
-		// ship.scale.set(0.15, 0.15, 0.15);
-
-		// ship.rotation.x = 1.5;
-		// ship.position.set(10, 10, 0);
 
 		return asteroid;
 

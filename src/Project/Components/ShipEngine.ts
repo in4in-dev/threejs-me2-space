@@ -1,68 +1,55 @@
 import * as THREE from 'three';
+import Component from "../Core/Component.ts";
 
-export default class ShipEngine
+export default class ShipEngine extends Component
 {
 
-	public mesh : THREE.Points;
-	public glow : THREE.Sprite;
-
-	protected positions : Float32Array;
+	public mesh : THREE.Points | null = null;
+	public glow : THREE.Sprite | null = null;
 
 	public color : any;
 	public glowColor : any;
 	public length : number;
 	public speed : number;
 
+	protected positions : Float32Array;
+
 
 	constructor(color : any = 'white', glowColor : any = '#fed36a', speed : number = 1, length : number = 10) {
-
+		super();
 		this.color = color;
 		this.glowColor = glowColor;
 		this.speed = speed;
 		this.length = length;
-
 		this.positions = this.generatePositions();
-
-		this.mesh = this.createBody();
-		this.glow = this.createGlow();
 	}
 
-	public addToMesh(mesh : THREE.Mesh)
+	public async load() : Promise<this>
 	{
-		this.mesh.add(this.glow);
+		this.mesh = await this.createBody();
+		this.glow = await this.createGlow();
 
-		mesh.add(this.mesh);
+		return this;
+	}
+
+	public addTo(mesh : THREE.Mesh)
+	{
+		this.mesh!.add(this.glow!);
+
+		mesh.add(this.mesh!);
 
 	}
 
-	public setLength(x : number)
+	public setLength(x : number): this
 	{
 		this.length = x;
+		return this;
 	}
 
-	public setSpeed(x : number)
+	public setSpeed(x : number): this
 	{
 		this.speed = x;
-	}
-
-	protected createGlow() : THREE.Sprite
-	{
-
-		const glowTexture = new THREE.TextureLoader().load('../../glow.png');
-
-		const glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			color: this.glowColor, // Цвет свечения
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false
-		});
-
-		const glowSprite = new THREE.Sprite(glowMaterial);
-		glowSprite.scale.set(20, 10, 10);
-
-		return glowSprite;
-
+		return this;
 	}
 
 	protected generatePositions() : Float32Array
@@ -93,7 +80,27 @@ export default class ShipEngine
 
 	}
 
-	protected createBody() : THREE.Points
+	protected async createGlow() : Promise<THREE.Sprite>
+	{
+
+		const glowTexture = new THREE.TextureLoader().load('../../glow.png');
+
+		const glowMaterial = new THREE.SpriteMaterial({
+			map: glowTexture,
+			color: this.glowColor, // Цвет свечения
+			transparent: true,
+			blending: THREE.AdditiveBlending,
+			depthWrite:false
+		});
+
+		const glowSprite = new THREE.Sprite(glowMaterial);
+		glowSprite.scale.set(20, 10, 10);
+
+		return glowSprite;
+
+	}
+
+	protected async createBody() : Promise<THREE.Points>
 	{
 
 		const pointsGeometry = new THREE.BufferGeometry();
@@ -144,7 +151,7 @@ export default class ShipEngine
 		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
 
-		this.mesh.geometry.copy(pointsGeometry);
+		this.mesh!.geometry.copy(pointsGeometry);
 
 
 	}

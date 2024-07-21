@@ -1,28 +1,35 @@
 import * as THREE from 'three';
+import Component from "../Core/Component.ts";
 
-export default class Belt
+export default class Belt extends Component
 {
 
 	public radius : number;
 	public thickness : number;
 
-	public mesh : THREE.Points;
+	public mesh : THREE.Points | null = null;
 
 	constructor(radius : number, thickness : number) {
-
+		super();
 		this.radius = radius;
 		this.thickness = thickness;
-
-		this.mesh = this.createBody();
-
 	}
 
-	public addToScene(scene : THREE.Scene)
+	public async load() : Promise<this>
 	{
-		scene.add(this.mesh);
+
+		this.mesh = await this.createBody();
+
+		return this;
+
 	}
 
-	protected createBody() : THREE.Points
+	public addTo(scene : THREE.Scene)
+	{
+		scene.add(this.mesh!);
+	}
+
+	protected async createBody() : Promise<THREE.Points>
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../sand.png');
@@ -69,7 +76,7 @@ export default class Belt
 
 	public animateCollision(mesh : THREE.Mesh){
 
-		const positions = this.mesh.geometry.attributes.position.array;
+		const positions = this.mesh!.geometry.attributes.position.array;
 
 		for (let i = 0; i < positions.length; i += 3) {
 			const dx = mesh.position.x - positions[i];
@@ -93,7 +100,7 @@ export default class Belt
 				const particleGeometry = new THREE.BufferGeometry();
 				particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
-				this.mesh.geometry.copy(particleGeometry);
+				this.mesh!.geometry.copy(particleGeometry);
 			}
 		}
 

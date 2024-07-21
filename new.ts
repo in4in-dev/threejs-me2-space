@@ -1,4 +1,4 @@
-import Game from "./src/Project/Game";
+import Game from "./src/Project/Core/Game";
 
 let game = new Game();
 

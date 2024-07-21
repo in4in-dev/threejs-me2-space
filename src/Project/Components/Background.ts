@@ -1,28 +1,39 @@
 import * as THREE from 'three';
-import MeshBasicTextureMaterial from "../Three/MeshBasicTextureMaterial.ts";
+import MeshBasicTextureMaterial from "../../Three/MeshBasicTextureMaterial.ts";
+import Component from "../Core/Component.ts";
 
-export default class Background
+export default class Background extends Component
 {
-	public mesh : THREE.Mesh;
-	public points : THREE.Points;
+	public mesh : THREE.Mesh | null = null;
+	public points : THREE.Points  | null = null;
+	public sprites : THREE.Sprite[] | null = null;
 
 	public picture : string;
 	public opacity : number;
-	public sprites : THREE.Sprite[];
 
 	constructor(picture : string, opacity : number = 0.7) {
+		super();
 		this.picture = picture;
 		this.opacity = opacity;
-		this.mesh = this.createBody();
-		this.points = this.createPoints();
-		this.sprites = this.createSprites();
 	}
 
-	public addToScene(scene : THREE.Scene) : void
+	public async load() : Promise<this>
 	{
-		scene.add(this.mesh);
-		scene.add(this.points);
-		this.sprites.forEach(sprite => scene.add(sprite));
+
+		this.mesh = await this.createBody();
+		this.points = await this.createPoints();
+		this.sprites = await this.createSprites();
+
+		return this;
+
+	}
+
+	public addTo(scene : THREE.Scene) : void
+	{
+		scene.add(this.mesh!);
+		scene.add(this.points!);
+
+		this.sprites!.forEach(sprite => scene.add(sprite));
 	}
 
 	protected generateSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
@@ -65,7 +76,7 @@ export default class Background
 
 	}
 
-	protected createSprites() : THREE.Sprite[]
+	protected async createSprites() : Promise<THREE.Sprite[]>
 	{
 
 		return [
@@ -77,7 +88,7 @@ export default class Background
 
 	}
 
-	protected createPoints() : THREE.Points
+	protected async createPoints() : Promise<THREE.Points>
 	{
 
 		let positions = [];
@@ -113,7 +124,7 @@ export default class Background
 
 	}
 
-	protected createBody() : THREE.Mesh
+	protected async createBody() : Promise<THREE.Mesh>
 	{
 
 		let spaceTexture = new THREE.TextureLoader().load(this.picture);

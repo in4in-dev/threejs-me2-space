@@ -1,28 +1,38 @@
 import * as THREE from 'three';
 import Asteroid from "./Asteroid.ts";
+import Component from "../Core/Component.ts";
 
-export default class AsteroidBelt
+export default class AsteroidBelt extends Component
 {
 
 	public radius : number;
 
-	public asteroids : Asteroid[];
+	public mesh : THREE.Group | null = null;
+	public asteroids : Asteroid[] | null = null;
 
 	constructor(radius : number) {
+		super();
 		this.radius = radius;
-		this.asteroids = this.createAsteroids();
 	}
 
-	public async load(){
+	public async load() : Promise<this>
+	{
 
-		for(let i in this.asteroids){
-			await this.asteroids[i].load();
-			this.setRandomPosition(this.asteroids[i]);
-		}
+		this.mesh = await this.createBody();
+		this.asteroids = await this.createAsteroids();
+
+		return this;
 
 	}
 
-	protected setRandomPosition(asteroid : Asteroid){
+	public addTo(scene : THREE.Scene)
+	{
+		this.asteroids!.forEach(asteroid => asteroid.addTo(this.mesh!));
+		scene.add(this.mesh!)
+	}
+
+	protected setRandomAsteroidPosition(asteroid : Asteroid) : Asteroid
+	{
 
 		let angle = Math.random() * 2 * Math.PI;
 
@@ -32,14 +42,12 @@ export default class AsteroidBelt
 			THREE.MathUtils.randInt(-1, 1)
 		);
 
+		return asteroid;
+
 	}
 
-	public addToScene(scene : THREE.Scene)
+	protected generateAsteroid() : Asteroid
 	{
-		this.asteroids.forEach(asteroid => asteroid.addToScene(scene));
-	}
-
-	protected generateAsteroid() : Asteroid {
 
 		let templates = [
 			{t : '../../asteroids/simple1.obj', m : '../../asteroids/simple1.mtl'},
@@ -52,19 +60,27 @@ export default class AsteroidBelt
 
 	}
 
-	protected createAsteroids() : Asteroid[]
+	protected async createAsteroids() : Promise<Asteroid[]>
 	{
 
 		let asteroids = [];
 		for(let i = 0; i < this.radius * 50; i++){
 
+			let asteroid = await this.generateAsteroid().load();
+
 			asteroids.push(
-				this.generateAsteroid()
+				this.setRandomAsteroidPosition(asteroid)
 			);
 
 		}
 
 		return asteroids;
+
+	}
+
+	protected async createBody() : Promise<THREE.Group>{
+
+		return new THREE.Group();
 
 	}
 

@@ -1,12 +1,14 @@
-import Engine from "./Engine";
+import Engine from "./Engine.ts";
 import * as THREE from "three";
-import Ship from "./Ship";
-import Sun from "./Sun";
-import Planet from "./Planet";
-import Background from "./Background.ts";
-import Orbit from "./Orbit.ts";
-import Belt from "./Belt.ts";
-import AsteroidBelt from "./AsteroidBelt.ts";
+import Ship from "../Components/Ship";
+import Sun from "../Components/Sun";
+import Planet from "../Components/Planet";
+import Background from "../Components/Background.ts";
+import Orbit from "../Components/Orbit.ts";
+import Belt from "../Components/Belt.ts";
+import AsteroidBelt from "../Components/AsteroidBelt.ts";
+import Border from "../Components/Border.ts";
+import {Vector3} from "three";
 
 export default class Game extends Engine
 {
@@ -21,6 +23,7 @@ export default class Game extends Engine
 	protected background : Background;
 	protected ship : Ship;
 	protected sun : Sun;
+	protected border : Border;
 	protected belt : Belt;
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : Planet[] = [];
@@ -48,7 +51,7 @@ export default class Game extends Engine
 
 		this.belt = new Belt(
 			beltRadius,
-			THREE.MathUtils.randFloat(0.4, 2)
+			THREE.MathUtils.randFloat(0.4, 3)
 		);
 
 		this.asteroidBelt = new AsteroidBelt(
@@ -57,7 +60,7 @@ export default class Game extends Engine
 
 		/////////////////////
 		// Создание нескольких планет и орбит
-		let planetNames = ["Сухов Владислав", 'Жопа полная', "Сюда не лети", "Очко", "Рай", "Гуся", "Курицы", "Больница"];
+		let planetNames = ["Сухов Владислав", 'Жопа полная', "Сюда не лети", "Очко", "Рай", "Гуся", "Курилы", "Больница"];
 		let planetTextures = ["planets/1.png", "planets/2.png", "planets/3.png", "planets/4.png", "planets/5.png", "planets/6.png", "planets/7.png", "planets/8.png"];
 
 		for(let i = 0, planetRadius = 0, planetsCount =  THREE.MathUtils.randInt(4, 8); i < planetsCount; i++){
@@ -76,14 +79,26 @@ export default class Game extends Engine
 
 		}
 
+		this.border = new Border(80, '#549b24', 0.3);
+
 	}
 
 	public async init(){
+
+		await this.border.load();
+		await this.belt.load();
+		await this.sun.load();
+		await this.background.load();
 		await this.ship.load();
 		await this.asteroidBelt.load();
 
+		for(let i in this.planets){
+			await this.planets[i].load();
+		}
+
 		this.initScene();
 		this.initListeners();
+
 	}
 
 	protected initListeners(){
@@ -124,13 +139,14 @@ export default class Game extends Engine
 
 	protected initScene(){
 
-		this.belt.addToScene(this.scene);
-		this.ship.addToScene(this.scene);
-		this.sun.addToScene(this.scene);
-		this.background.addToScene(this.scene);
-		this.asteroidBelt.addToScene(this.scene);
+		this.belt.addTo(this.scene);
+		this.ship.addTo(this.scene);
+		this.sun.addTo(this.scene);
+		this.background.addTo(this.scene);
+		this.asteroidBelt.addTo(this.scene);
+		this.border.addTo(this.scene);
 
-		this.planets.forEach(planet => planet.addToScene(this.scene));
+		this.planets.forEach(planet => planet.addTo(this.scene));
 
 		this.moveCameraToShip();
 
@@ -156,7 +172,7 @@ export default class Game extends Engine
 	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.mesh!.position.distanceTo(planet.mesh.position);
+		let distance = this.ship.mesh!.position.distanceTo(planet.mesh!.position);
 
 		return distance < proximityDistance;
 
@@ -192,6 +208,13 @@ export default class Game extends Engine
 			let intersection = new THREE.Vector3(0, 0, 0);
 			raycaster.ray.intersectPlane(plane, intersection);
 
+			let center = new Vector3(0, 0, 0)
+			let distance = intersection.distanceTo(center);
+
+			if (distance > this.border.radius) {
+				intersection.sub(center).normalize().multiplyScalar(this.border.radius).add(center);
+			}
+
 			this.shipMovingTarget = intersection;
 
 		}
@@ -207,8 +230,8 @@ export default class Game extends Engine
 
 		this.planets.forEach((planet : Planet) => {
 
-			planet.orbit.setActive(
-				this.checkProximityToOrbit(planet.orbit,  1.2)
+			planet.orbit!.setActive(
+				this.checkProximityToOrbit(planet.orbit!,  1.2)
 			);
 
 			planet.setActive(
@@ -219,7 +242,7 @@ export default class Game extends Engine
 
 		this.sun.animateSparks();
 		this.ship.animateEngines();
-		this.belt.animateCollision(this.ship.mesh!);
+		// this.belt.animateCollision(this.ship.mesh!);
 
 	}
 
