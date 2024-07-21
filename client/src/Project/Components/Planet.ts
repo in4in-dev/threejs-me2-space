@@ -33,10 +33,11 @@ export default class Planet extends Sphere
 	public async load() : Promise<this>
 	{
 
+		await super.load();
+
 		this.orbit = await this.createOrbit();
 		this.label = await this.createLabel();
 		this.moons = await this.createMoons(this.moonsCount);
-		this.mesh = await this.createBody();
 
 		if(this.hasRing){
 			this.rings = await this.createRings();

@@ -17,7 +17,7 @@ export default class Moon extends Sphere
 	public async load() : Promise<this>
 	{
 
-		this.mesh = await this.createBody();
+		await super.load();
 
 		this.setRandomPosition(this.planetRadius);
 

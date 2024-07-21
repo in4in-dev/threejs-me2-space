@@ -1,19 +1,16 @@
-import Ship from "./Ship.ts";
-import Planet from "./Planet.ts";
-import AsteroidBelt from "./AsteroidBelt.ts";
-import Belt from "./Belt.ts";
-import Sun from "./Sun.ts";
-import * as THREE from "three";
-import Border from "./Border.ts";
+import Planet from "./Planet";
+import AsteroidBelt from "./AsteroidBelt";
+import Sun from "./Sun";
+import Border from "./Border";
+import SocketResponse from "../Core/SocketResponse";
+import Random from "../Core/Random";
 
-export default class University
+
+export default class University implements SocketResponse
 {
-
-	protected ships : Ship[] = [];
 
 	protected planets : Planet[] = [];
 	protected asteroidBelt : AsteroidBelt;
-	protected belt : Belt;
 	protected sun : Sun;
 	protected border : Border;
 
@@ -22,16 +19,11 @@ export default class University
 		let glows = [ '#fed36a', 'blue', 'pink', '#a63737', '#d0652c'];
 
 		this.sun = new Sun(
-			THREE.MathUtils.randFloat(0.4, 4),
-			glows[THREE.MathUtils.randInt(0, glows.length)]
+			Random.float(0.4, 4),
+			glows[Random.int(0, glows.length)]
 		);
 
-		let beltRadius = THREE.MathUtils.randInt(6, 20);
-
-		this.belt = new Belt(
-			beltRadius,
-			THREE.MathUtils.randFloat(0.4, 3)
-		);
+		let beltRadius = Random.int(6, 20);
 
 		this.asteroidBelt = new AsteroidBelt(
 			beltRadius
@@ -42,13 +34,13 @@ export default class University
 		let planetNames = ["Сухов Владислав", 'Жопа полная', "Сюда не лети", "Очко", "Рай", "Гуся", "Курилы", "Больница"];
 		let planetTextures = ["assets/planets/1.png", "assets/planets/2.png", "assets/planets/3.png", "assets/planets/4.png", "assets/planets/5.png", "assets/planets/6.png", "assets/planets/7.png", "assets/planets/8.png"];
 
-		for(let i = 0, planetRadius = 0, planetsCount =  THREE.MathUtils.randInt(4, 8); i < planetsCount; i++){
+		for(let i = 0, planetRadius = 0, planetsCount =  Random.int(4, 8); i < planetsCount; i++){
 
-			planetRadius += THREE.MathUtils.randInt(5, 10);
+			planetRadius += Random.int(5, 10);
 
 			this.planets.push(
 				new Planet(
-					THREE.MathUtils.randFloat(0.2, 1.5),
+					Random.float(0.2, 1.5),
 					planetRadius,
 					planetNames[i],
 					planetTextures[i]
@@ -59,6 +51,17 @@ export default class University
 
 		this.border = new Border(80);
 
+
+	}
+
+	public toSocketJson(): any {
+
+		return {
+			planets : this.planets.map(planet => planet.toSocketJson()),
+			asteroidBelt : this.asteroidBelt.toSocketJson(),
+			sun : this.sun.toSocketJson(),
+			border : this.border.toSocketJson()
+		}
 
 	}
 

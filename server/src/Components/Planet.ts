@@ -1,4 +1,6 @@
-export default class Planet
+import SocketResponse from "../Core/SocketResponse";
+
+export default class Planet implements SocketResponse
 {
 	public radius : number;
 	public orbitRadius : number;
@@ -11,4 +13,14 @@ export default class Planet
 		this.name = name;
 		this.texture = texture;
 	}
+
+	public toSocketJson(): any {
+		return {
+			radius : this.radius,
+			orbitRadius : this.orbitRadius,
+			name : this.name,
+			texture : this.texture
+		}
+	}
+
 }

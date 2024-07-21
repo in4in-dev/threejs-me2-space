@@ -55,7 +55,7 @@ export default class ShipEngine extends Component
 	protected generatePositions() : Float32Array
 	{
 
-		let numPoints = 100;
+		let numPoints = this.length * 30;
 
 		// Генерируем позиции для точек внутри круга
 		const positions = new Float32Array(numPoints * 3);
@@ -111,10 +111,11 @@ export default class ShipEngine extends Component
 		let points = new THREE.Points(pointsGeometry, new THREE.PointsMaterial({
 			// color: this.color,
 			map : particleTexture,
-			size: 0.05, // Размер частиц
+			size: 0.1, // Размер частиц
 			blending: THREE.AdditiveBlending,
 			depthTest: false,
-			transparent: true
+			transparent: true,
+			opacity: 0.7
 		}));
 
 		points.rotation.x = Math.PI / 2;

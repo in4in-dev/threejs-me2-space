@@ -25,9 +25,17 @@ export default class Ship extends Component
 	public light : THREE.Light | null = null;
 	public engines : ShipEngines | null = null;
 
-	constructor(speed : number = 0.1) {
+	protected startX : number;
+	protected startY : number;
+
+	constructor(x : number = 10, y : number = 10, speed : number = 0.1) {
+
 		super();
+
 		this.speed = speed;
+		this.startX = x;
+		this.startY = y;
+
 	}
 
 	public async load() : Promise<this>
@@ -70,7 +78,7 @@ export default class Ship extends Component
 		ship.scale.set(0.15, 0.15, 0.15);
 
 		ship.rotation.x = 1.5;
-		ship.position.set(10, 10, 0);
+		ship.position.set(this.startX, this.startY, 0);
 
 		return ship;
 
@@ -96,6 +104,18 @@ export default class Ship extends Component
 			r2 : engineRight2,
 			r1 : engineRight1
 		}
+
+	}
+
+	public moveToFast(x : number, y : number)
+	{
+
+		this.mesh!.position.x = x;
+		this.mesh!.position.y = y;
+
+		// let angle = Math.atan2(y, x);
+		//
+		// this.mesh!.rotation.y = angle + Math.PI / 2;
 
 	}
 
