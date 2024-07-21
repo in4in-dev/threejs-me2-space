@@ -43,9 +43,10 @@ export default class Ship extends Component
 	{
 		this.mesh!.add(this.light!);
 
-		Object.values(this.engines!).forEach(engine => {
-			engine.addTo(this.mesh!);
-		})
+		this.engines!.l2.addTo(this.mesh!);
+		this.engines!.l1.addTo(this.mesh!);
+		this.engines!.r2.addTo(this.mesh!);
+		this.engines!.r1.addTo(this.mesh!);
 
 		scene.add(this.mesh!);
 	}

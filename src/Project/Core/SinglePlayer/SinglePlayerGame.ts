@@ -74,7 +74,8 @@ export default class SinglePlayerGame extends Game
 					orbitRadius,
 					planetNames[i],
 					planetTextures[i],
-					THREE.MathUtils.randInt(0, 3)
+					THREE.MathUtils.randInt(0, 3),
+					!THREE.MathUtils.randInt(0, 3)
 				)
 			);
 
