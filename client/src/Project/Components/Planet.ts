@@ -10,6 +10,7 @@ export default class Planet extends Sphere
 
 	public name : string;
 	public orbitRadius : number;
+	public orbitAngle : number;
 	public moonsCount : number;
 	public hasRing : boolean;
 	public activeColor = 0xff0000;
@@ -19,12 +20,21 @@ export default class Planet extends Sphere
 	public label : CSS2DObject | null = null;
 	public rings : THREE.Group | null = null;
 
-	constructor(radius : number, orbitRadius : number, name : string, texture : string, moonsCount : number = 0, hasRing : boolean = false) {
+	constructor(
+		radius : number,
+		orbitRadius : number,
+		orbitAngle : number,
+		name : string,
+		texture : string,
+		moonsCount : number = 0,
+		hasRing : boolean = false
+	) {
 
 		super(radius, texture);
 
 		this.name = name;
 		this.moonsCount = moonsCount;
+		this.orbitAngle = orbitAngle;
 		this.hasRing = hasRing;
 		this.orbitRadius = orbitRadius;
 
@@ -43,7 +53,7 @@ export default class Planet extends Sphere
 			this.rings = await this.createRings();
 		}
 
-		this.setRandomPosition(this.orbitRadius);
+		this.setPosition();
 
 		return this;
 	}
@@ -79,14 +89,12 @@ export default class Planet extends Sphere
 	}
 
 
-	protected setRandomPosition(orbitRadius : number)
+	protected setPosition()
 	{
 
-		let angle = Math.random() * 2 * Math.PI;
-
 		this.mesh!.position.set(
-			orbitRadius * Math.cos(angle),
-			orbitRadius * Math.sin(angle),
+			this.orbitRadius * Math.cos(this.orbitAngle),
+			this.orbitRadius * Math.sin(this.orbitAngle),
 			0
 		);
 

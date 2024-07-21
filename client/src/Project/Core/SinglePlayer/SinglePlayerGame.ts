@@ -72,6 +72,7 @@ export default class SinglePlayerGame extends Game
 				new Planet(
 					THREE.MathUtils.randFloat(0.2, 1.5),
 					orbitRadius,
+					Math.random() * 2 * Math.PI,
 					planetNames[i],
 					planetTextures[i],
 					THREE.MathUtils.randInt(0, 3),

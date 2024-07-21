@@ -25,6 +25,11 @@ export default class Game extends Engine
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : Planet[] = [];
+	protected fps : HTMLElement;
+
+	protected ticks : number = 0;
+	protected lastTickTime : number = 0;
+	protected frameRates : number[] = [];
 
 	constructor(
 		background : Background,
@@ -41,7 +46,13 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
+		let fps = document.createElement('div');
+		fps.className = 'fps';
+		document.body.appendChild(fps);
+
+		this.fps = fps;
 		this.ship = new Ship();
+
 	}
 
 	public async init(){
@@ -149,7 +160,36 @@ export default class Game extends Engine
 
 	}
 
+	protected updateFrameRates(){
+
+		//Update fps
+		let now = Date.now();
+		let frameRate = (now - this.lastTickTime);
+
+		this.frameRates.push(frameRate);
+
+		if(this.frameRates.length > 15){
+			this.frameRates.shift();
+		}
+
+	}
+
+	protected updateFps(){
+
+		let middleFrameTime = this.frameRates.reduce((p, t) => p + t, 0) / this.frameRates.length;
+
+		let fps = Math.floor(
+			1000 / middleFrameTime
+		);
+
+		this.fps.textContent = fps.toString();
+
+	}
+
 	protected tick(){
+
+		this.updateFrameRates();
+		this.updateFps();
 
 		if (this.shipMovingAllow && this.shipMovingActive) {
 
@@ -203,6 +243,13 @@ export default class Game extends Engine
 		this.ship.animateEngines();
 		// this.belt.animateCollision(this.ship.mesh!);
 
+
+
+	}
+
+	protected afterTick(){
+		this.ticks++;
+		this.lastTickTime = Date.now();
 	}
 
 }

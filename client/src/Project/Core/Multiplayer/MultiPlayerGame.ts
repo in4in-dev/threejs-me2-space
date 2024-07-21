@@ -81,6 +81,26 @@ export default class MultiPlayerGame extends Game
 
 		});
 
+		this.socket.on('ship.disconnected', async (data : any) => {
+
+			let player = this.players.find(player => player.id === data.id);
+
+			if(player){
+
+				this.players.splice(
+					this.players.indexOf(player),
+					1
+				);
+
+				//@TODO ship.removeFrom()
+				this.scene.remove(
+					player.ship.mesh!
+				)
+
+			}
+
+		});
+
 	}
 
 	protected sendShipMovement(time : number){
@@ -140,6 +160,7 @@ export default class MultiPlayerGame extends Game
 					return new Planet(
 						planet.radius,
 						planet.orbitRadius,
+						planet.orbitAngle,
 						planet.name,
 						planet.texture,
 						THREE.MathUtils.randInt(0, 3),

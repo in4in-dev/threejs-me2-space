@@ -47,9 +47,13 @@ export default abstract class Engine
 		this.active = false;
 	}
 
+	protected afterTick(){
+
+	}
+
 	public run(){
 
-		let animate =  () => {
+		let animate = async () => {
 
 			if(this.active) {
 				requestAnimationFrame(animate);
@@ -60,6 +64,9 @@ export default abstract class Engine
 
 			this.webGLRenderer.render(this.scene, this.camera);
 			this.cssRenderer.render(this.scene, this.camera);
+
+			///
+			this.afterTick();
 
 		}
 

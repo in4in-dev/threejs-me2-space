@@ -84,7 +84,7 @@ export default class Sun extends Component
 	protected async createLight() : Promise<THREE.Light>
 	{
 
-		let sunLight = new THREE.PointLight('white', this.intensity, 10000); // Цвет, интенсивность и дистанция освещения
+		let sunLight = new THREE.PointLight('white', 2, 10000, 0.02); // Цвет, интенсивность и дистанция освещения
 		sunLight.position.set(0, 0, 0); // Положение в центре сцены (где солнце должно быть)
 
 		return sunLight;
