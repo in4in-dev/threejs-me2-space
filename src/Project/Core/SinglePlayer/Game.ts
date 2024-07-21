@@ -1,13 +1,13 @@
-import Engine from "./Engine.ts";
+import Engine from "./../Engine.ts";
 import * as THREE from "three";
-import Ship from "../Components/Ship";
-import Sun from "../Components/Sun";
-import Planet from "../Components/Planet";
-import Background from "../Components/Background.ts";
-import Orbit from "../Components/Orbit.ts";
-import Belt from "../Components/Belt.ts";
-import AsteroidBelt from "../Components/AsteroidBelt.ts";
-import Border from "../Components/Border.ts";
+import Ship from "../../Components/Ship";
+import Sun from "../../Components/Sun";
+import Planet from "../../Components/Planet";
+import Background from "../../Components/Background.ts";
+import Orbit from "../../Components/Orbit.ts";
+import Belt from "../../Components/Belt.ts";
+import AsteroidBelt from "../../Components/AsteroidBelt.ts";
+import Border from "../../Components/Border.ts";
 import {Vector3} from "three";
 
 export default class Game extends Engine
