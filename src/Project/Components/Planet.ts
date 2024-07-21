@@ -89,7 +89,7 @@ export default class Planet extends Sphere
 	{
 
 		//Moons
-		let moonTextures = ["planets/1.png", "planets/2.png", "planets/3.png", "planets/4.png", "planets/5.png", "planets/6.png", "planets/7.png", "planets/8.png"];
+		let moonTextures = ["../../assets/planets/1.png", "../../assets/planets/2.png", "../../assets/planets/3.png", "../../assets/planets/4.png", "../../assets/planets/5.png", "../../assets/planets/6.png", "../../assets/planets/7.png", "../../assets/planets/8.png"];
 
 		let moons = [];
 		for(let i = 0; i < moonsCount; i++){

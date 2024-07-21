@@ -50,7 +50,7 @@ export default class Sun extends Component
 	{
 
 		// Загрузка текстуры для свечения
-		const glowTexture = new THREE.TextureLoader().load('../../glow.png');
+		const glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
 
 		// Создание материала для свечения
 		const glowMaterial = new THREE.SpriteMaterial({

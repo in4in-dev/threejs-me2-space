@@ -83,7 +83,7 @@ export default class ShipEngine extends Component
 	protected async createGlow() : Promise<THREE.Sprite>
 	{
 
-		const glowTexture = new THREE.TextureLoader().load('../../glow.png');
+		const glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
 
 		const glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
@@ -106,7 +106,7 @@ export default class ShipEngine extends Component
 		const pointsGeometry = new THREE.BufferGeometry();
 		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		let particleTexture = new THREE.TextureLoader().load('../../glow.png');
+		let particleTexture = new THREE.TextureLoader().load('../../assets/glow.png');
 
 		let points = new THREE.Points(pointsGeometry, new THREE.PointsMaterial({
 			// color: this.color,

@@ -50,8 +50,8 @@ export default class AsteroidBelt extends Component
 	{
 
 		let templates = [
-			{t : '../../asteroids/simple1.obj', m : '../../asteroids/simple1.mtl'},
-			{t : '../../asteroids/simple2.obj', m : '../../asteroids/simple2.mtl'},
+			{t : '../../assets/asteroids/simple1.obj', m : '../../assets/asteroids/simple1.mtl'},
+			{t : '../../assets/asteroids/simple2.obj', m : '../../assets/asteroids/simple2.mtl'},
 		];
 
 		let template = templates[THREE.MathUtils.randInt(0, templates.length - 1)];

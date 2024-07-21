@@ -80,9 +80,9 @@ export default class Background extends Component
 	{
 
 		return [
-			this.generateSmoke('../../smokes/1.png', '#d98911', 0.8),
-			this.generateSmoke('../../smokes/1.png', '#887272', 0.8),
-			this.generateSmoke('../../smokes/3.png'),
+			this.generateSmoke('../../assets/smokes/1.png', '#d98911', 0.8),
+			this.generateSmoke('../../assets/smokes/1.png', '#887272', 0.8),
+			this.generateSmoke('../../assets/smokes/3.png'),
 			// this.generateSmoke('../../smokes/2.png'),
 		]
 
@@ -106,7 +106,7 @@ export default class Background extends Component
 
 		}
 
-		let particleTexture = new THREE.TextureLoader().load('../../sand.png');
+		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
 		const particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));

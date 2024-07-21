@@ -60,7 +60,7 @@ export default class Sparks extends Component
 	protected async createPoints() : Promise<THREE.Points>
 	{
 
-		let particleTexture = new THREE.TextureLoader().load('../../sand.png');
+		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
 		const particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));

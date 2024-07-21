@@ -32,7 +32,7 @@ export default class Belt extends Component
 	protected async createBody() : Promise<THREE.Points>
 	{
 
-		let particleTexture = new THREE.TextureLoader().load('../../sand.png');
+		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
 		const particleCount = this.radius * 2000;
 

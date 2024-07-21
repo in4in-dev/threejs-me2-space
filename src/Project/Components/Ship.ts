@@ -64,7 +64,7 @@ export default class Ship extends Component
 	protected async createBody() : Promise<THREE.Mesh>
 	{
 
-		let ship = await new ModelLoader('../../ship.obj', '../../ship.mtl').load();
+		let ship = await new ModelLoader('../../assets/ship/ship.obj', '../../assets/ship/ship.mtl').load();
 
 		ship.scale.set(0.15, 0.15, 0.15);
 
@@ -83,11 +83,11 @@ export default class Ship extends Component
 			engineRight1 = await new ShipEngine('#0d4379', '#1d64a6', 0.4, 1.5).load(),
 			engineRight2 = await new ShipEngine('#0d4379', '#1d64a6', 0.4, 2).load();
 
-		engineRight1.mesh.position.set(-5, -2 ,-4);
-		engineRight2.mesh.position.set(-3, -2 ,-4);
+		engineRight1.mesh!.position.set(-5, -2 ,-4);
+		engineRight2.mesh!.position.set(-3, -2 ,-4);
 
-		engineLeft1.mesh.position.set(5, -2, -4);
-		engineLeft2.mesh.position.set(3, -2, -4);
+		engineLeft1.mesh!.position.set(5, -2, -4);
+		engineLeft2.mesh!.position.set(3, -2, -4);
 
 		return {
 			l1 : engineLeft1,
