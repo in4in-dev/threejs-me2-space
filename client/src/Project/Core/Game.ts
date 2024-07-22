@@ -27,7 +27,7 @@ export default class Game extends Engine
 	protected mousePositionY : number = 0;
 
 	protected enemyLastAddedTime : number = 0;
-	protected enemyMaxCount : number = 1;
+	protected enemyMaxCount : number = 3;
 
 	protected background : Background;
 	protected ship : NormandyShip;
@@ -319,24 +319,30 @@ export default class Game extends Engine
 		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
 
 			//Дистанция до нас
-			let distance = this.ship.group!.position.distanceTo(enemy.group!.position)
+			let distance = this.ship.group!.position.distanceTo(enemy.group!.position);
 
 			if(distance > 30){
-				//Двигаемся к планете
 				enemy.moveTo(this.planets[0].group!.position);
 				enemy.stopAutoFire();
-			}else if(distance > 20){
-				enemy.moveTo(this.ship.group!.position);
-				enemy.setSpeed(0.05);
-				enemy.startAutoFire();
-			}else if(distance > 10){
-				enemy.moveTo(this.ship.group!.position);
-				enemy.setSpeed(0.02);
-				enemy.startAutoFire();
 			}else{
-				enemy.stop();
-				enemy.rotateTo(this.ship.group!.position);
+
 				enemy.startAutoFire();
+
+				if(distance > 10){
+
+					enemy.moveTo(this.ship.group!.position);
+
+					if(distance > 20){
+						enemy.setSpeed(0.05);
+					}else{
+						enemy.setSpeed(0.02);
+					}
+
+				}else{
+					enemy.stop();
+					enemy.rotateTo(this.ship.group!.position);
+				}
+
 			}
 
 			enemy.animateAutoFire();

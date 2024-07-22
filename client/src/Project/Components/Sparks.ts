@@ -91,7 +91,7 @@ export default class Sparks extends Component
 			z += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
 
 			let distance = Math.sqrt(x * x + y * y + z * z),
-				maximum = this.maxRadius * 1.3,
+				maximum = this.maxRadius * 1.1,
 				scale = maximum / distance;
 
 			if (distance > maximum) {
