@@ -14,13 +14,22 @@ export default class Bullet extends Component
 	public toY : number;
 	public color : any;
 	public glowColor : any;
+	public force : number;
 
 	public length : number = 0;
 
 	public mesh : THREE.Mesh | null = null;
 	public glow : THREE.Sprite | null = null;
 
-	constructor(fromX : number, fromY : number, toX : number, toY : number, color : any = '#ffffff', glowColor : any = '#1c80ff') {
+	constructor(
+		fromX : number,
+		fromY : number,
+		toX : number,
+		toY : number,
+		force : number,
+		color : any = '#ffffff',
+		glowColor : any = '#1c80ff'
+	) {
 		super();
 		this.fromX = fromX;
 		this.fromY = fromY;
@@ -28,6 +37,7 @@ export default class Bullet extends Component
 		this.toY = toY;
 		this.color = color;
 		this.glowColor = glowColor;
+		this.force = force;
 	}
 
 	public async load() : Promise<this>
@@ -85,12 +95,16 @@ export default class Bullet extends Component
 
 	}
 
-	protected stopMoving(){
+	public stopMoving(){
 
 		this.isMoving = false;
 
 		this.mesh!.position.set(this.mesh!.position.x, this.mesh!.position.y, 0);
 
+	}
+
+	public hide(){
+		this.isVisible = false;
 	}
 
 	public checkCollisionWith(object : THREE.Object3D) : boolean
@@ -118,8 +132,10 @@ export default class Bullet extends Component
 
 	public boom(){
 
-		(<THREE.MeshBasicMaterial>this.mesh!.material).color.set('gray');
-		this.glow!.material.color.set('gray');
+		(<THREE.MeshBasicMaterial>this.mesh!.material).color.set('#ffac70');
+		this.glow!.material.color.set('#ff8b33');
+		this.glow!.material.opacity = 0.2;
+		this.glow!.scale.set(4, 2, 2);
 
 		this.stopMoving();
 

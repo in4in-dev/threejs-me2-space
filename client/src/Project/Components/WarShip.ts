@@ -45,14 +45,16 @@ export default class WarShip extends Ship
 			this.mesh!.position.x + 0.3,
 			this.mesh!.position.y - 0.3,
 			to.x,
-			to.y
+			to.y,
+			1
 		).load();
 
 		let bullet2 = await new Bullet(
 			this.mesh!.position.x - 0.3,
 			this.mesh!.position.y - 0.3,
 			to.x,
-			to.y
+			to.y,
+			1
 		).load();
 
 		bullet1.addTo(this.bulletsGroup!);
@@ -63,37 +65,16 @@ export default class WarShip extends Ship
 
 	}
 
-	public animateBullets(boofable : THREE.Object3D[], boomable : THREE.Object3D[]){
+	public clearBullets(){
 
 		this.bullets = this.bullets.filter(bullet => {
 
-			if(bullet.length > 100){
-				bullet.isVisible = false;
-			}else if(bullet.isMoving){
-
-				if(boofable.some(object => bullet.checkCollisionWith(object))){
-					return bullet.boof(), true;
-				}else if(boomable.some(object => bullet.checkCollisionWith(object))){
-					return bullet.boom(), true;
-				}
-
-			}
-
-			if(bullet.isVisible) {
-
-				if(bullet.isMoving) {
-					bullet.animate();
-				}
-
-				return true;
-
-			}else{
-
+			if(!bullet.isVisible){
 				this.bulletsGroup!.remove(bullet.mesh!);
-
 				return false;
-
 			}
+
+			return true;
 
 		});
 

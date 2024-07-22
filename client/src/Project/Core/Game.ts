@@ -8,6 +8,8 @@ import AsteroidBelt from "../Components/AsteroidBelt.ts";
 import Border from "../Components/Border.ts";
 import {Vector3} from "three";
 import WarShip from "../Components/WarShip.ts";
+import Enemy from "../Components/Enemy.ts";
+import Bullet from "../Components/Bullet.ts";
 
 export default class Game extends Engine
 {
@@ -29,11 +31,8 @@ export default class Game extends Engine
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : Planet[] = [];
-	protected fps : HTMLElement;
 
-	protected ticks : number = 0;
-	protected lastTickTime : number = 0;
-	protected frameRates : number[] = [];
+	protected enemies : Enemy[] = [];
 
 	constructor(
 		background : Background,
@@ -50,11 +49,6 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		let fps = document.createElement('div');
-		fps.className = 'fps';
-		document.body.appendChild(fps);
-
-		this.fps = fps;
 		this.ship = new WarShip();
 
 	}
@@ -73,6 +67,12 @@ export default class Game extends Engine
 
 		this.initScene();
 		this.initListeners();
+
+		let enemy = await new Enemy(100, THREE.MathUtils.randInt(-30, 30), THREE.MathUtils.randInt(-30, 30)).load();
+
+		enemy.addTo(this.scene);
+
+		this.enemies.push(enemy);
 
 	}
 
@@ -144,6 +144,7 @@ export default class Game extends Engine
 		this.moveCameraToShip();
 
 		// this.showAxisHelper();
+
 	}
 
 	protected showAxisHelper() : void
@@ -183,70 +184,50 @@ export default class Game extends Engine
 
 	}
 
-	protected updateFrameRates(){
+	protected updateShipMovingTarget(){
 
-		//Update fps
-		let now = Date.now();
-		let frameRate = (now - this.lastTickTime);
+		// Обновление координат мыши
+		let mouse = new THREE.Vector2();
+		mouse.x = (this.mousePositionX / window.innerWidth) * 2 - 1;
+		mouse.y = -(this.mousePositionY / window.innerHeight) * 2 + 1;
 
-		this.frameRates.push(frameRate);
+		// Обновление raycaster и нахождение пересечения с плоскостью
+		let raycaster = new THREE.Raycaster();
+		raycaster.setFromCamera(mouse, this.camera);
 
-		if(this.frameRates.length > 15){
-			this.frameRates.shift();
+		// Ограничение перемещения корабля в плоскости XY
+		let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);
+		let intersection = new THREE.Vector3(0, 0, 0);
+		raycaster.ray.intersectPlane(plane, intersection);
+
+		let center = new Vector3(0, 0, 0)
+		let distance = intersection.distanceTo(center);
+
+		if (distance > this.border.radius) {
+			intersection.sub(center).normalize().multiplyScalar(this.border.radius).add(center);
 		}
 
-	}
-
-	protected updateFps(){
-
-		let middleFrameTime = this.frameRates.reduce((p, t) => p + t, 0) / this.frameRates.length;
-
-		let fps = Math.floor(
-			1000 / middleFrameTime
-		);
-
-		this.fps.textContent = fps.toString();
+		this.shipMovingTarget = intersection;
 
 	}
 
 	protected async tick(){
 
-		this.updateFrameRates();
-		this.updateFps();
+		//Обновление позиции для движения корабля
+		if (this.shipMovingAllow) {
 
-		if (this.shipMovingAllow && this.shipMovingActive) {
-
-			// Обновление координат мыши
-			let mouse = new THREE.Vector2();
-			mouse.x = (this.mousePositionX / window.innerWidth) * 2 - 1;
-			mouse.y = -(this.mousePositionY / window.innerHeight) * 2 + 1;
-
-			// Обновление raycaster и нахождение пересечения с плоскостью
-			let raycaster = new THREE.Raycaster();
-			raycaster.setFromCamera(mouse, this.camera);
-
-			// Ограничение перемещения корабля в плоскости XY
-			let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);
-			let intersection = new THREE.Vector3(0, 0, 0);
-			raycaster.ray.intersectPlane(plane, intersection);
-
-			let center = new Vector3(0, 0, 0)
-			let distance = intersection.distanceTo(center);
-
-			if (distance > this.border.radius) {
-				intersection.sub(center).normalize().multiplyScalar(this.border.radius).add(center);
+			if(this.shipMovingActive) {
+				this.updateShipMovingTarget();
 			}
 
-			this.shipMovingTarget = intersection;
 
-		}
+			if(this.shipMovingTarget){
 
-		//Движение корабля
-		if(this.shipMovingAllow && this.shipMovingTarget){
+				this.ship.moveTo(this.shipMovingTarget);
 
-			this.ship.moveTo(this.shipMovingTarget);
+				this.moveCameraToShip();
 
-			this.moveCameraToShip();
+			}
 
 		}
 
@@ -259,6 +240,7 @@ export default class Game extends Engine
 
 		}
 
+		//Отображаем название активной планеты
 		this.planets.forEach((planet : Planet) => {
 
 			planet.orbit!.setActive(
@@ -271,25 +253,73 @@ export default class Game extends Engine
 
 		});
 
+		//Анимируем солнце
 		this.sun.animateSparks();
+
+		//Анимируем двигатели корабля
 		this.ship.animateEngines();
-		this.ship.animateBullets(
-			[
-				...this.planets.map(planet => planet.mesh!)
-			],
-			[
-				this.sun.mesh!
-			]
-		);
+
+		//Проверяем столкновение пуль с объектами
+		this.ship.bullets.forEach((bullet : Bullet) => {
+
+			if(bullet.length > 200){
+				//Если пуля улетела за 200, то просто удаляем ее
+				bullet.hide();
+			}else if(bullet.isMoving){
+
+				//Столкновение с безобидными объектами
+				let peaceObjects = [
+					...this.planets.map(planet => planet.mesh!),
+					this.sun.mesh!
+				];
+
+				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
+					bullet.boof();
+				}
+
+				//Столкновение с вражескими кораблями
+				this.enemies.some(enemy => {
+
+					if(bullet.checkCollisionWith(enemy.mesh!)){
+
+						bullet.boom();
+						enemy.hit(bullet.force);
+
+						return true;
+					}
+
+					return false;
+
+				});
+
+				//Удаляем ненужные корабли
+				this.enemies = this.enemies.filter(enemy => {
+
+					if(!enemy.isVisible){
+						this.scene.remove(enemy.mesh!);
+						return false;
+					}
+
+					return true;
+
+				});
+
+			}
+
+			if(bullet.isVisible && bullet.isMoving) {
+				bullet.animate();
+			}
+
+		});
+
+		this.ship.clearBullets();
+
+
+		//Анимация пояса астероидов
 		// this.belt.animateCollision(this.ship.mesh!);
 
 
 
-	}
-
-	protected afterTick(){
-		this.ticks++;
-		this.lastTickTime = Date.now();
 	}
 
 }
