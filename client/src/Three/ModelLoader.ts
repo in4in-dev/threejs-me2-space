@@ -45,11 +45,9 @@ export default class ModelLoader
 
 		if(!(this.texture in ModelLoader.cacheTextures)){
 
-
 			let material = this.material
 				? await ModelLoader.loadMaterial(this.material)
 				: null;
-
 
 			ModelLoader.cacheTextures[this.texture] = await ModelLoader.loadModel(this.texture, material);
 

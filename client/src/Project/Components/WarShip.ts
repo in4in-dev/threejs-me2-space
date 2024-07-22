@@ -13,6 +13,9 @@ export default class WarShip extends Ship
 	public bullets : Bullet[] = [];
 	public bulletsGroup : THREE.Group | null = null;
 
+	protected bulletColor : any = '#ffffff';
+	protected bulletGlowColor : any = '#1c80ff';
+
 	public async load(): Promise<this>{
 
 		await super.load();
@@ -39,8 +42,6 @@ export default class WarShip extends Ship
 
 	public async fire(){
 
-		console.log('Quaternion:', this.group!.quaternion);
-
 		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.group!.quaternion).multiplyScalar(0.5);
 
 		let bullet1 = await new Bullet(
@@ -48,7 +49,9 @@ export default class WarShip extends Ship
 			this.group!.position.y - 0.3,
 			to.x,
 			to.y,
-			THREE.MathUtils.randInt(1, 5)
+			THREE.MathUtils.randInt(1, 5),
+			this.bulletColor,
+			this.bulletGlowColor
 		).load();
 
 		let bullet2 = await new Bullet(
@@ -56,7 +59,9 @@ export default class WarShip extends Ship
 			this.group!.position.y - 0.3,
 			to.x,
 			to.y,
-			THREE.MathUtils.randInt(1, 5)
+			THREE.MathUtils.randInt(1, 5),
+			this.bulletColor,
+			this.bulletGlowColor
 		).load();
 
 		bullet1.addTo(this.bulletsGroup!);

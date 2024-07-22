@@ -6,7 +6,7 @@ import ModelLoader from "../../../Three/ModelLoader.ts";
 export default class EnemyReaper extends Enemy
 {
 
-	public mesh : THREE.Mesh | null = null;
+	public mesh : THREE.Group | null = null;
 
 	public async load() : Promise<this>
 	{
@@ -28,8 +28,10 @@ export default class EnemyReaper extends Enemy
 
 	}
 
-	protected async createBody() : Promise<THREE.Mesh>
+	protected async createBody() : Promise<THREE.Group>
 	{
+
+		let group = new THREE.Group;
 
 		let ship = await new ModelLoader('../../assets/reaper/reaper.obj', '../../assets/reaper/reaper.mtl').load();
 
@@ -41,7 +43,25 @@ export default class EnemyReaper extends Enemy
 		ship.position.z = -1;
 		ship.position.y = -3;
 
-		return ship;
+
+		let glow = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				color: 'red', // Цвет свечения
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false,
+				opacity : 0.2
+			})
+		)
+
+		glow.scale.set(2, 2, 2);
+		glow.position.set(0, 0, -1);
+
+		group.add(ship);
+		group.add(glow);
+
+		return group;
 
 	}
 

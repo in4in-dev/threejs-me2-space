@@ -61,8 +61,8 @@ export default class Background extends Component
 		const smokeSprite = new THREE.Sprite(smokeMaterial);
 
 		smokeSprite.position.set(
-			THREE.MathUtils.randInt(-30, 30),
-			THREE.MathUtils.randInt(-30, 30),
+			THREE.MathUtils.randInt(-80, 80),
+			THREE.MathUtils.randInt(-80, 80),
 			-1
 		);
 
@@ -82,7 +82,7 @@ export default class Background extends Component
 		return [
 			this.generateSmoke('../../assets/smokes/1.png', '#d98911', 0.8),
 			this.generateSmoke('../../assets/smokes/1.png', '#887272', 0.8),
-			this.generateSmoke('../../assets/smokes/3.png'),
+			// this.generateSmoke('../../assets/smokes/3.png'),
 			// this.generateSmoke('../../smokes/2.png'),
 		]
 

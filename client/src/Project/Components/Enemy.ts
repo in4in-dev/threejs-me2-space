@@ -3,21 +3,28 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import Ship from "./Ship.ts";
+import WarShip from "./WarShip.ts";
 
-export default abstract class Enemy extends Ship
+export default abstract class Enemy extends WarShip
 {
 
 	public isVisible : boolean = true;
+
+	public autoFireActive : boolean = false;
+	public autoFireInterval : number = 300;
+	public autoFireLastTime : number = 0;
 
 	public health : number;
 	public startHealth : number;
 
 	public hp : CSS2DObject | null = null;
 
+	protected bulletColor = 'red';
+	protected bulletGlowColor = 'red';
+
 	constructor(health : number, startX : number = 0, startY : number = 0) {
 
-		super(startX, startY);
+		super(startX, startY, 0.05);
 
 		this.health = health;
 		this.startHealth = health;
@@ -98,6 +105,25 @@ export default abstract class Enemy extends Ship
 
 	}
 
+	public startAutoFire(){
+		this.autoFireActive = true;
+	}
+
+	public stopAutoFire(){
+		this.autoFireActive = false;
+	}
+
+	public async animateAutoFire(){
+
+		let now = Date.now();
+
+		if(this.autoFireActive && now - this.autoFireLastTime > this.autoFireInterval){
+			await this.fire();
+			this.autoFireLastTime = now;
+		}
+
+	}
+
 	public hit(force : number) : boolean
 	{
 
@@ -131,6 +157,7 @@ export default abstract class Enemy extends Ship
 
 			this.group!.remove(this.hp);
 
+			this.stop();
 			this.explosion();
 
 		}

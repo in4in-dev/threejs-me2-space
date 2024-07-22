@@ -27,8 +27,8 @@ export default class Bullet extends Component
 		toX : number,
 		toY : number,
 		force : number,
-		color : any = '#ffffff',
-		glowColor : any = '#1c80ff'
+		color : any,
+		glowColor : any
 	) {
 		super();
 		this.fromX = fromX;
@@ -81,7 +81,7 @@ export default class Bullet extends Component
 	protected async createMesh(): Promise<THREE.Mesh>{
 
 		let mesh = new THREE.Mesh(
-			new THREE.CircleGeometry(0.1, 10, 10),
+			new THREE.SphereGeometry(0.1, 10, 10),
 			new THREE.MeshBasicMaterial({color : this.color})
 		);
 

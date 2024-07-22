@@ -38,6 +38,14 @@ export default class Ship extends Component
 		scene.add(this.group!);
 	}
 
+	public setSpeed(speed : number){
+		this.speed = speed;
+	}
+
+	public stop(){
+		this.moveToFast(this.group!.position.x, this.group!.position.y);
+	}
+
 	protected async createGroup() : Promise<THREE.Group>
 	{
 
@@ -55,6 +63,17 @@ export default class Ship extends Component
 		this.group!.position.y = y;
 	}
 
+	public rotateTo(cords : Vector3){
+
+		let direction = new THREE.Vector3().subVectors(cords, this.group!.position);
+
+		// Вычислить угол поворота
+		let angle = Math.atan2(direction.y, direction.x);
+
+		this.group!.rotation.z = angle + Math.PI / 2;
+
+	}
+
 	public moveTo(cords : Vector3){
 
 		let direction = new THREE.Vector3().subVectors(cords, this.group!.position);
@@ -67,10 +86,7 @@ export default class Ship extends Component
 				direction.multiplyScalar(this.speed)
 			);
 
-			// Вычислить угол поворота
-			let angle = Math.atan2(direction.y, direction.x);
-
-			this.group!.rotation.z = angle + Math.PI / 2;
+			this.rotateTo(cords);
 
 		}
 

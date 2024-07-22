@@ -26,13 +26,15 @@ export default class Game extends Engine
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
+	protected enemyLastAddedTime : number = 0;
+	protected enemyMaxCount : number = 1;
+
 	protected background : Background;
 	protected ship : NormandyShip;
 	protected sun : Sun;
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : Planet[] = [];
-
 	protected enemies : Enemy[] = [];
 
 	constructor(
@@ -50,7 +52,7 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.ship = new NormandyShip();
+		this.ship = new NormandyShip(10, 10, 0.3);
 
 	}
 
@@ -68,12 +70,6 @@ export default class Game extends Engine
 
 		this.initScene();
 		this.initListeners();
-
-		let enemy = await new EnemyReaper(100, THREE.MathUtils.randInt(-30, 30), THREE.MathUtils.randInt(-30, 30)).load();
-
-		enemy.addTo(this.scene);
-
-		this.enemies.push(enemy);
 
 	}
 
@@ -212,7 +208,146 @@ export default class Game extends Engine
 
 	}
 
+	protected animateShipBullets(){
+
+		//Проверяем столкновение пуль с объектами
+		this.ship.bullets.forEach((bullet : Bullet) => {
+
+			if(bullet.length > 200){
+				//Если пуля улетела за 200, то просто удаляем ее
+				bullet.hide();
+			}else if(bullet.isMoving){
+
+				//Столкновение с безобидными объектами
+				let peaceObjects = [
+					...this.planets.map(planet => planet.mesh!),
+					this.sun.mesh!
+				];
+
+				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
+					bullet.boof();
+				}
+
+				//Столкновение с вражескими кораблями
+				this.enemies.some(enemy => {
+
+					if(bullet.checkCollisionWith(enemy.group!)){
+
+						bullet.boom();
+						enemy.hit(bullet.force);
+
+						return true;
+					}
+
+					return false;
+
+				});
+
+			}
+
+			if(bullet.isVisible && bullet.isMoving) {
+				bullet.animate();
+			}
+
+		});
+
+		//Чистим ненужные пули
+		this.ship.clearBullets();
+
+	}
+
+	protected animateEnemiesBullets(){
+
+		this.enemies.forEach(enemy => {
+
+			//Проверяем столкновение вражеских пуль с объектами
+			enemy.bullets.forEach((bullet : Bullet) => {
+
+				if(bullet.length > 200){
+					//Если пуля улетела за 200, то просто удаляем ее
+					bullet.hide();
+				}else if(bullet.isMoving){
+
+					//Столкновение с безобидными объектами
+					let peaceObjects = [
+						...this.planets.map(planet => planet.mesh!),
+						this.sun.mesh!
+					];
+
+					if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
+						bullet.boof();
+					}
+
+					//Столкновение с вражескими кораблями
+					if(bullet.checkCollisionWith(this.ship.group!)){
+						bullet.boom();
+					}
+
+				}
+
+				if(bullet.isVisible && bullet.isMoving) {
+					bullet.animate();
+				}
+
+			});
+
+			//Удаляем ненужные пули
+			enemy.clearBullets();
+
+		});
+
+	}
+
+	protected async addEnemy(){
+
+		let enemy = new EnemyReaper(
+			THREE.MathUtils.randInt(100, 500),
+			THREE.MathUtils.randInt(-this.border.radius, this.border.radius),
+			THREE.MathUtils.randInt(-this.border.radius, this.border.radius)
+		);
+
+		this.enemies.push(enemy);
+
+		await enemy.load();
+
+		enemy.addTo(this.scene);
+
+	}
+
+	protected animateEnemies(){
+
+		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
+
+			//Дистанция до нас
+			let distance = this.ship.group!.position.distanceTo(enemy.group!.position)
+
+			if(distance > 30){
+				//Двигаемся к планете
+				enemy.moveTo(this.planets[0].group!.position);
+				enemy.stopAutoFire();
+			}else if(distance > 20){
+				enemy.moveTo(this.ship.group!.position);
+				enemy.setSpeed(0.05);
+				enemy.startAutoFire();
+			}else if(distance > 10){
+				enemy.moveTo(this.ship.group!.position);
+				enemy.setSpeed(0.02);
+				enemy.startAutoFire();
+			}else{
+				enemy.stop();
+				enemy.rotateTo(this.ship.group!.position);
+				enemy.startAutoFire();
+			}
+
+			enemy.animateAutoFire();
+
+		});
+
+	}
+
 	protected async tick(){
+
+		// console.time('tick');
 
 		//Обновление позиции для движения корабля
 		if (this.shipMovingAllow) {
@@ -260,46 +395,11 @@ export default class Game extends Engine
 		//Анимируем двигатели корабля
 		this.ship.animateEngines();
 
-		//Проверяем столкновение пуль с объектами
-		this.ship.bullets.forEach((bullet : Bullet) => {
+		//Анимируем наши пули
+		this.animateShipBullets();
 
-			if(bullet.length > 200){
-				//Если пуля улетела за 200, то просто удаляем ее
-				bullet.hide();
-			}else if(bullet.isMoving){
-
-				//Столкновение с безобидными объектами
-				let peaceObjects = [
-					...this.planets.map(planet => planet.mesh!),
-					this.sun.mesh!
-				];
-
-				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
-					bullet.boof();
-				}
-
-				//Столкновение с вражескими кораблями
-				this.enemies.some(enemy => {
-
-					if(bullet.checkCollisionWith(enemy.group!)){
-
-						bullet.boom();
-						enemy.hit(bullet.force);
-
-						return true;
-					}
-
-					return false;
-
-				});
-
-			}
-
-			if(bullet.isVisible && bullet.isMoving) {
-				bullet.animate();
-			}
-
-		});
+		//Анимируем вражеские пули
+		this.animateEnemiesBullets();
 
 		//Удаляем ненужные корабли
 		this.enemies = this.enemies.filter(enemy => {
@@ -313,7 +413,19 @@ export default class Game extends Engine
 
 		});
 
-		this.ship.clearBullets();
+
+		//Добавляем врагов
+		if(this.enemies.length < this.enemyMaxCount && Date.now() - this.enemyLastAddedTime > 5000){
+
+			await this.addEnemy();
+
+			this.enemyLastAddedTime = Date.now();
+
+		}
+
+
+		//Анимируем действия врагов
+		this.animateEnemies();
 
 
 		//Анимация пояса астероидов
@@ -321,6 +433,10 @@ export default class Game extends Engine
 
 
 
+	}
+
+	public afterTick(){
+		// console.timeEnd('tick');
 	}
 
 }

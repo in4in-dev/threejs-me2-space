@@ -52,7 +52,7 @@ export class NormandyShip extends WarShip
 	protected async createBody() : Promise<THREE.Mesh>
 	{
 
-		let ship = await new ModelLoader('../../assets/ship/ship.obj', '../../assets/ship/ship.mtl').load();
+		let ship = await new ModelLoader('../../assets/ship/ship.obj', '../../../../assets/ship/ship.mtl').load();
 
 		ship.scale.set(0.15, 0.15, 0.15);
 		ship.rotation.x = 1.5;
