@@ -10,6 +10,7 @@ import {Vector3} from "three";
 import WarShip from "../Components/WarShip.ts";
 import Enemy from "../Components/Enemy.ts";
 import Bullet from "../Components/Bullet.ts";
+import EnemyReaper from "../Components/Enemies/EnemyReaper.ts";
 
 export default class Game extends Engine
 {
@@ -68,7 +69,7 @@ export default class Game extends Engine
 		this.initScene();
 		this.initListeners();
 
-		let enemy = await new Enemy(100, THREE.MathUtils.randInt(-30, 30), THREE.MathUtils.randInt(-30, 30)).load();
+		let enemy = await new EnemyReaper(100, THREE.MathUtils.randInt(-30, 30), THREE.MathUtils.randInt(-30, 30)).load();
 
 		enemy.addTo(this.scene);
 
@@ -166,7 +167,7 @@ export default class Game extends Engine
 	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.mesh!.position.distanceTo(planet.mesh!.position);
+		let distance = this.ship.mesh!.position.distanceTo(planet.group!.position);
 
 		return distance < proximityDistance;
 
@@ -292,23 +293,23 @@ export default class Game extends Engine
 
 				});
 
-				//Удаляем ненужные корабли
-				this.enemies = this.enemies.filter(enemy => {
-
-					if(!enemy.isVisible){
-						this.scene.remove(enemy.group!);
-						return false;
-					}
-
-					return true;
-
-				});
-
 			}
 
 			if(bullet.isVisible && bullet.isMoving) {
 				bullet.animate();
 			}
+
+		});
+
+		//Удаляем ненужные корабли
+		this.enemies = this.enemies.filter(enemy => {
+
+			if(!enemy.isVisible){
+				this.scene.remove(enemy.group!);
+				return false;
+			}
+
+			return true;
 
 		});
 

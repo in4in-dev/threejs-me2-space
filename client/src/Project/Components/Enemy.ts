@@ -1,12 +1,11 @@
 import Component from "../Core/Component.ts";
 import * as THREE from 'three';
-import ModelLoader from "../../Three/ModelLoader.ts";
 import * as TWEEN from '@tweenjs/tween.js';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 
-export default class Enemy extends Component
+export default abstract class Enemy extends Component
 {
 
 	public isVisible : boolean = true;
@@ -18,7 +17,6 @@ export default class Enemy extends Component
 	public startY : number;
 
 	public group : THREE.Group | null = null;
-	public mesh : THREE.Mesh | null = null;
 	public hp : CSS2DObject | null = null;
 
 	constructor(health : number, startX : number = 0, startY : number = 0) {
@@ -32,7 +30,6 @@ export default class Enemy extends Component
 	public async load() : Promise<this>{
 
 		this.group = await this.createGroup();
-		this.mesh = await this.createBody();
 		this.hp = await this.createHp();
 
 		return this;
@@ -41,7 +38,6 @@ export default class Enemy extends Component
 
 	public addTo(scene: THREE.Scene) {
 
-		this.group!.add(this.mesh!);
 		this.group!.add(this.hp);
 
 		scene.add(this.group!);
@@ -81,19 +77,6 @@ export default class Enemy extends Component
 
 	}
 
-	protected async createBody() : Promise<THREE.Mesh>
-	{
-
-		let ship = await new ModelLoader('../../assets/ship/ship.obj', '../../assets/ship/ship.mtl').load();
-
-		ship.scale.set(0.15, 0.15, 0.15);
-
-		ship.rotation.x = 1.5;
-
-		return ship;
-
-	}
-
 	protected createHitLabel(text : string) : CSS2DObject
 	{
 
@@ -111,17 +94,17 @@ export default class Enemy extends Component
 	protected explosion(){
 
 		let props = {
-			rotationZ : this.mesh!.rotation.z,
-			rotationX : this.mesh!.rotation.x,
-			position : this.mesh!.position.z
+			rotationZ : this.group!.rotation.z,
+			rotationX : this.group!.rotation.x,
+			position : this.group!.position.z
 		}
 
 		new TWEEN.Tween(props)
 			.to({ rotationZ : Math.PI / 2, position : - 20, rotationX : Math.PI / 4 }, 5000)
 			.onUpdate(() => {
-				this.mesh!.position.z = props.position;
-				this.mesh!.rotation.z = props.rotationZ;
-				this.mesh!.rotation.x = props.rotationX;
+				this.group!.position.z = props.position;
+				this.group!.rotation.z = props.rotationZ;
+				this.group!.rotation.x = props.rotationX;
 			})
 			.onComplete(() => {
 				this.isVisible = false;

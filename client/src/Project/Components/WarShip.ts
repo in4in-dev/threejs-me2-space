@@ -46,7 +46,7 @@ export default class WarShip extends Ship
 			this.mesh!.position.y - 0.3,
 			to.x,
 			to.y,
-			1
+			THREE.MathUtils.randInt(1, 5)
 		).load();
 
 		let bullet2 = await new Bullet(
@@ -54,7 +54,7 @@ export default class WarShip extends Ship
 			this.mesh!.position.y - 0.3,
 			to.x,
 			to.y,
-			1
+			THREE.MathUtils.randInt(1, 5)
 		).load();
 
 		bullet1.addTo(this.bulletsGroup!);
