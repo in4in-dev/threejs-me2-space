@@ -20,6 +20,8 @@ export default class Planet extends Sphere
 	public label : CSS2DObject | null = null;
 	public rings : THREE.Group | null = null;
 
+	public group : THREE.Group | null = null;
+
 	constructor(
 		radius : number,
 		orbitRadius : number,
@@ -45,6 +47,7 @@ export default class Planet extends Sphere
 
 		await super.load();
 
+		this.group = new THREE.Group();
 		this.orbit = await this.createOrbit();
 		this.label = await this.createLabel();
 		this.moons = await this.createMoons(this.moonsCount);
@@ -61,16 +64,24 @@ export default class Planet extends Sphere
 	public addTo(scene : THREE.Scene) : void
 	{
 
-		this.mesh!.add(this.label);
+		//Добавляем планету в группу
+		this.group!.add(this.mesh!);
 
+		//Добавляем название в группу
+		this.group!.add(this.label);
+
+		//Добавляем кольца в группу
 		if(this.hasRing){
-			this.mesh!.add(this.rings!);
+			this.group!.add(this.rings!);
 		}
 
-		this.moons!.forEach(moon => moon.addTo(this.mesh!));
+		//Добавляем луны в группу
+		this.moons!.forEach(moon => moon.addTo(this.group!));
 
-		scene.add(this.mesh!);
+		//Добавляем группу на сцену
+		scene.add(this.group!);
 
+		//Добавляем орбиту на сцену
 		this.orbit!.addTo(scene);
 
 	}
@@ -92,7 +103,7 @@ export default class Planet extends Sphere
 	protected setPosition()
 	{
 
-		this.mesh!.position.set(
+		this.group!.position.set(
 			this.orbitRadius * Math.cos(this.orbitAngle),
 			this.orbitRadius * Math.sin(this.orbitAngle),
 			0

@@ -30,9 +30,9 @@ export default class Sparks extends Component
 		return this;
 	}
 
-	public addTo(mesh : THREE.Mesh)
+	public addTo(group : THREE.Group)
 	{
-		mesh.add(this.points!);
+		group.add(this.points!);
 	}
 
 	protected generateRandomPositions() : number[]

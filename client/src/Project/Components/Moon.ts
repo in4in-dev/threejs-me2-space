@@ -24,8 +24,8 @@ export default class Moon extends Sphere
 		return this;
 	}
 
-	public addTo(mesh : THREE.Mesh){
-		mesh.add(this.mesh!);
+	public addTo(group : THREE.Group){
+		group.add(this.mesh!);
 	}
 
 	protected setRandomPosition(planetRadius : number)

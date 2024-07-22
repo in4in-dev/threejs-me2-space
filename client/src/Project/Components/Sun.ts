@@ -10,6 +10,8 @@ export default class Sun extends Component
 	public light : THREE.Light | null = null;
 	public sparks : Sparks | null = null;
 
+	public group : THREE.Group | null = null;
+
 	public color : any;
 	public glowColor : any;
 	public intensity : number;
@@ -28,6 +30,8 @@ export default class Sun extends Component
 
 	public async load(): Promise<this>
 	{
+		this.group = new THREE.Group();
+
 		this.mesh = await this.createBody();
 		this.light = await this.createLight();
 		this.glow = await this.createGlow();
@@ -38,11 +42,22 @@ export default class Sun extends Component
 
 	public addTo(scene : THREE.Scene) : void
 	{
-		this.mesh!.add(this.glow!);
-		this.sparks!.addTo(this.mesh!);
 
-		scene.add(this.mesh!);
-		scene.add(this.light!);
+		//Добавляем сияние в группу
+		this.group!.add(this.glow!);
+
+		//Добавляем свет в группу
+		this.group!.add(this.light!);
+
+		//Добавляем сферу в группу
+		this.group!.add(this.mesh!);
+
+		//Добавляем искры в группу
+		this.sparks!.addTo(this.group!);
+
+		//Добавляем группу на сцену
+		scene.add(this.group!);
+
 	}
 
 

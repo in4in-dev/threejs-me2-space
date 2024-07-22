@@ -1,6 +1,5 @@
 import Engine from "./Engine.ts";
 import * as THREE from "three";
-import Ship from "../Components/Ship";
 import Sun from "../Components/Sun";
 import Planet from "../Components/Planet";
 import Background from "../Components/Background.ts";
@@ -8,6 +7,7 @@ import Orbit from "../Components/Orbit.ts";
 import AsteroidBelt from "../Components/AsteroidBelt.ts";
 import Border from "../Components/Border.ts";
 import {Vector3} from "three";
+import WarShip from "../Components/WarShip.ts";
 
 export default class Game extends Engine
 {
@@ -16,11 +16,15 @@ export default class Game extends Engine
 	protected shipMovingActive : boolean = false;
 	protected shipMovingTarget : any = null;
 
+	protected shipFireAllow : boolean = true;
+	protected shipFireActive : boolean = false;
+	protected shipFireLastTime : number = 0;
+
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
 	protected background : Background;
-	protected ship : Ship;
+	protected ship : WarShip;
 	protected sun : Sun;
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
@@ -51,7 +55,7 @@ export default class Game extends Engine
 		document.body.appendChild(fps);
 
 		this.fps = fps;
-		this.ship = new Ship();
+		this.ship = new WarShip();
 
 	}
 
@@ -102,6 +106,25 @@ export default class Game extends Engine
 				this.shipMovingActive = false;
 				this.shipMovingTarget = this.ship.mesh!.position;
 				this.ship.stopEngines();
+			}
+
+		});
+
+		window.addEventListener('keydown', (event) => {
+
+			event.preventDefault();
+
+			if (event.code === 'Space' && this.shipFireAllow) {
+				this.shipFireActive = true;
+				this.shipFireLastTime = 0;
+			}
+
+		});
+
+		window.addEventListener('keyup', (event) => {
+
+			if (event.code === 'Space') {
+				this.shipFireActive = false;
 			}
 
 		});
@@ -186,7 +209,7 @@ export default class Game extends Engine
 
 	}
 
-	protected tick(){
+	protected async tick(){
 
 		this.updateFrameRates();
 		this.updateFps();
@@ -227,6 +250,15 @@ export default class Game extends Engine
 
 		}
 
+		//Стрельба из корабля
+		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 500){
+
+			await this.ship.fire();
+
+			this.shipFireLastTime = Date.now();
+
+		}
+
 		this.planets.forEach((planet : Planet) => {
 
 			planet.orbit!.setActive(
@@ -241,6 +273,14 @@ export default class Game extends Engine
 
 		this.sun.animateSparks();
 		this.ship.animateEngines();
+		this.ship.animateBullets(
+			[
+				...this.planets.map(planet => planet.mesh!)
+			],
+			[
+				this.sun.mesh!
+			]
+		);
 		// this.belt.animateCollision(this.ship.mesh!);
 
 
