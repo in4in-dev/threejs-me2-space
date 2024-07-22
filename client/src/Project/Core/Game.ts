@@ -296,7 +296,7 @@ export default class Game extends Engine
 				this.enemies = this.enemies.filter(enemy => {
 
 					if(!enemy.isVisible){
-						this.scene.remove(enemy.mesh!);
+						this.scene.remove(enemy.group!);
 						return false;
 					}
 
