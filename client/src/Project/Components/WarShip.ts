@@ -39,19 +39,21 @@ export default class WarShip extends Ship
 
 	public async fire(){
 
-		let to = new THREE.Vector3(0, 0, 1).applyQuaternion(this.mesh!.quaternion).multiplyScalar(0.5);
+		console.log('Quaternion:', this.group!.quaternion);
+
+		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.group!.quaternion).multiplyScalar(0.5);
 
 		let bullet1 = await new Bullet(
-			this.mesh!.position.x + 0.3,
-			this.mesh!.position.y - 0.3,
+			this.group!.position.x + 0.3,
+			this.group!.position.y - 0.3,
 			to.x,
 			to.y,
 			THREE.MathUtils.randInt(1, 5)
 		).load();
 
 		let bullet2 = await new Bullet(
-			this.mesh!.position.x - 0.3,
-			this.mesh!.position.y - 0.3,
+			this.group!.position.x - 0.3,
+			this.group!.position.y - 0.3,
 			to.x,
 			to.y,
 			THREE.MathUtils.randInt(1, 5)

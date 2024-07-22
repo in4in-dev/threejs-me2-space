@@ -1,11 +1,11 @@
-import Component from "../Core/Component.ts";
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
+import Ship from "./Ship.ts";
 
-export default abstract class Enemy extends Component
+export default abstract class Enemy extends Ship
 {
 
 	public isVisible : boolean = true;
@@ -13,23 +13,22 @@ export default abstract class Enemy extends Component
 	public health : number;
 	public startHealth : number;
 
-	public startX : number;
-	public startY : number;
-
-	public group : THREE.Group | null = null;
 	public hp : CSS2DObject | null = null;
 
 	constructor(health : number, startX : number = 0, startY : number = 0) {
-		super();
-		this.startY = startY;
-		this.startX = startX;
+
+		super(startX, startY);
+
 		this.health = health;
 		this.startHealth = health;
+
 	}
 
-	public async load() : Promise<this>{
+	public async load() : Promise<this>
+	{
 
-		this.group = await this.createGroup();
+		await super.load();
+
 		this.hp = await this.createHp();
 
 		return this;
@@ -40,24 +39,10 @@ export default abstract class Enemy extends Component
 
 		this.group!.add(this.hp);
 
-		scene.add(this.group!);
+		super.addTo(scene);
 
 	}
 
-	protected async createGroup() : Promise<THREE.Group>
-	{
-
-		let group = new THREE.Group();
-
-		group.position.set(
-			THREE.MathUtils.randInt(1, 40),
-			THREE.MathUtils.randInt(1, 40)
-			, 0
-		);
-
-		return group;
-
-	}
 
 	protected async createHp() : Promise<CSS2DObject>
 	{

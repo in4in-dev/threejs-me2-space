@@ -7,10 +7,10 @@ import Orbit from "../Components/Orbit.ts";
 import AsteroidBelt from "../Components/AsteroidBelt.ts";
 import Border from "../Components/Border.ts";
 import {Vector3} from "three";
-import WarShip from "../Components/WarShip.ts";
 import Enemy from "../Components/Enemy.ts";
 import Bullet from "../Components/Bullet.ts";
 import EnemyReaper from "../Components/Enemies/EnemyReaper.ts";
+import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip.ts";
 
 export default class Game extends Engine
 {
@@ -27,7 +27,7 @@ export default class Game extends Engine
 	protected mousePositionY : number = 0;
 
 	protected background : Background;
-	protected ship : WarShip;
+	protected ship : NormandyShip;
 	protected sun : Sun;
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
@@ -50,7 +50,7 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.ship = new WarShip();
+		this.ship = new NormandyShip();
 
 	}
 
@@ -105,7 +105,7 @@ export default class Game extends Engine
 
 			if(this.shipMovingAllow) {
 				this.shipMovingActive = false;
-				this.shipMovingTarget = this.ship.mesh!.position;
+				this.shipMovingTarget = this.ship.group!.position;
 				this.ship.stopEngines();
 			}
 
@@ -158,7 +158,7 @@ export default class Game extends Engine
 	protected checkProximityToOrbit(orbit : Orbit, proximityDistance : number)  : boolean
 	{
 
-		let distanceToOrbit = this.ship.mesh!.position.distanceTo(new THREE.Vector3(0, 0, 0));
+		let distanceToOrbit = this.ship.group!.position.distanceTo(new THREE.Vector3(0, 0, 0));
 
 		return Math.abs(distanceToOrbit - orbit.radius) < proximityDistance;
 
@@ -167,7 +167,7 @@ export default class Game extends Engine
 	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.mesh!.position.distanceTo(planet.group!.position);
+		let distance = this.ship.group!.position.distanceTo(planet.group!.position);
 
 		return distance < proximityDistance;
 
@@ -176,11 +176,11 @@ export default class Game extends Engine
 	protected moveCameraToShip(){
 
 		// Перемещение камеры за кораблем
-		this.camera.position.x = this.ship.mesh!.position.x;
-		this.camera.position.y = this.ship.mesh!.position.y - 15; // Камера будет находиться ниже корабля
-		this.camera.position.z = this.ship.mesh!.position.z + 10; // Камера будет находиться позади корабля
+		this.camera.position.x = this.ship.group!.position.x;
+		this.camera.position.y = this.ship.group!.position.y - 15; // Камера будет находиться ниже корабля
+		this.camera.position.z = this.ship.group!.position.z + 10; // Камера будет находиться позади корабля
 		this.camera.lookAt(
-			this.ship.mesh!.position.clone().setZ(0)
+			this.ship.group!.position.clone().setZ(0)
 		);
 
 	}
@@ -281,7 +281,7 @@ export default class Game extends Engine
 				//Столкновение с вражескими кораблями
 				this.enemies.some(enemy => {
 
-					if(bullet.checkCollisionWith(enemy.mesh!)){
+					if(bullet.checkCollisionWith(enemy.group!)){
 
 						bullet.boom();
 						enemy.hit(bullet.force);
