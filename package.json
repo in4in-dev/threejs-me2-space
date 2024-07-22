@@ -11,6 +11,6 @@
     "vite": "^5.3.4"
   },
   "scripts": {
-    "start": "npx vite --host"
+    "start": "npx vite --host --port 2222"
   }
 }
