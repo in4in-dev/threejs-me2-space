@@ -7,9 +7,9 @@ import NormandyEngines from "./NormandyEngines";
 export class NormandyShip extends WarShip
 {
 
-	public mesh : THREE.Mesh | null = null;
-	public light : THREE.Light | null = null;
-	public engines : NormandyEngines | null = null;
+	protected mesh : THREE.Mesh | null = null;
+	protected light : THREE.Light | null = null;
+	protected engines : NormandyEngines | null = null;
 
 	public async load() : Promise<this>
 	{
@@ -20,22 +20,12 @@ export class NormandyShip extends WarShip
 		this.engines = await this.createEngines();
 		this.mesh = await this.createBody();
 
+		this.mesh.add(this.engines.l1, this.engines.l2, this.engines.r1, this.engines.r2);
+		this.mesh.add(this.light);
+		this.add(this.mesh);
+
 		return this;
 
-	}
-
-	public addTo(scene : THREE.Scene) : void
-	{
-		this.mesh!.add(this.light!);
-
-		this.engines!.l2.addTo(this.mesh!);
-		this.engines!.l1.addTo(this.mesh!);
-		this.engines!.r2.addTo(this.mesh!);
-		this.engines!.r1.addTo(this.mesh!);
-
-		this.group!.add(this.mesh!);
-
-		super.addTo(scene);
 	}
 
 	protected async createLight() : Promise<THREE.Light>
@@ -69,11 +59,11 @@ export class NormandyShip extends WarShip
 			engineRight1 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5).load(),
 			engineRight2 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 2).load();
 
-		engineRight1.mesh!.position.set(-5, -2 ,-4);
-		engineRight2.mesh!.position.set(-3, -2 ,-4);
+		engineRight1.position.set(-5, -2 ,-4);
+		engineRight2.position.set(-3, -2 ,-4);
 
-		engineLeft1.mesh!.position.set(5, -2, -4);
-		engineLeft2.mesh!.position.set(3, -2, -4);
+		engineLeft1.position.set(5, -2, -4);
+		engineLeft2.position.set(3, -2, -4);
 
 		return {
 			l1 : engineLeft1,

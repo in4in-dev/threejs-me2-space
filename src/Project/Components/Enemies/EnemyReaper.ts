@@ -14,17 +14,9 @@ export default class EnemyReaper extends Enemy
 		await super.load();
 
 		this.mesh = await this.createBody();
+		this.add(this.mesh!);
 
 		return this;
-
-	}
-
-	public addTo(scene : Scene)
-	{
-
-		this.group!.add(this.mesh!);
-
-		super.addTo(scene);
 
 	}
 
@@ -34,7 +26,7 @@ export default class EnemyReaper extends Enemy
 		//Движение до цели
 		if(this.attackTarget){
 
-			let distance = this.group!.position.distanceTo(this.attackTarget!.position);
+			let distance = this.position.distanceTo(this.attackTarget!.position);
 
 			if(distance > 10){
 

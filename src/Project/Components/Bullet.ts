@@ -45,16 +45,11 @@ export default class Bullet extends Component
 		this.mesh = await this.createMesh();
 		this.glow = await this.createGlow();
 
+		this.mesh.add(this.glow);
+
+		this.add(this.mesh);
+
 		return this;
-	}
-
-	public addTo(group : THREE.Group)
-	{
-
-		this.mesh!.add(this.glow!);
-
-		group.add(this.mesh!);
-
 	}
 
 	protected async createGlow() : Promise<THREE.Sprite>
@@ -144,7 +139,7 @@ export default class Bullet extends Component
 	}
 
 
-	public animate(){
+	public async animate(){
 
 		if(this.isMoving) {
 

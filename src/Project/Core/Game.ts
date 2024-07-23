@@ -11,6 +11,7 @@ import Enemy from "../Components/Enemy";
 import Bullet from "../Components/Bullet";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
+import BulletsContainer from "../Components/BulletsContainer";
 
 export default class Game extends Engine
 {
@@ -37,6 +38,9 @@ export default class Game extends Engine
 	protected planets : Planet[] = [];
 	protected enemies : Enemy[] = [];
 
+	protected enemiesBullets : BulletsContainer;
+	protected friendsBullets : BulletsContainer;
+
 	constructor(
 		background : Background,
 		sun : Sun,
@@ -52,7 +56,10 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.ship = new NormandyShip(10, 10, 0.3);
+		this.enemiesBullets = new BulletsContainer;
+		this.friendsBullets = new BulletsContainer;
+
+		this.ship = new NormandyShip(10, 10, 0.3, this.friendsBullets);
 
 	}
 
@@ -101,7 +108,7 @@ export default class Game extends Engine
 
 			if(this.shipMovingAllow) {
 				this.shipMovingActive = false;
-				this.shipMovingTarget = this.ship.group!.position;
+				this.shipMovingTarget = this.ship.position;
 				this.ship.stopEngines();
 			}
 
@@ -130,12 +137,16 @@ export default class Game extends Engine
 
 	protected initScene(){
 
-		this.ship.addTo(this.scene);
-		this.scene.add(this.sun);
-		this.scene.add(this.background);
-		this.scene.add(this.asteroidBelt);
-		this.scene.add(this.border);
-		this.scene.add(...this.planets);
+		this.scene.add(
+			this.ship,
+			this.sun,
+			this.background,
+			this.asteroidBelt,
+			this.border,
+			this.friendsBullets,
+			this.enemiesBullets,
+			...this.planets
+		)
 
 		this.moveCameraToShip();
 
@@ -153,7 +164,7 @@ export default class Game extends Engine
 	protected checkProximityToOrbit(orbit : Orbit, proximityDistance : number)  : boolean
 	{
 
-		let distanceToOrbit = this.ship.group!.position.distanceTo(new THREE.Vector3(0, 0, 0));
+		let distanceToOrbit = this.ship.position.distanceTo(new THREE.Vector3(0, 0, 0));
 
 		return Math.abs(distanceToOrbit - orbit.radius) < proximityDistance;
 
@@ -162,7 +173,7 @@ export default class Game extends Engine
 	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.group!.position.distanceTo(planet.getPlanetGroup()!.position);
+		let distance = this.ship.position.distanceTo(planet.getPlanetGroup()!.position);
 
 		return distance < proximityDistance;
 
@@ -171,11 +182,11 @@ export default class Game extends Engine
 	protected moveCameraToShip(){
 
 		// Перемещение камеры за кораблем
-		this.camera.position.x = this.ship.group!.position.x;
-		this.camera.position.y = this.ship.group!.position.y - 15; // Камера будет находиться ниже корабля
-		this.camera.position.z = this.ship.group!.position.z + 10; // Камера будет находиться позади корабля
+		this.camera.position.x = this.ship.position.x;
+		this.camera.position.y = this.ship.position.y - 15; // Камера будет находиться ниже корабля
+		this.camera.position.z = this.ship.position.z + 10; // Камера будет находиться позади корабля
 		this.camera.lookAt(
-			this.ship.group!.position.clone().setZ(0)
+			this.ship.position.clone().setZ(0)
 		);
 
 	}
@@ -232,7 +243,7 @@ export default class Game extends Engine
 				//Столкновение с вражескими кораблями
 				this.enemies.some(enemy => {
 
-					if(bullet.checkCollisionWith(enemy.group!)){
+					if(bullet.checkCollisionWith(enemy)){
 
 						bullet.boom();
 						enemy.hit(bullet.force);
@@ -280,7 +291,7 @@ export default class Game extends Engine
 					}
 
 					//Столкновение с вражескими кораблями
-					if(bullet.checkCollisionWith(this.ship.group!)){
+					if(bullet.checkCollisionWith(this.ship!)){
 						bullet.boom();
 					}
 
@@ -304,14 +315,15 @@ export default class Game extends Engine
 		let enemy = new EnemyReaper(
 			THREE.MathUtils.randInt(100, 500),
 			THREE.MathUtils.randInt(-this.border.radius, this.border.radius),
-			THREE.MathUtils.randInt(-this.border.radius, this.border.radius)
+			THREE.MathUtils.randInt(-this.border.radius, this.border.radius),
+			this.enemiesBullets
 		);
 
 		this.enemies.push(enemy);
 
 		await enemy.load();
 
-		enemy.addTo(this.scene);
+		this.scene.add(enemy);
 
 	}
 
@@ -320,20 +332,20 @@ export default class Game extends Engine
 		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
 
 			//Дистанция до нас
-			let distance = this.ship.group!.position.distanceTo(enemy.group!.position);
+			let distance = this.ship.position.distanceTo(enemy.position);
 
 			if(distance > 30){
 
 				//Ближайшая планета
 				let planet = this.planets.reduce((p, t) => {
-					return p.getPlanetMesh()!.position.distanceTo(enemy.group!.position) > t.getPlanetMesh()!.position.distanceTo(enemy.group!.position) ? t : p;
+					return p.getPlanetMesh()!.position.distanceTo(enemy.position) > t.getPlanetMesh()!.position.distanceTo(enemy.position) ? t : p;
 				});
 
 				enemy.setAttackTarget(planet.getPlanetMesh()!);
 				enemy.stopAutoFire();
 
 			}else{
-				enemy.setAttackTarget(this.ship.group!);
+				enemy.setAttackTarget(this.ship);
 				enemy.startAutoFire();
 			}
 
@@ -403,7 +415,7 @@ export default class Game extends Engine
 		this.enemies = this.enemies.filter(enemy => {
 
 			if(!enemy.isVisible){
-				this.scene.remove(enemy.group!);
+				this.scene.remove(enemy);
 				return false;
 			}
 

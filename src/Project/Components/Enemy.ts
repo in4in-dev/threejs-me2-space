@@ -5,29 +5,29 @@ import * as TWEEN from '@tweenjs/tween.js';
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
 import {Object3D} from "three";
+import BulletsContainer from "./BulletsContainer";
 
 export default abstract class Enemy extends WarShip
 {
 
+	public health : number;
 	public isVisible : boolean = true;
 
-	public autoFireActive : boolean = false;
-	public autoFireInterval : number = 1000;
-	public autoFireLastTime : number = 0;
+	protected autoFireActive : boolean = false;
+	protected autoFireInterval : number = 1000;
+	protected autoFireLastTime : number = 0;
+	protected startHealth : number;
 
-	public health : number;
-	public startHealth : number;
-
-	public hp : CSS2DObject | null = null;
+	protected hp : CSS2DObject | null = null;
 
 	protected bulletColor = 'red';
 	protected bulletGlowColor = 'red';
 
-	public attackTarget : Object3D | null = null;
+	protected attackTarget : Object3D | null = null;
 
-	constructor(health : number, startX : number = 0, startY : number = 0) {
+	constructor(health : number, startX : number = 0, startY : number = 0, bulletsContainer : BulletsContainer) {
 
-		super(startX, startY, 0.05);
+		super(startX, startY, 0.05, bulletsContainer);
 
 		this.health = health;
 		this.startHealth = health;
@@ -40,19 +40,11 @@ export default abstract class Enemy extends WarShip
 		await super.load();
 
 		this.hp = await this.createHp();
+		this.add(this.hp);
 
 		return this;
 
 	}
-
-	public addTo(scene: THREE.Scene) {
-
-		this.group!.add(this.hp);
-
-		super.addTo(scene);
-
-	}
-
 
 	protected async createHp() : Promise<CSS2DObject>
 	{
@@ -89,17 +81,17 @@ export default abstract class Enemy extends WarShip
 	protected explosion(){
 
 		let props = {
-			rotationZ : this.group!.rotation.z,
-			rotationX : this.group!.rotation.x,
-			position : this.group!.position.z
+			rotationZ : this.rotation.z,
+			rotationX : this.rotation.x,
+			position : this.position.z
 		}
 
 		new TWEEN.Tween(props)
 			.to({ rotationZ : Math.PI / 2, position : - 20, rotationX : Math.PI / 4 }, 5000)
 			.onUpdate(() => {
-				this.group!.position.z = props.position;
-				this.group!.rotation.z = props.rotationZ;
-				this.group!.rotation.x = props.rotationX;
+				this.position.z = props.position;
+				this.rotation.z = props.rotationZ;
+				this.rotation.x = props.rotationX;
 			})
 			.onComplete(() => {
 				this.isVisible = false;
@@ -149,9 +141,9 @@ export default abstract class Enemy extends WarShip
 			label.position.x = THREE.MathUtils.randFloat(-1.25, 1.25);
 			label.position.y = THREE.MathUtils.randFloat(-1.25, 1.25);
 
-			this.group!.add(label);
+			this.add(label);
 
-			setTimeout(() => this.group!.remove(label), 500);
+			setTimeout(() => this.remove(label), 500);
 
 
 			//Обновляем здоровье
@@ -164,7 +156,7 @@ export default abstract class Enemy extends WarShip
 
 		}else{
 
-			this.group!.remove(this.hp);
+			this.remove(this.hp);
 
 			this.stop();
 			this.explosion();
