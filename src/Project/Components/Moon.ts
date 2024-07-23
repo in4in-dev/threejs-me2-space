@@ -1,12 +1,12 @@
+import Sphere from "./Sphere";
 import * as THREE from 'three';
-// @ts-ignore
-import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import Sphere from "./Sphere.ts";
 
 export default class Moon extends Sphere
 {
 
 	public planetRadius : number;
+
+	protected mesh : THREE.Mesh | null = null;
 
 	constructor(planetRadius : number, radius : number, texture : string) {
 		super(radius, texture);
@@ -17,15 +17,13 @@ export default class Moon extends Sphere
 	public async load() : Promise<this>
 	{
 
-		await super.load();
+		this.mesh = await this.createBody();
+		this.add(this.mesh);
 
 		this.setRandomPosition(this.planetRadius);
 
 		return this;
-	}
 
-	public addTo(group : THREE.Group){
-		group.add(this.mesh!);
 	}
 
 	protected setRandomPosition(planetRadius : number)

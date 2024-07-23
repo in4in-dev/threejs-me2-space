@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 
-export default abstract class Component
+export default abstract class Component extends THREE.Group
 {
 
 	public abstract load() : Promise<this>;
 
-	public abstract addTo(element : THREE.Object3D) : void;
+	public async animate(): Promise<void>
+	{
+
+	}
 
 }

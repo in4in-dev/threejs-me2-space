@@ -1,16 +1,16 @@
-import Engine from "./Engine.ts";
+import Engine from "./Engine";
 import * as THREE from "three";
 import Sun from "../Components/Sun";
 import Planet from "../Components/Planet";
-import Background from "../Components/Background.ts";
-import Orbit from "../Components/Orbit.ts";
-import AsteroidBelt from "../Components/AsteroidBelt.ts";
-import Border from "../Components/Border.ts";
+import Background from "../Components/Background";
+import Orbit from "../Components/Orbit";
+import AsteroidBelt from "../Components/AsteroidBelt";
+import Border from "../Components/Border";
 import {Vector3} from "three";
-import Enemy from "../Components/Enemy.ts";
-import Bullet from "../Components/Bullet.ts";
-import EnemyReaper from "../Components/Enemies/EnemyReaper.ts";
-import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip.ts";
+import Enemy from "../Components/Enemy";
+import Bullet from "../Components/Bullet";
+import EnemyReaper from "../Components/Enemies/EnemyReaper";
+import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
 
 export default class Game extends Engine
 {
@@ -131,12 +131,11 @@ export default class Game extends Engine
 	protected initScene(){
 
 		this.ship.addTo(this.scene);
-		this.sun.addTo(this.scene);
-		this.background.addTo(this.scene);
-		this.asteroidBelt.addTo(this.scene);
-		this.border.addTo(this.scene);
-
-		this.planets.forEach(planet => planet.addTo(this.scene));
+		this.scene.add(this.sun);
+		this.scene.add(this.background);
+		this.scene.add(this.asteroidBelt);
+		this.scene.add(this.border);
+		this.scene.add(...this.planets);
 
 		this.moveCameraToShip();
 
@@ -163,7 +162,7 @@ export default class Game extends Engine
 	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.group!.position.distanceTo(planet.group!.position);
+		let distance = this.ship.group!.position.distanceTo(planet.getPlanetGroup()!.position);
 
 		return distance < proximityDistance;
 
@@ -184,9 +183,10 @@ export default class Game extends Engine
 	protected updateShipMovingTarget(){
 
 		// Обновление координат мыши
-		let mouse = new THREE.Vector2();
-		mouse.x = (this.mousePositionX / window.innerWidth) * 2 - 1;
-		mouse.y = -(this.mousePositionY / window.innerHeight) * 2 + 1;
+		let mouse = new THREE.Vector2(
+			(this.mousePositionX / window.innerWidth) * 2 - 1,
+			-(this.mousePositionY / window.innerHeight) * 2 + 1
+		);
 
 		// Обновление raycaster и нахождение пересечения с плоскостью
 		let raycaster = new THREE.Raycaster();
@@ -197,11 +197,12 @@ export default class Game extends Engine
 		let intersection = new THREE.Vector3(0, 0, 0);
 		raycaster.ray.intersectPlane(plane, intersection);
 
-		let center = new Vector3(0, 0, 0)
-		let distance = intersection.distanceTo(center);
+		let distance = intersection.distanceTo(
+			new Vector3(0, 0, 0)
+		);
 
 		if (distance > this.border.radius) {
-			intersection.sub(center).normalize().multiplyScalar(this.border.radius).add(center);
+			intersection.normalize().multiplyScalar(this.border.radius);
 		}
 
 		this.shipMovingTarget = intersection;
@@ -220,8 +221,8 @@ export default class Game extends Engine
 
 				//Столкновение с безобидными объектами
 				let peaceObjects = [
-					...this.planets.map(planet => planet.mesh!),
-					this.sun.mesh!
+					...this.planets.map(planet => planet.getPlanetMesh()!),
+					this.sun.getSunMesh()!
 				];
 
 				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
@@ -270,8 +271,8 @@ export default class Game extends Engine
 
 					//Столкновение с безобидными объектами
 					let peaceObjects = [
-						...this.planets.map(planet => planet.mesh!),
-						this.sun.mesh!
+						...this.planets.map(planet => planet.getPlanetMesh()!),
+						this.sun.getSunMesh()!
 					];
 
 					if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
@@ -322,30 +323,21 @@ export default class Game extends Engine
 			let distance = this.ship.group!.position.distanceTo(enemy.group!.position);
 
 			if(distance > 30){
-				enemy.moveTo(this.planets[0].group!.position);
+
+				//Ближайшая планета
+				let planet = this.planets.reduce((p, t) => {
+					return p.getPlanetMesh()!.position.distanceTo(enemy.group!.position) > t.getPlanetMesh()!.position.distanceTo(enemy.group!.position) ? t : p;
+				});
+
+				enemy.setAttackTarget(planet.getPlanetMesh()!);
 				enemy.stopAutoFire();
+
 			}else{
-
+				enemy.setAttackTarget(this.ship.group!);
 				enemy.startAutoFire();
-
-				if(distance > 10){
-
-					enemy.moveTo(this.ship.group!.position);
-
-					if(distance > 20){
-						enemy.setSpeed(0.05);
-					}else{
-						enemy.setSpeed(0.02);
-					}
-
-				}else{
-					enemy.stop();
-					enemy.rotateTo(this.ship.group!.position);
-				}
-
 			}
 
-			enemy.animateAutoFire();
+			enemy.animate();
 
 		});
 
@@ -390,7 +382,7 @@ export default class Game extends Engine
 			);
 
 			planet.setActive(
-				this.checkProximityToPlanet(planet, 1.2)
+				this.checkProximityToPlanet(planet, 1.5)
 			);
 
 		});

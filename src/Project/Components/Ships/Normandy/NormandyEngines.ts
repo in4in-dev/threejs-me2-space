@@ -1,4 +1,4 @@
-import NormandyEngine from "./NormandyEngine.ts";
+import NormandyEngine from "./NormandyEngine";
 
 export default interface NormandyEngines
 {

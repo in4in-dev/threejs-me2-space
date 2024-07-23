@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
+import Random from "../../Three/Random";
 
 export default class Sparks extends Component
 {
-
-	public points : THREE.Points | null = null;
 
 	public color : any;
 	public minRadius : number;
 	public maxRadius : number;
 
+	protected points : THREE.Points | null = null;
 	protected positions : number[];
 
 	constructor(radius : number, color : any) {
@@ -27,12 +27,9 @@ export default class Sparks extends Component
 	{
 		this.points = await this.createPoints();
 
-		return this;
-	}
+		this.add(this.points);
 
-	public addTo(group : THREE.Group)
-	{
-		group.add(this.points!);
+		return this;
 	}
 
 	protected generateRandomPositions() : number[]
@@ -45,9 +42,9 @@ export default class Sparks extends Component
 			let phi = Math.acos(2 * Math.random() - 1);
 			let theta = 2 * Math.PI * Math.random();
 
-			let x = THREE.MathUtils.randFloat(this.minRadius, this.maxRadius) * Math.sin(phi) * Math.cos(theta);
-			let y = THREE.MathUtils.randFloat(this.minRadius, this.maxRadius) * Math.sin(phi) * Math.sin(theta);
-			let z = THREE.MathUtils.randFloat(this.minRadius, this.maxRadius) * Math.cos(phi);
+			let x = Random.float(this.minRadius, this.maxRadius) * Math.sin(phi) * Math.cos(theta);
+			let y = Random.float(this.minRadius, this.maxRadius) * Math.sin(phi) * Math.sin(theta);
+			let z = Random.float(this.minRadius, this.maxRadius) * Math.cos(phi);
 
 			positions.push(x, y, z);
 
@@ -62,10 +59,10 @@ export default class Sparks extends Component
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
-		const particleGeometry = new THREE.BufferGeometry();
+		let particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		const material = new THREE.PointsMaterial({
+		let material = new THREE.PointsMaterial({
 			map: particleTexture,
 			size: 0.5,
 			blending: THREE.AdditiveBlending,
@@ -78,7 +75,7 @@ export default class Sparks extends Component
 
 	}
 
-	public animate(){
+	public async animate(){
 
 		for(let i = 0; i< this.positions.length;i+=3){
 
@@ -86,9 +83,9 @@ export default class Sparks extends Component
 				y = this.positions[i + 1],
 				z = this.positions[i + 2];
 
-			x += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
-			y += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
-			z += (THREE.MathUtils.randInt(0, 2) - 1) * THREE.MathUtils.randFloat(0.005, 0.02);
+			x += (Random.int(0, 2) - 1) * Random.float(0.005, 0.02);
+			y += (Random.int(0, 2) - 1) * Random.float(0.005, 0.02);
+			z += (Random.int(0, 2) - 1) * Random.float(0.005, 0.02);
 
 			let distance = Math.sqrt(x * x + y * y + z * z),
 				maximum = this.maxRadius * 1.1,
@@ -106,7 +103,7 @@ export default class Sparks extends Component
 
 		}
 
-		const particleGeometry = new THREE.BufferGeometry();
+		let particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
 		this.points!.geometry.copy(particleGeometry);

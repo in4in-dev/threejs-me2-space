@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 // @ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import Orbit from "./Orbit.ts";
-import Sphere from "./Sphere.ts";
-import Moon from "./Moon.ts";
+import Orbit from "./Orbit";
+import Sphere from "./Sphere";
+import Moon from "./Moon";
+import Random from "../../Three/Random";
 
 export default class Planet extends Sphere
 {
@@ -17,10 +18,11 @@ export default class Planet extends Sphere
 
 	public orbit : Orbit | null = null;
 	public moons : Moon[] | null = null;
-	public label : CSS2DObject | null = null;
-	public rings : THREE.Group | null = null;
 
-	public group : THREE.Group | null = null;
+	protected label : CSS2DObject | null = null;
+	protected mesh : THREE.Mesh | null = null;
+	protected rings : THREE.Group | null = null;
+	protected group : THREE.Group | null = null;
 
 	constructor(
 		radius : number,
@@ -45,46 +47,32 @@ export default class Planet extends Sphere
 	public async load() : Promise<this>
 	{
 
-		await super.load();
+		this.group = await this.createGroup();
+		this.add(this.group);
 
-		this.group = new THREE.Group();
 		this.orbit = await this.createOrbit();
+		this.add(this.orbit);
+
+		this.mesh = await this.createBody();
+		this.group.add(this.mesh);
+
 		this.label = await this.createLabel();
+		this.group.add(this.label);
+
 		this.moons = await this.createMoons(this.moonsCount);
+
+		if(this.moons.length){
+			this.group.add(...this.moons);
+		}
 
 		if(this.hasRing){
 			this.rings = await this.createRings();
+			this.group.add(this.rings);
 		}
-
-		this.setPosition();
 
 		return this;
 	}
 
-	public addTo(scene : THREE.Scene) : void
-	{
-
-		//Добавляем планету в группу
-		this.group!.add(this.mesh!);
-
-		//Добавляем название в группу
-		this.group!.add(this.label);
-
-		//Добавляем кольца в группу
-		if(this.hasRing){
-			this.group!.add(this.rings!);
-		}
-
-		//Добавляем луны в группу
-		this.moons!.forEach(moon => moon.addTo(this.group!));
-
-		//Добавляем группу на сцену
-		scene.add(this.group!);
-
-		//Добавляем орбиту на сцену
-		this.orbit!.addTo(scene);
-
-	}
 
 	public setActive(active : boolean)
 	{
@@ -99,15 +87,28 @@ export default class Planet extends Sphere
 
 	}
 
+	public getPlanetMesh() : THREE.Mesh | null
+	{
+		return this.mesh;
+	}
 
-	protected setPosition()
+	public getPlanetGroup() : THREE.Group | null
+	{
+		return this.group;
+	}
+
+	protected async createGroup() : Promise<THREE.Group>
 	{
 
-		this.group!.position.set(
+		let group = new THREE.Group();
+
+		group.position.set(
 			this.orbitRadius * Math.cos(this.orbitAngle),
 			this.orbitRadius * Math.sin(this.orbitAngle),
 			0
 		);
+
+		return group;
 
 	}
 
@@ -116,15 +117,15 @@ export default class Planet extends Sphere
 		return await new Orbit(this.orbitRadius).load();
 	}
 
-	protected generateRing(minRadius : number, maxRadius : number, color : any) : THREE.Mesh
+	protected createRing(minRadius : number, maxRadius : number, color : any) : THREE.Mesh
 	{
 
-		let radius = THREE.MathUtils.randFloat(minRadius, maxRadius),
-			thickness = THREE.MathUtils.randFloat(0.1, 2);
+		let radius = Random.float(minRadius, maxRadius),
+			thickness = Random.float(0.1, 2);
 
 		// Создание колец
-		const ringGeometry = new THREE.RingGeometry(radius + thickness, radius, 32);
-		const ringMaterial = new THREE.MeshBasicMaterial({
+		let ringGeometry = new THREE.RingGeometry(radius + thickness, radius, 32);
+		let ringMaterial = new THREE.MeshBasicMaterial({
 			color: color,
 			side: THREE.DoubleSide,
 			transparent: true,
@@ -133,7 +134,7 @@ export default class Planet extends Sphere
 
 		let mesh = new THREE.Mesh(ringGeometry, ringMaterial);
 
-		mesh.position.z = THREE.MathUtils.randFloat(-0.1, 0.1);
+		mesh.position.z = Random.float(-0.1, 0.1);
 
 		return mesh;
 
@@ -144,14 +145,14 @@ export default class Planet extends Sphere
 
 		let group = new THREE.Group();
 
-		let maxRadius = this.radius + THREE.MathUtils.randFloat(0.5, 2);
+		let maxRadius = this.radius + Random.float(0.5, 2);
 
 		group.add(
-			this.generateRing(this.radius + 0.5, maxRadius, '#f6f6f6'),
-			this.generateRing(this.radius + 0.5, maxRadius, '#5e5555'),
-			this.generateRing(this.radius + 0.5, maxRadius, '#070707'),
-			this.generateRing(this.radius + 0.5, maxRadius, '#44401f'),
-			this.generateRing(this.radius + 0.5, maxRadius, '#efea8f')
+			this.createRing(this.radius + 0.5, maxRadius, '#f6f6f6'),
+			this.createRing(this.radius + 0.5, maxRadius, '#5e5555'),
+			this.createRing(this.radius + 0.5, maxRadius, '#070707'),
+			this.createRing(this.radius + 0.5, maxRadius, '#44401f'),
+			this.createRing(this.radius + 0.5, maxRadius, '#efea8f')
 		);
 
 		return group;
@@ -162,17 +163,26 @@ export default class Planet extends Sphere
 	{
 
 		//Moons
-		let moonTextures = ["../../assets/planets/1.png", "../../assets/planets/2.png", "../../assets/planets/3.png", "../../assets/planets/4.png", "../../assets/planets/5.png", "../../assets/planets/6.png", "../../assets/planets/7.png", "../../assets/planets/8.png"];
+		let moonTextures = [
+			"../../assets/planets/1.png",
+			"../../assets/planets/2.png",
+			"../../assets/planets/3.png",
+			"../../assets/planets/4.png",
+			"../../assets/planets/5.png",
+			"../../assets/planets/6.png",
+			"../../assets/planets/7.png",
+			"../../assets/planets/8.png"
+		];
 
 		let moons = [];
 		for(let i = 0; i < moonsCount; i++){
 
-			let moonRadius = THREE.MathUtils.randFloat(this.radius * 0.1, this.radius * 0.2);
+			let moonRadius = Random.float(this.radius * 0.1, this.radius * 0.2);
 
 			let moon = new Moon(
 				this.radius,
 				moonRadius,
-				moonTextures[THREE.MathUtils.randInt(0, moonTextures.length - 1)],
+				Random.arr(moonTextures),
 			);
 
 			await moon.load();

@@ -1,12 +1,14 @@
 import * as THREE from 'three';
-import MeshBasicTextureMaterial from "../../Three/MeshBasicTextureMaterial.ts";
-import Component from "../Core/Component.ts";
+import MeshBasicTextureMaterial from "../../Three/MeshBasicTextureMaterial";
+import Component from "../Core/Component";
+import Random from "../../Three/Random";
 
 export default class Background extends Component
 {
-	public mesh : THREE.Mesh | null = null;
-	public points : THREE.Points  | null = null;
-	public sprites : THREE.Sprite[] | null = null;
+
+	protected mesh : THREE.Mesh | null = null;
+	protected points : THREE.Points  | null = null;
+	protected sprites : THREE.Sprite[] | null = null;
 
 	public picture : string;
 	public opacity : number;
@@ -24,53 +26,32 @@ export default class Background extends Component
 		this.points = await this.createPoints();
 		this.sprites = await this.createSprites();
 
+		this.add(this.mesh);
+		this.add(this.points);
+		this.add(...this.sprites);
+
 		return this;
 
 	}
 
-	public addTo(scene : THREE.Scene) : void
-	{
-		scene.add(this.mesh!);
-		scene.add(this.points!);
-
-		this.sprites!.forEach(sprite => scene.add(sprite));
-	}
-
-	protected generateSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
+	protected createSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
 	{
 
-		const smokeTexture = new THREE.TextureLoader().load(path);
+		let smokeTexture = new THREE.TextureLoader().load(path);
 
-		let options : any = {
+		let smokeMaterial = new THREE.SpriteMaterial({
 			map: smokeTexture,
 			transparent: true,
-		};
+			blending : THREE.AdditiveBlending,
+			depthWrite:false,
+			opacity,
+			color
+		});
 
-		if(color){
-			options = {
-				blending : THREE.AdditiveBlending,
-				depthWrite:false,
-				opacity,
-				color,
-				...options
-			}
-		}
+		let smokeSprite = new THREE.Sprite(smokeMaterial);
 
-		const smokeMaterial = new THREE.SpriteMaterial(options);
-
-		const smokeSprite = new THREE.Sprite(smokeMaterial);
-
-		smokeSprite.position.set(
-			THREE.MathUtils.randInt(-30, 30),
-			THREE.MathUtils.randInt(-30, 30),
-			-1
-		);
-
-		smokeSprite.scale.set(
-			THREE.MathUtils.randInt(20, 100),
-			THREE.MathUtils.randInt(10, 40),
-			20
-		);
+		smokeSprite.position.set(Random.int(-30, 30), Random.int(-30, 30), -1);
+		smokeSprite.scale.set(Random.int(20, 100), Random.int(10, 40), 20);
 
 		return smokeSprite;
 
@@ -80,10 +61,9 @@ export default class Background extends Component
 	{
 
 		return [
-			this.generateSmoke('../../assets/smokes/1.png', '#d98911', 0.8),
-			this.generateSmoke('../../assets/smokes/1.png', '#887272', 0.8),
-			this.generateSmoke('../../assets/smokes/3.png', 'white', 0.2),
-			// this.generateSmoke('../../smokes/2.png'),
+			this.createSmoke('../../assets/smokes/1.png', '#d98911', 0.8),
+			this.createSmoke('../../assets/smokes/1.png', '#887272', 0.8),
+			this.createSmoke('../../assets/smokes/3.png', 'white', 0.2)
 		]
 
 	}
@@ -98,9 +78,9 @@ export default class Background extends Component
 			let phi = Math.acos(2 * Math.random() - 1);
 			let theta = 2 * Math.PI * Math.random();
 
-			let x = THREE.MathUtils.randInt(0, 100) * Math.sin(phi) * Math.cos(theta);
-			let y = THREE.MathUtils.randInt(0, 100) * Math.sin(phi) * Math.sin(theta);
-			let z = THREE.MathUtils.randInt(0, 100) * Math.cos(phi);
+			let x = Random.int(0, 100) * Math.sin(phi) * Math.cos(theta);
+			let y = Random.int(0, 100) * Math.sin(phi) * Math.sin(theta);
+			let z = Random.int(0, 100) * Math.abs(Math.cos(phi));
 
 			positions.push(x, y, z);
 
@@ -108,10 +88,10 @@ export default class Background extends Component
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
-		const particleGeometry = new THREE.BufferGeometry();
+		let particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
-		const material = new THREE.PointsMaterial({
+		let material = new THREE.PointsMaterial({
 			map: particleTexture,
 			size: 0.1,
 			blending: THREE.AdditiveBlending,

@@ -1,7 +1,7 @@
-import Enemy from "../Enemy.ts";
+import Enemy from "../Enemy";
 import * as THREE from 'three';
 import {Scene} from "three";
-import ModelLoader from "../../../Three/ModelLoader.ts";
+import ModelLoader from "../../../Three/ModelLoader";
 
 export default class EnemyReaper extends Enemy
 {
@@ -28,12 +28,45 @@ export default class EnemyReaper extends Enemy
 
 	}
 
+	public async animate(): Promise<void>
+	{
+
+		//Движение до цели
+		if(this.attackTarget){
+
+			let distance = this.group!.position.distanceTo(this.attackTarget!.position);
+
+			if(distance > 10){
+
+				this.moveTo(this.attackTarget!.position);
+
+				if(distance > 20){
+					this.setSpeed(0.05);
+				}else{
+					this.setSpeed(0.02);
+				}
+
+			}else{
+				this.stop();
+				this.rotateTo(this.attackTarget!.position);
+			}
+
+
+		}
+
+		//Автоматический огонь
+		await super.animate();
+
+	}
+
 	protected async createBody() : Promise<THREE.Group>
 	{
 
 		let group = new THREE.Group;
 
 		let ship = await new ModelLoader('../../assets/reaper/reaper.obj', '../../assets/reaper/reaper.mtl').load();
+
+		ship.children[0].material.color.set('black');
 
 		ship.scale.set(0.05, 0.05, 0.05);
 

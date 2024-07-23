@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import Sun from "../../Components/Sun";
 import Planet from "../../Components/Planet";
-import Background from "../../Components/Background.ts";
-import AsteroidBelt from "../../Components/AsteroidBelt.ts";
-import Border from "../../Components/Border.ts";
-import Game from "../Game.ts";
+import Background from "../../Components/Background";
+import AsteroidBelt from "../../Components/AsteroidBelt";
+import Border from "../../Components/Border";
+import Game from "../Game";
 
 export default class SinglePlayerGame extends Game
 {

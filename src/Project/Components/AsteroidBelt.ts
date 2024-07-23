@@ -1,16 +1,25 @@
 import * as THREE from 'three';
-import Asteroid from "./Asteroid.ts";
-import Component from "../Core/Component.ts";
-import Belt from "./Belt.ts";
+import Asteroid from "./Asteroid";
+import Component from "../Core/Component";
+import Belt from "./Belt";
+import Random from "../../Three/Random";
 
 export default class AsteroidBelt extends Component
 {
 
 	public radius : number;
 
-	public mesh : THREE.Group | null = null;
+	/**
+	 * Астероиды
+	 */
 	public asteroids : Asteroid[] | null = null;
+
+	/**
+	 * Искринки
+	 */
 	public belt : Belt | null = null;
+
+
 
 	constructor(radius : number) {
 		super();
@@ -21,38 +30,16 @@ export default class AsteroidBelt extends Component
 	{
 
 		this.belt = await this.createBelt();
-		this.mesh = await this.createBody();
 		this.asteroids = await this.createAsteroids();
+
+		this.add(this.belt);
+		this.add(...this.asteroids);
 
 		return this;
 
 	}
 
-	public addTo(scene : THREE.Scene)
-	{
-
-		this.belt!.addTo(this.mesh!);
-		this.asteroids!.forEach(asteroid => asteroid.addTo(this.mesh!));
-
-		scene.add(this.mesh!)
-	}
-
-	protected setRandomAsteroidPosition(asteroid : Asteroid) : Asteroid
-	{
-
-		let angle = Math.random() * 2 * Math.PI;
-
-		asteroid.mesh!.position.set(
-			THREE.MathUtils.randInt(this.radius - 1, this.radius + 1) * Math.cos(angle),
-			THREE.MathUtils.randInt(this.radius - 1, this.radius + 1) * Math.sin(angle),
-			THREE.MathUtils.randInt(-1, 1)
-		);
-
-		return asteroid;
-
-	}
-
-	protected generateAsteroid() : Asteroid
+	protected async createAsteroid() : Promise<Asteroid>
 	{
 
 		let templates = [
@@ -60,22 +47,33 @@ export default class AsteroidBelt extends Component
 			{t : '../../assets/asteroids/simple2.obj', m : '../../assets/asteroids/simple2.mtl'},
 		];
 
-		let template = templates[THREE.MathUtils.randInt(0, templates.length - 1)];
+		let template = Random.arr(templates);
 
-		return new Asteroid(template.t, template.m);
+		let asteroid = await new Asteroid(template.t, template.m).load();
+
+		//Случайная позиция в поясе
+		let angle = Math.random() * 2 * Math.PI;
+
+		asteroid.position.set(
+			Random.int(this.radius - 1, this.radius + 1) * Math.cos(angle),
+			Random.int(this.radius - 1, this.radius + 1) * Math.sin(angle),
+			Random.int(-1, 1)
+		);
+
+		return asteroid;
 
 	}
+
 
 	protected async createAsteroids() : Promise<Asteroid[]>
 	{
 
 		let asteroids = [];
+
 		for(let i = 0; i < this.radius * 50; i++){
 
-			let asteroid = await this.generateAsteroid().load();
-
 			asteroids.push(
-				this.setRandomAsteroidPosition(asteroid)
+				await this.createAsteroid()
 			);
 
 		}
@@ -84,16 +82,10 @@ export default class AsteroidBelt extends Component
 
 	}
 
-	protected async createBody() : Promise<THREE.Group>{
-
-		return new THREE.Group();
-
-	}
-
 	protected async createBelt() : Promise<Belt>
 	{
 
-		let thickness = THREE.MathUtils.randFloat(0.4, 3);
+		let thickness = Random.float(0.4, 3);
 
 		return await new Belt(this.radius, thickness).load();
 

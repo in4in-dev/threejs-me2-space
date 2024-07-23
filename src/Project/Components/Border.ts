@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {Curve, Vector3} from "three";
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
 
 export default class Border extends Component
 {
@@ -9,7 +9,7 @@ export default class Border extends Component
 	public color : any;
 	public thickness : number;
 
-	public mesh : THREE.Mesh | null = null;
+	protected mesh : THREE.Mesh | null = null;
 
 	constructor(radius : number, color : any = 0x2c63ab, thickness : number = 0.05) {
 
@@ -25,13 +25,11 @@ export default class Border extends Component
 	{
 		this.mesh = await this.createBody();
 
+		this.add(this.mesh);
+
 		return this;
 	}
 
-	public addTo(scene : THREE.Scene) : void
-	{
-		scene.add(this.mesh!);
-	}
 
 	protected async createBody() : Promise<THREE.Mesh>
 	{

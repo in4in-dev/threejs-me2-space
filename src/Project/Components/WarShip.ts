@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 // @ts-ignore
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
-import Ship from "./Ship.ts";
-import Bullet from "./Bullet.ts";
+import Ship from "./Ship";
+import Bullet from "./Bullet";
 
 
 export default class WarShip extends Ship
@@ -42,7 +42,7 @@ export default class WarShip extends Ship
 
 	public async fire(){
 
-		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.group!.quaternion).multiplyScalar(0.5);
+		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.group!.quaternion).normalize();
 
 		let bullet1 = await new Bullet(
 			this.group!.position.x + 0.3,

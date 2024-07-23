@@ -4,7 +4,7 @@ import {Vector3} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 // @ts-ignore
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
 
 export default class Ship extends Component
 {

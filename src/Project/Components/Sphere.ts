@@ -1,13 +1,11 @@
 import * as THREE from 'three';
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
 
 export default abstract class Sphere extends Component
 {
 
 	public texture : string;
 	public radius : number;
-
-	public mesh : THREE.Mesh | null = null;
 
 	constructor(radius : number, texture : string) {
 
@@ -16,13 +14,6 @@ export default abstract class Sphere extends Component
 		this.radius = radius;
 		this.texture = texture;
 
-	}
-
-	public async load() : Promise<this>
-	{
-		this.mesh = await this.createBody();
-
-		return this;
 	}
 
 	protected async createBody() : Promise<THREE.Mesh>

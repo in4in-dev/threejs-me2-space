@@ -1,4 +1,4 @@
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
 import * as THREE from 'three';
 import {Vector3} from "three";
 
@@ -60,9 +60,9 @@ export default class Bullet extends Component
 	protected async createGlow() : Promise<THREE.Sprite>
 	{
 
-		const glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
+		let glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
 
-		const glowMaterial = new THREE.SpriteMaterial({
+		let glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
 			color: this.glowColor, // Цвет свечения
 			transparent: true,
@@ -70,7 +70,7 @@ export default class Bullet extends Component
 			depthWrite:false
 		});
 
-		const glowSprite = new THREE.Sprite(glowMaterial);
+		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(2, 0.5, 0.5);
 
 		return glowSprite;

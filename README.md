@@ -5,7 +5,6 @@ I'm just exploring Three.js. Nothing more.
 You can run this:
 
 ```
-cd client
 npm i
 npx vite
 ```

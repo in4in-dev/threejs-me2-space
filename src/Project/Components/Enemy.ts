@@ -3,7 +3,8 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import WarShip from "./WarShip.ts";
+import WarShip from "./WarShip";
+import {Object3D} from "three";
 
 export default abstract class Enemy extends WarShip
 {
@@ -11,7 +12,7 @@ export default abstract class Enemy extends WarShip
 	public isVisible : boolean = true;
 
 	public autoFireActive : boolean = false;
-	public autoFireInterval : number = 300;
+	public autoFireInterval : number = 1000;
 	public autoFireLastTime : number = 0;
 
 	public health : number;
@@ -21,6 +22,8 @@ export default abstract class Enemy extends WarShip
 
 	protected bulletColor = 'red';
 	protected bulletGlowColor = 'red';
+
+	public attackTarget : Object3D | null = null;
 
 	constructor(health : number, startX : number = 0, startY : number = 0) {
 
@@ -113,8 +116,13 @@ export default abstract class Enemy extends WarShip
 		this.autoFireActive = false;
 	}
 
-	public async animateAutoFire(){
+	public setAttackTarget(object : Object3D){
+		this.attackTarget = object;
+	}
 
+	public async animate(){
+
+		//Автоматический огонь
 		let now = Date.now();
 
 		if(this.autoFireActive && now - this.autoFireLastTime > this.autoFireInterval){
@@ -123,6 +131,7 @@ export default abstract class Enemy extends WarShip
 		}
 
 	}
+
 
 	public hit(force : number) : boolean
 	{

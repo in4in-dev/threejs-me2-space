@@ -1,10 +1,7 @@
 import * as THREE from 'three';
-//@ts-ignore
-import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
-//@ts-ignore
-import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import ModelLoader from "../../Three/ModelLoader.ts";
-import Component from "../Core/Component.ts";
+import ModelLoader from "../../Three/ModelLoader";
+import Component from "../Core/Component";
+import Random from "../../Three/Random";
 
 export default class Asteroid extends Component
 {
@@ -12,7 +9,7 @@ export default class Asteroid extends Component
 	protected texture : string;
 	protected material : string;
 
-	public mesh : THREE.Group | null = null;
+	protected mesh : THREE.Object3D | null = null;
 
 	constructor(texture : string, material : string) {
 
@@ -27,26 +24,23 @@ export default class Asteroid extends Component
 	{
 		this.mesh = await this.createBody();
 
+		this.add(this.mesh);
+
 		return this;
 	}
 
-	public addTo(group : THREE.Group) : void
-	{
-		group.add(this.mesh!);
-	}
-
-	protected async createBody() : Promise<THREE.Group>
+	protected async createBody() : Promise<THREE.Object3D>
 	{
 
 		let asteroid = await new ModelLoader(this.texture, this.material).load();
 
-		let scale = THREE.MathUtils.randFloat(0.0001, 0.03);
+		let scale = Random.float(0.0001, 0.03);
 
 		asteroid.scale.set(scale, scale, scale);
 
-		asteroid.rotation.x = Math.PI * THREE.MathUtils.randFloat(-2, 2);
-		asteroid.rotation.y = Math.PI * THREE.MathUtils.randFloat(-2, 2);
-		asteroid.rotation.z = Math.PI * THREE.MathUtils.randFloat(-2, 2);
+		asteroid.rotation.x = Math.PI * Random.float(-2, 2);
+		asteroid.rotation.y = Math.PI * Random.float(-2, 2);
+		asteroid.rotation.z = Math.PI * Random.float(-2, 2);
 
 		return asteroid;
 

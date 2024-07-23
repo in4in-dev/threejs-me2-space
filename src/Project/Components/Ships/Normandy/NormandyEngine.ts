@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Component from "../../../Core/Component.ts";
+import Component from "../../../Core/Component";
 
 export default class NormandyEngine extends Component
 {
@@ -58,18 +58,18 @@ export default class NormandyEngine extends Component
 		let numPoints = this.length * 30;
 
 		// Генерируем позиции для точек внутри круга
-		const positions = new Float32Array(numPoints * 3);
+		let positions = new Float32Array(numPoints * 3);
 		for (let i = 0; i < numPoints; i++) {
 
 			let radius = 1;
 			//THREE.MathUtils.randInt(0.2, 1);
 
-			const r = radius * Math.sqrt(Math.random());
-			const theta = Math.random() * 2 * Math.PI;
+			let r = radius * Math.sqrt(Math.random());
+			let theta = Math.random() * 2 * Math.PI;
 
-			const x = r * Math.cos(theta);
-			const y = r * Math.sin(theta);
-			const z = 0;
+			let x = r * Math.cos(theta);
+			let y = r * Math.sin(theta);
+			let z = 0;
 
 			positions[i * 3] = x;
 			positions[i * 3 + 1] = y;
@@ -83,9 +83,9 @@ export default class NormandyEngine extends Component
 	protected async createGlow() : Promise<THREE.Sprite>
 	{
 
-		const glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
+		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
 
-		const glowMaterial = new THREE.SpriteMaterial({
+		let glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
 			color: this.glowColor, // Цвет свечения
 			transparent: true,
@@ -93,7 +93,7 @@ export default class NormandyEngine extends Component
 			depthWrite:false
 		});
 
-		const glowSprite = new THREE.Sprite(glowMaterial);
+		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(20, 10, 10);
 
 		return glowSprite;
@@ -103,7 +103,7 @@ export default class NormandyEngine extends Component
 	protected async createBody() : Promise<THREE.Points>
 	{
 
-		const pointsGeometry = new THREE.BufferGeometry();
+		let pointsGeometry = new THREE.BufferGeometry();
 		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
 		let particleTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
@@ -148,7 +148,7 @@ export default class NormandyEngine extends Component
 
 		this.positions = positions;
 
-		const pointsGeometry = new THREE.BufferGeometry();
+		let pointsGeometry = new THREE.BufferGeometry();
 		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
 

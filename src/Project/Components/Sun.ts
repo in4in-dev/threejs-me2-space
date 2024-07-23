@@ -1,16 +1,14 @@
 import * as THREE from 'three';
-import Sparks from "./Sparks.ts";
-import Component from "../Core/Component.ts";
+import Sparks from "./Sparks";
+import Component from "../Core/Component";
 
 export default class Sun extends Component
 {
 
-	public mesh : THREE.Mesh | null = null;
-	public glow : THREE.Sprite | null = null;
-	public light : THREE.Light | null = null;
-	public sparks : Sparks | null = null;
-
-	public group : THREE.Group | null = null;
+	protected mesh : THREE.Mesh | null = null;
+	protected glow : THREE.Sprite | null = null;
+	protected light : THREE.Light | null = null;
+	protected sparks : Sparks | null = null;
 
 	public color : any;
 	public glowColor : any;
@@ -30,34 +28,19 @@ export default class Sun extends Component
 
 	public async load(): Promise<this>
 	{
-		this.group = new THREE.Group();
-
 		this.mesh = await this.createBody();
 		this.light = await this.createLight();
 		this.glow = await this.createGlow();
 		this.sparks = await this.createSparks();
 
+		this.add(this.mesh, this.light, this.sparks, this.glow);
+
 		return this;
 	}
 
-	public addTo(scene : THREE.Scene) : void
+	public getSunMesh() : THREE.Mesh | null
 	{
-
-		//Добавляем сияние в группу
-		this.group!.add(this.glow!);
-
-		//Добавляем свет в группу
-		this.group!.add(this.light!);
-
-		//Добавляем сферу в группу
-		this.group!.add(this.mesh!);
-
-		//Добавляем искры в группу
-		this.sparks!.addTo(this.group!);
-
-		//Добавляем группу на сцену
-		scene.add(this.group!);
-
+		return this.mesh;
 	}
 
 
@@ -65,10 +48,10 @@ export default class Sun extends Component
 	{
 
 		// Загрузка текстуры для свечения
-		const glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
+		let glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
 
 		// Создание материала для свечения
-		const glowMaterial = new THREE.SpriteMaterial({
+		let glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
 			color: this.glowColor, // Цвет свечения
 			transparent: true,
@@ -77,7 +60,7 @@ export default class Sun extends Component
 		});
 
 		// Создание спрайта для свечения
-		const glowSprite = new THREE.Sprite(glowMaterial);
+		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(20, 10, 10);
 
 		return glowSprite;

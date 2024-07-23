@@ -1,8 +1,8 @@
-import WarShip from "../../WarShip.ts";
+import WarShip from "../../WarShip";
 import * as THREE from "three";
-import ModelLoader from "../../../../Three/ModelLoader.ts";
-import NormandyEngine from "./NormandyEngine.ts";
-import NormandyEngines from "./NormandyEngines.ts";
+import ModelLoader from "../../../../Three/ModelLoader";
+import NormandyEngine from "./NormandyEngine";
+import NormandyEngines from "./NormandyEngines";
 
 export class NormandyShip extends WarShip
 {

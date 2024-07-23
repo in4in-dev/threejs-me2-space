@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Component from "../Core/Component.ts";
+import Component from "../Core/Component";
 
 export default class Belt extends Component
 {
@@ -7,12 +7,15 @@ export default class Belt extends Component
 	public radius : number;
 	public thickness : number;
 
-	public mesh : THREE.Points | null = null;
+	protected mesh : THREE.Points | null = null;
 
 	constructor(radius : number, thickness : number) {
+
 		super();
+
 		this.radius = radius;
 		this.thickness = thickness;
+
 	}
 
 	public async load() : Promise<this>
@@ -20,13 +23,10 @@ export default class Belt extends Component
 
 		this.mesh = await this.createBody();
 
+		this.add(this.mesh);
+
 		return this;
 
-	}
-
-	public addTo(group : THREE.Group)
-	{
-		group.add(this.mesh!);
 	}
 
 	protected async createBody() : Promise<THREE.Points>
@@ -34,19 +34,19 @@ export default class Belt extends Component
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
-		const particleCount = this.radius * 2000;
+		let particleCount = this.radius * 2000;
 
-		const particles = new Float32Array(particleCount * 3); 
+		let particles = new Float32Array(particleCount * 3);
 
 		for (let i = 0; i < particleCount; i++) {
-			const angle = Math.random() * Math.PI * 2;
-			const tubeAngle = Math.random() * Math.PI * 2;
+			let angle = Math.random() * Math.PI * 2;
+			let tubeAngle = Math.random() * Math.PI * 2;
 
 			let thickness = this.thickness * Math.random();
 
-			const x = (this.radius + thickness * Math.cos(tubeAngle)) * Math.cos(angle);
-			const y = (this.radius + thickness * Math.cos(tubeAngle)) * Math.sin(angle);
-			const z = thickness * Math.sin(tubeAngle);
+			let x = (this.radius + thickness * Math.cos(tubeAngle)) * Math.cos(angle);
+			let y = (this.radius + thickness * Math.cos(tubeAngle)) * Math.sin(angle);
+			let z = thickness * Math.sin(tubeAngle);
 
 			particles[i * 3] = x;
 			particles[i * 3 + 1] = y;
@@ -54,11 +54,11 @@ export default class Belt extends Component
 		}
 
 		// Создание буферной геометрии и добавление частиц
-		const particleGeometry = new THREE.BufferGeometry();
+		let particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.BufferAttribute(particles, 3));
 
 		// Создание материала для частиц
-		const material = new THREE.PointsMaterial({
+		let material = new THREE.PointsMaterial({
 			map: particleTexture,
 			size: 0.1, // Размер частиц
 			blending: THREE.AdditiveBlending,
@@ -67,45 +67,42 @@ export default class Belt extends Component
 		});
 
 		// Создание точек (астероидов)
-		const particleSystem = new THREE.Points(particleGeometry, material);
-
-		return particleSystem;
-
+		return new THREE.Points(particleGeometry, material);
 
 	}
 
-	public animateCollision(mesh : THREE.Mesh){
-
-		const positions = this.mesh!.geometry.attributes.position.array;
-
-		for (let i = 0; i < positions.length; i += 3) {
-			const dx = mesh.position.x - positions[i];
-			const dy = mesh.position.y - positions[i + 1];
-			const dz = mesh.position.z - positions[i + 2];
-			const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-			if (distance < 2) {
-
-				// Вычисление силы отталкивания
-				const forceX = (dx / distance) * -2;
-				const forceY = (dy / distance) * -2;
-				const forceZ = (dz / distance) * -0.5;
-
-				// Обновление позиции астероида
-				positions[i] += forceX;
-				positions[i + 1] += forceY;
-				positions[i + 2] += forceZ;
-
-				// Установка флага обновления позиций
-				const particleGeometry = new THREE.BufferGeometry();
-				particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-				this.mesh!.geometry.copy(particleGeometry);
-			}
-		}
-
-
-	}
+	// public animateCollision(mesh : THREE.Mesh){
+	//
+	// 	let positions = this.mesh!.geometry.attributes.position.array;
+	//
+	// 	for (let i = 0; i < positions.length; i += 3) {
+	// 		let dx = mesh.position.x - positions[i];
+	// 		let dy = mesh.position.y - positions[i + 1];
+	// 		let dz = mesh.position.z - positions[i + 2];
+	// 		let distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+	//
+	// 		if (distance < 2) {
+	//
+	// 			// Вычисление силы отталкивания
+	// 			let forceX = (dx / distance) * -2;
+	// 			let forceY = (dy / distance) * -2;
+	// 			let forceZ = (dz / distance) * -0.5;
+	//
+	// 			// Обновление позиции астероида
+	// 			positions[i] += forceX;
+	// 			positions[i + 1] += forceY;
+	// 			positions[i + 2] += forceZ;
+	//
+	// 			// Установка флага обновления позиций
+	// 			let particleGeometry = new THREE.BufferGeometry();
+	// 			particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+	//
+	// 			this.mesh!.geometry.copy(particleGeometry);
+	// 		}
+	// 	}
+	//
+	//
+	// }
 
 
 }
