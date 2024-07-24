@@ -3,10 +3,25 @@ import * as THREE from 'three';
 import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 //@ts-ignore
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import {Object3D} from "three";
+
+interface ModelLoaderBackgroundCallback
+{
+	(obj : THREE.Object3D) : THREE.Object3D
+}
+
+interface ModelLoaderBackgroundTask
+{
+	texture : string,
+	group : THREE.Group,
+	callback : ModelLoaderBackgroundCallback | null
+}
 
 export default class ModelLoader
 {
-	
+
+	protected static backgroundTasks : ModelLoaderBackgroundTask[] = [];
+
 	protected static cacheTextures : any = {};
 	
 	public texture : string;
@@ -17,7 +32,7 @@ export default class ModelLoader
 		this.material = material;
 	}
 	
-	public static async loadMaterial(path : string) : Promise<THREE.Material>
+	protected static async loadMaterial(path : string) : Promise<THREE.Material>
 	{
 
 		let mtlLoader = new MTLLoader();
@@ -29,7 +44,7 @@ export default class ModelLoader
 		
 	}
 	
-	public static async loadModel(path : string, material : THREE.Material | null) : Promise<THREE.Group>
+	protected static async loadModel(path : string, material : THREE.Material | null) : Promise<THREE.Object3D>
 	{
 		let objLoader = new OBJLoader();
 
@@ -41,7 +56,8 @@ export default class ModelLoader
 
 	}
 	
-	public async load(){
+	public async load() : Promise<Object3D>
+	{
 
 		if(!(this.texture in ModelLoader.cacheTextures)){
 
@@ -53,9 +69,53 @@ export default class ModelLoader
 
 		}
 
-
 		return ModelLoader.cacheTextures[this.texture].clone();
 		
 	}
-	
+
+	public loadInBackground(callback : null | ((obj : THREE.Object3D) => THREE.Object3D) = null) : THREE.Group
+	{
+
+		let group = new THREE.Group();
+
+		if(
+			!ModelLoader.backgroundTasks.find(task => task.texture === this.texture) &&
+			!(this.texture in ModelLoader.cacheTextures)
+		){
+			this.load();
+		}
+
+		ModelLoader.backgroundTasks.push({
+			texture : this.texture,
+			group,
+			callback
+		});
+
+		return group;
+
+	}
+
+	public static runBackgroundTasks(){
+
+		ModelLoader.backgroundTasks = ModelLoader.backgroundTasks.filter(task => {
+
+			if(task.texture in ModelLoader.cacheTextures){
+
+				let texture = ModelLoader.cacheTextures[task.texture].clone();
+
+				task.group.add(
+					task.callback ? task.callback(texture) : texture
+				);
+
+				return false;
+
+			}
+
+			return true;
+
+		});
+
+	}
+
+
 }

@@ -16,8 +16,8 @@ export default class Planet extends Component
 
 	public moons : Moon[] = [];
 
-	protected label : CSS2DObject | null = null;
-	protected mesh : THREE.Mesh | null = null;
+	protected label : CSS2DObject;
+	protected mesh : THREE.Mesh;
 	protected rings : THREE.Group | null = null;
 
 	constructor(
@@ -35,47 +35,30 @@ export default class Planet extends Component
 		this.hasRing = hasRing;
 		this.moons = moons;
 
-	}
+		this.mesh = this.createBody();
+		this.label = this.createLabel();
 
-	public async load() : Promise<this>
-	{
+		this.moons.forEach(moon => {
 
-		this.mesh = await this.createBody();
-		this.add(this.mesh);
+			//Случайная позиция
+			let angle = Math.random() * 2 * Math.PI;
 
-		this.label = await this.createLabel();
-		this.add(this.label);
+			moon.position.set(
+				(this.radius * 1.2) * Math.cos(angle),
+				(this.radius + 1.2) * Math.sin(angle),
+				0.5
+			);
 
-		if(this.moons.length){
+		});
 
-			for(let i = 0; i < this.moons.length; i++){
-
-				await this.moons[i].load();
-
-				//Случайная позиция
-				let angle = Math.random() * 2 * Math.PI;
-
-				this.moons[i].position.set(
-					(this.radius * 1.2) * Math.cos(angle),
-					(this.radius + 1.2) * Math.sin(angle),
-					0.5
-				);
-
-			}
-
-
-			this.add(...this.moons);
-
-		}
+		this.add(this.mesh, this.label, ...this.moons);
 
 		if(this.hasRing){
-			this.rings = await this.createRings();
+			this.rings = this.createRings();
 			this.add(this.rings);
 		}
 
-		return this;
 	}
-
 
 	public setActive(active : boolean)
 	{
@@ -118,7 +101,7 @@ export default class Planet extends Component
 
 	}
 
-	protected async createRings() : Promise<THREE.Group>
+	protected createRings() : THREE.Group
 	{
 
 		let group = new THREE.Group();
@@ -138,7 +121,7 @@ export default class Planet extends Component
 	}
 
 
-	protected async createBody() : Promise<THREE.Mesh>
+	protected createBody() : THREE.Mesh
 	{
 
 		let planetTexturre = new THREE.TextureLoader().load(this.texture);
@@ -154,7 +137,7 @@ export default class Planet extends Component
 	}
 
 
-	protected async createLabel() : Promise<CSS2DObject>
+	protected createLabel() : CSS2DObject
 	{
 
 		// Создание метки для планеты

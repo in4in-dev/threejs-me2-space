@@ -18,8 +18,8 @@ export default class Bullet extends Component
 
 	public length : number = 0;
 
-	public mesh : THREE.Mesh | null = null;
-	public glow : THREE.Sprite | null = null;
+	public mesh : THREE.Mesh;
+	public glow : THREE.Sprite;
 
 	constructor(
 		fromX : number,
@@ -38,21 +38,17 @@ export default class Bullet extends Component
 		this.color = color;
 		this.glowColor = glowColor;
 		this.force = force;
-	}
 
-	public async load() : Promise<this>
-	{
-		this.mesh = await this.createMesh();
-		this.glow = await this.createGlow();
+		this.mesh = this.createMesh();
+		this.glow = this.createGlow();
 
 		this.mesh.add(this.glow);
-
 		this.add(this.mesh);
 
-		return this;
 	}
 
-	protected async createGlow() : Promise<THREE.Sprite>
+
+	protected createGlow() : THREE.Sprite
 	{
 
 		let glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
@@ -73,7 +69,8 @@ export default class Bullet extends Component
 	}
 
 
-	protected async createMesh(): Promise<THREE.Mesh>{
+	protected createMesh(): THREE.Mesh
+	{
 
 		let mesh = new THREE.Mesh(
 			new THREE.SphereGeometry(0.1, 10, 10),

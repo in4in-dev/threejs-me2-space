@@ -4,8 +4,8 @@ import Component from "../../../Core/Component";
 export default class NormandyEngine extends Component
 {
 
-	protected mesh : THREE.Points | null = null;
-	protected glow : THREE.Sprite | null = null;
+	protected mesh : THREE.Points;
+	protected glow : THREE.Sprite;
 
 	public color : any;
 	public glowColor : any;
@@ -22,17 +22,12 @@ export default class NormandyEngine extends Component
 		this.speed = speed;
 		this.length = length;
 		this.positions = this.generatePositions();
-	}
 
-	public async load() : Promise<this>
-	{
-		this.mesh = await this.createBody();
-		this.glow = await this.createGlow();
+		this.mesh = this.createBody();
+		this.glow = this.createGlow();
 
 		this.mesh.add(this.glow);
 		this.add(this.mesh);
-
-		return this;
 	}
 
 	public setLength(x : number): this
@@ -75,7 +70,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected async createGlow() : Promise<THREE.Sprite>
+	protected createGlow() : THREE.Sprite
 	{
 
 		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
@@ -95,7 +90,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected async createBody() : Promise<THREE.Points>
+	protected createBody() : THREE.Points
 	{
 
 		let pointsGeometry = new THREE.BufferGeometry();

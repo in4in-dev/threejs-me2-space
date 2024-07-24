@@ -7,7 +7,7 @@ export default class Belt extends Component
 	public radius : number;
 	public thickness : number;
 
-	protected mesh : THREE.Points | null = null;
+	protected mesh : THREE.Points;
 
 	constructor(radius : number, thickness : number) {
 
@@ -16,20 +16,13 @@ export default class Belt extends Component
 		this.radius = radius;
 		this.thickness = thickness;
 
-	}
-
-	public async load() : Promise<this>
-	{
-
-		this.mesh = await this.createBody();
+		this.mesh = this.createBody();
 
 		this.add(this.mesh);
 
-		return this;
-
 	}
 
-	protected async createBody() : Promise<THREE.Points>
+	protected createBody() : THREE.Points
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');

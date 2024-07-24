@@ -11,25 +11,13 @@ export default class Ship extends Component
 
 	public speed : number;
 
-	protected startX : number;
-	protected startY : number;
-
 	constructor(x : number = 10, y : number = 10, speed : number = 0.1) {
 
 		super();
 
 		this.speed = speed;
-		this.startX = x;
-		this.startY = y;
 
-	}
-
-	public async load() : Promise<this>
-	{
-
-		this.position.set(this.startX, this.startY, 0);
-
-		return this;
+		this.position.set(x, y, 0);
 
 	}
 

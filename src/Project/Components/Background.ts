@@ -6,33 +6,30 @@ import Random from "../../Three/Random";
 export default class Background extends Component
 {
 
-	protected mesh : THREE.Mesh | null = null;
-	protected points : THREE.Points  | null = null;
-	protected sprites : THREE.Sprite[] | null = null;
+	protected mesh : THREE.Mesh;
+	protected points : THREE.Points;
+	protected sprites : THREE.Sprite[];
 
 	public picture : string;
 	public opacity : number;
 
 	constructor(picture : string, opacity : number = 0.7) {
+
 		super();
+
 		this.picture = picture;
 		this.opacity = opacity;
-	}
 
-	public async load() : Promise<this>
-	{
-
-		this.mesh = await this.createBody();
-		this.points = await this.createPoints();
-		this.sprites = await this.createSprites();
+		this.mesh = this.createBody();
+		this.points = this.createPoints();
+		this.sprites = this.createSprites();
 
 		this.add(this.mesh);
 		this.add(this.points);
 		this.add(...this.sprites);
 
-		return this;
-
 	}
+
 
 	protected createSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
 	{
@@ -57,7 +54,7 @@ export default class Background extends Component
 
 	}
 
-	protected async createSprites() : Promise<THREE.Sprite[]>
+	protected createSprites() : THREE.Sprite[]
 	{
 
 		return [
@@ -68,7 +65,7 @@ export default class Background extends Component
 
 	}
 
-	protected async createPoints() : Promise<THREE.Points>
+	protected createPoints() : THREE.Points
 	{
 
 		let positions = [];
@@ -104,7 +101,7 @@ export default class Background extends Component
 
 	}
 
-	protected async createBody() : Promise<THREE.Mesh>
+	protected createBody() : THREE.Mesh
 	{
 
 		let spaceTexture = new THREE.TextureLoader().load(this.picture);

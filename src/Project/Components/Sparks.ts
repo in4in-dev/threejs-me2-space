@@ -9,7 +9,7 @@ export default class Sparks extends Component
 	public minRadius : number;
 	public maxRadius : number;
 
-	protected points : THREE.Points | null = null;
+	protected points : THREE.Points;
 	protected positions : number[];
 
 	constructor(radius : number, color : any) {
@@ -21,15 +21,11 @@ export default class Sparks extends Component
 		this.color = color;
 
 		this.positions = this.generateRandomPositions();
-	}
 
-	public async load() : Promise<this>
-	{
-		this.points = await this.createPoints();
+		this.points = this.createPoints();
 
 		this.add(this.points);
 
-		return this;
 	}
 
 	protected generateRandomPositions() : number[]
@@ -54,7 +50,7 @@ export default class Sparks extends Component
 
 	}
 
-	protected async createPoints() : Promise<THREE.Points>
+	protected createPoints() : THREE.Points
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');

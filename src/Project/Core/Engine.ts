@@ -3,6 +3,7 @@ import {WebGLRenderer} from "three";
 //@ts-ignore
 import {CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import * as TWEEN from '@tweenjs/tween.js';
+import ModelLoader from "../../Three/ModelLoader";
 
 
 export default abstract class Engine
@@ -58,6 +59,7 @@ export default abstract class Engine
 			if(this.active) {
 				requestAnimationFrame(animate);
 				TWEEN.update();
+				ModelLoader.runBackgroundTasks();
 			}
 
 			this.tick();

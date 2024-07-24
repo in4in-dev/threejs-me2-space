@@ -5,10 +5,10 @@ import Component from "../Core/Component";
 export default class Sun extends Component
 {
 
-	protected mesh : THREE.Mesh | null = null;
-	protected glow : THREE.Sprite | null = null;
-	protected light : THREE.Light | null = null;
-	protected sparks : Sparks | null = null;
+	protected mesh : THREE.Mesh;
+	protected glow : THREE.Sprite;
+	protected light : THREE.Light;
+	protected sparks : Sparks;
 
 	public color : any;
 	public glowColor : any;
@@ -24,18 +24,13 @@ export default class Sun extends Component
 		this.glowColor = glowColor;
 		this.radius = radius;
 
-	}
-
-	public async load(): Promise<this>
-	{
-		this.mesh = await this.createBody();
-		this.light = await this.createLight();
-		this.glow = await this.createGlow();
-		this.sparks = await this.createSparks();
+		this.mesh = this.createBody();
+		this.light = this.createLight();
+		this.glow = this.createGlow();
+		this.sparks = this.createSparks();
 
 		this.add(this.mesh, this.light, this.sparks, this.glow);
 
-		return this;
 	}
 
 	public getSunMesh() : THREE.Mesh | null
@@ -44,7 +39,7 @@ export default class Sun extends Component
 	}
 
 
-	protected async createGlow() : Promise<THREE.Sprite>
+	protected createGlow() : THREE.Sprite
 	{
 
 		// Загрузка текстуры для свечения
@@ -67,7 +62,7 @@ export default class Sun extends Component
 
 	}
 
-	protected async createBody() : Promise<THREE.Mesh>
+	protected createBody() : THREE.Mesh
 	{
 
 		// Создание материала для солнца
@@ -79,7 +74,7 @@ export default class Sun extends Component
 
 	}
 
-	protected async createLight() : Promise<THREE.Light>
+	protected createLight() : THREE.Light
 	{
 
 		let sunLight = new THREE.PointLight('white', 2, 10000, 0.02); // Цвет, интенсивность и дистанция освещения
@@ -89,9 +84,9 @@ export default class Sun extends Component
 
 	}
 
-	protected async createSparks() : Promise<Sparks>
+	protected createSparks() : Sparks
 	{
-		return await new Sparks(this.radius, this.color).load();
+		return new Sparks(this.radius, this.color);
 	}
 
 	public animateSparks(){

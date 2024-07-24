@@ -18,7 +18,7 @@ export default abstract class Enemy extends WarShip
 	protected autoFireLastTime : number = 0;
 	protected startHealth : number;
 
-	protected hp : CSS2DObject | null = null;
+	protected hp : CSS2DObject;
 
 	protected bulletColor = 'red';
 	protected bulletGlowColor = 'red';
@@ -32,21 +32,12 @@ export default abstract class Enemy extends WarShip
 		this.health = health;
 		this.startHealth = health;
 
-	}
-
-	public async load() : Promise<this>
-	{
-
-		await super.load();
-
-		this.hp = await this.createHp();
+		this.hp = this.createHp();
 		this.add(this.hp);
 
-		return this;
-
 	}
 
-	protected async createHp() : Promise<CSS2DObject>
+	protected createHp() : CSS2DObject
 	{
 
 		let wrap = document.createElement('div');

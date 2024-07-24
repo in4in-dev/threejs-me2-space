@@ -3,32 +3,31 @@ import * as THREE from "three";
 import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
+import BulletsContainer from "../../BulletsContainer";
 
 export class NormandyShip extends WarShip
 {
 
-	protected mesh : THREE.Mesh | null = null;
-	protected light : THREE.Light | null = null;
-	protected engines : NormandyEngines | null = null;
+	protected mesh : THREE.Group;
+	protected light : THREE.Light;
+	protected engines : NormandyEngines;
 
-	public async load() : Promise<this>
-	{
+	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : BulletsContainer) {
 
-		await super.load();
+		super(x, y, speed, bulletGroup);
 
-		this.light = await this.createLight();
-		this.engines = await this.createEngines();
-		this.mesh = await this.createBody();
+		this.light = this.createLight();
+		this.engines = this.createEngines();
+		this.mesh = this.createBody();
 
 		this.mesh.add(this.engines.l1, this.engines.l2, this.engines.r1, this.engines.r2);
 		this.mesh.add(this.light);
 		this.add(this.mesh);
 
-		return this;
 
 	}
 
-	protected async createLight() : Promise<THREE.Light>
+	protected createLight() : THREE.Light
 	{
 
 		let light = new THREE.PointLight('white', 1, 100);
@@ -39,10 +38,10 @@ export class NormandyShip extends WarShip
 
 	}
 
-	protected async createBody() : Promise<THREE.Mesh>
+	protected createBody() : THREE.Group
 	{
 
-		let ship = await new ModelLoader('../../assets/ship/ship.obj', '../../../../assets/ship/ship.mtl').load();
+		let ship = new ModelLoader('../../assets/ship/ship.obj', '../../../../assets/ship/ship.mtl').loadInBackground();
 
 		ship.scale.set(0.15, 0.15, 0.15);
 		ship.rotation.x = 1.5;
@@ -51,19 +50,19 @@ export class NormandyShip extends WarShip
 
 	}
 
-	protected async createEngines() : Promise<NormandyEngines>
+	protected createEngines() : NormandyEngines
 	{
 
-		let engineLeft1 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5).load(),
-			engineLeft2 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 2).load(),
-			engineRight1 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5).load(),
-			engineRight2 = await new NormandyEngine('#0d4379', '#1d64a6', 0.4, 2).load();
+		let engineLeft1 = new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5),
+			engineLeft2 = new NormandyEngine('#0d4379', '#1d64a6', 0.4, 2),
+			engineRight1 = new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5),
+			engineRight2 = new NormandyEngine('#0d4379', '#1d64a6', 0.4, 2);
 
-		engineRight1.position.set(-5, -2 ,-4);
-		engineRight2.position.set(-3, -2 ,-4);
+		engineRight1.position.set(-5, 0 ,0);
+		engineRight2.position.set(-3, 0 ,0);
 
-		engineLeft1.position.set(5, -2, -4);
-		engineLeft2.position.set(3, -2, -4);
+		engineLeft1.position.set(5, 0, 0);
+		engineLeft2.position.set(3, 0, 0);
 
 		return {
 			l1 : engineLeft1,

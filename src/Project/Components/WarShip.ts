@@ -18,11 +18,11 @@ export default class WarShip extends Ship
 		this.bulletsGroup = bulletGroup;
 	}
 
-	public async fire(){
+	public fire(){
 
 		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).normalize();
 
-		let bullet1 = await new Bullet(
+		let bullet1 = new Bullet(
 			this.position.x + 0.3,
 			this.position.y - 0.3,
 			to.x,
@@ -30,9 +30,9 @@ export default class WarShip extends Ship
 			THREE.MathUtils.randInt(1, 5),
 			this.bulletColor,
 			this.bulletGlowColor
-		).load();
+		);
 
-		let bullet2 = await new Bullet(
+		let bullet2 = new Bullet(
 			this.position.x - 0.3,
 			this.position.y - 0.3,
 			to.x,
@@ -40,7 +40,7 @@ export default class WarShip extends Ship
 			THREE.MathUtils.randInt(1, 5),
 			this.bulletColor,
 			this.bulletGlowColor
-		).load();
+		);
 
 		this.bulletsGroup.add(bullet1);
 		this.bulletsGroup.add(bullet2);

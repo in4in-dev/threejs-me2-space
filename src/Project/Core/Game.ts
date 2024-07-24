@@ -13,6 +13,7 @@ import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
 import BulletsContainer from "../Components/BulletsContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
+import ModelLoader from "../../Three/ModelLoader";
 
 export default class Game extends Engine
 {
@@ -65,16 +66,6 @@ export default class Game extends Engine
 	}
 
 	public async init(){
-
-		await this.border.load();
-		await this.sun.load();
-		await this.background.load();
-		await this.ship.load();
-		await this.asteroidBelt.load();
-
-		for(let i in this.planets){
-			await this.planets[i].load();
-		}
 
 		this.initScene();
 		this.initListeners();
@@ -322,8 +313,6 @@ export default class Game extends Engine
 
 		this.enemies.push(enemy);
 
-		await enemy.load();
-
 		this.scene.add(enemy);
 
 	}
@@ -441,7 +430,6 @@ export default class Game extends Engine
 
 		//Анимация пояса астероидов
 		// this.belt.animateCollision(this.ship.mesh!);
-
 
 
 	}

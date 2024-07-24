@@ -2,21 +2,19 @@ import Enemy from "../Enemy";
 import * as THREE from 'three';
 import {Scene} from "three";
 import ModelLoader from "../../../Three/ModelLoader";
+import BulletsContainer from "../BulletsContainer";
 
 export default class EnemyReaper extends Enemy
 {
 
 	public mesh : THREE.Group | null = null;
 
-	public async load() : Promise<this>
-	{
+	constructor(x : number, y : number, speed : number, bulletGroup : BulletsContainer) {
 
-		await super.load();
+		super(x, y, speed, bulletGroup);
 
-		this.mesh = await this.createBody();
+		this.mesh = this.createBody();
 		this.add(this.mesh!);
-
-		return this;
 
 	}
 
@@ -51,14 +49,17 @@ export default class EnemyReaper extends Enemy
 
 	}
 
-	protected async createBody() : Promise<THREE.Group>
+	protected createBody() : THREE.Group
 	{
 
 		let group = new THREE.Group;
 
-		let ship = await new ModelLoader('../../assets/reaper/reaper.obj', '../../assets/reaper/reaper.mtl').load();
-
-		ship.children[0].material.color.set('black');
+		let ship = new ModelLoader(
+			'../../assets/reaper/reaper.obj',
+			'../../assets/reaper/reaper.mtl'
+		).loadInBackground((obj : any) => {
+			return obj.children[0].material.color.set('black'), obj;
+		});
 
 		ship.scale.set(0.05, 0.05, 0.05);
 

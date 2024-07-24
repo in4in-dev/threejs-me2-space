@@ -9,7 +9,7 @@ export default class PlanetWithOrbit extends Component
 	public orbitRadius : number;
 	public planetAngle : number;
 
-	public orbit : Orbit | null = null;
+	public orbit : Orbit;
 	public planet : Planet;
 
 	constructor(orbitRadius : number, planet : Planet, planetAngle : number) {
@@ -20,23 +20,15 @@ export default class PlanetWithOrbit extends Component
 		this.planetAngle = planetAngle;
 
 		this.planet = planet;
-
-	}
-
-	public async load() : Promise<this>
-	{
-
-		await this.planet.load();
+		this.orbit = this.createOrbit();
 
 		this.setOrbitPosition(this.planetAngle);
-
-		this.orbit = await this.createOrbit();
 
 		this.add(this.orbit);
 		this.add(this.planet);
 
-		return this;
 	}
+
 
 	public setOrbitPosition(angle : number)
 	{
@@ -52,9 +44,9 @@ export default class PlanetWithOrbit extends Component
 
 	}
 
-	protected async createOrbit() : Promise<Orbit>
+	protected createOrbit() : Orbit
 	{
-		return await new Orbit(this.orbitRadius).load();
+		return new Orbit(this.orbitRadius);
 	}
 
 }

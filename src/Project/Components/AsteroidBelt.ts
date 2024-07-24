@@ -12,34 +12,25 @@ export default class AsteroidBelt extends Component
 	/**
 	 * Астероиды
 	 */
-	public asteroids : Asteroid[] | null = null;
+	public asteroids : Asteroid[] = [];
 
 	/**
 	 * Искринки
 	 */
-	public belt : Belt | null = null;
-
-
+	public belt : Belt;
 
 	constructor(radius : number) {
 		super();
 		this.radius = radius;
-	}
 
-	public async load() : Promise<this>
-	{
-
-		this.belt = await this.createBelt();
-		this.asteroids = await this.createAsteroids();
+		this.belt = this.createBelt();
+		this.asteroids = this.createAsteroids();
 
 		this.add(this.belt);
 		this.add(...this.asteroids);
-
-		return this;
-
 	}
 
-	protected async createAsteroid() : Promise<Asteroid>
+	protected createAsteroid() : Asteroid
 	{
 
 		let templates = [
@@ -49,7 +40,7 @@ export default class AsteroidBelt extends Component
 
 		let template = Random.arr(templates);
 
-		let asteroid = await new Asteroid(template.t, template.m).load();
+		let asteroid = new Asteroid(template.t, template.m);
 
 		//Случайная позиция в поясе
 		let angle = Math.random() * 2 * Math.PI;
@@ -65,7 +56,7 @@ export default class AsteroidBelt extends Component
 	}
 
 
-	protected async createAsteroids() : Promise<Asteroid[]>
+	protected createAsteroids() : Asteroid[]
 	{
 
 		let asteroids = [];
@@ -73,7 +64,7 @@ export default class AsteroidBelt extends Component
 		for(let i = 0; i < this.radius * 50; i++){
 
 			asteroids.push(
-				await this.createAsteroid()
+				this.createAsteroid()
 			);
 
 		}
@@ -82,12 +73,12 @@ export default class AsteroidBelt extends Component
 
 	}
 
-	protected async createBelt() : Promise<Belt>
+	protected createBelt() : Belt
 	{
 
 		let thickness = Random.float(0.4, 3);
 
-		return await new Belt(this.radius, thickness).load();
+		return new Belt(this.radius, thickness);
 
 	}
 

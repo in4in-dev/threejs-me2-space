@@ -9,7 +9,7 @@ export default class Border extends Component
 	public color : any;
 	public thickness : number;
 
-	protected mesh : THREE.Mesh | null = null;
+	protected mesh : THREE.Mesh;
 
 	constructor(radius : number, color : any = 0x2c63ab, thickness : number = 0.05) {
 
@@ -19,19 +19,13 @@ export default class Border extends Component
 		this.color = color;
 		this.thickness = thickness;
 
-	}
-
-	public async load() : Promise<this>
-	{
-		this.mesh = await this.createBody();
+		this.mesh = this.createBody();
 
 		this.add(this.mesh);
 
-		return this;
 	}
 
-
-	protected async createBody() : Promise<THREE.Mesh>
+	protected createBody() : THREE.Mesh
 	{
 
 		// Создание кривой эллипса для орбиты
