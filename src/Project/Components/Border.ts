@@ -5,9 +5,9 @@ import Component from "../Core/Component";
 export default class Border extends Component
 {
 
-	public radius : number;
-	public color : any;
-	public thickness : number;
+	public  radius : number;
+	public  color : any;
+	public  thickness : number;
 
 	protected mesh : THREE.Mesh;
 
@@ -19,19 +19,20 @@ export default class Border extends Component
 		this.color = color;
 		this.thickness = thickness;
 
-		this.mesh = this.createBody();
+		this.mesh = this.createBody(radius, thickness, color);
 
+		//Добавляем на сцену
 		this.add(this.mesh);
 
 	}
 
-	protected createBody() : THREE.Mesh
+	protected createBody(radius : number, thickness : number, color: any) : THREE.Mesh
 	{
 
 		// Создание кривой эллипса для орбиты
 		let curve = new THREE.EllipseCurve(
 			0, 0,
-			this.radius, this.radius,
+			radius, radius,
 			0, 2 * Math.PI,
 			false,
 			0
@@ -47,9 +48,9 @@ export default class Border extends Component
 		);
 
 		// Создание трубчатой геометрии
-		let tubeGeometry = new THREE.TubeGeometry(<Curve<Vector3>>curvePath, 200, this.thickness, 8, true);
+		let tubeGeometry = new THREE.TubeGeometry(<Curve<Vector3>>curvePath, 200, thickness, 8, true);
 
-		let material = new THREE.MeshBasicMaterial({ color: this.color });
+		let material = new THREE.MeshBasicMaterial({ color: color });
 		let mesh = new THREE.Mesh(tubeGeometry, material);
 
 		mesh.rotation.x = Math.PI / 2; // Поворот орбиты, чтобы она лежала в плоскости XZ

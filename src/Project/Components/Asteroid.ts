@@ -20,6 +20,7 @@ export default class Asteroid extends Component
 
 		this.mesh = this.createBody();
 
+		//Добавляем на сцену
 		this.add(this.mesh);
 
 	}

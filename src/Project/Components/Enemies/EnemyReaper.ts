@@ -7,13 +7,15 @@ import BulletsContainer from "../BulletsContainer";
 export default class EnemyReaper extends Enemy
 {
 
-	public mesh : THREE.Group | null = null;
+	protected mesh : THREE.Group | null = null;
 
 	constructor(x : number, y : number, speed : number, bulletGroup : BulletsContainer) {
 
 		super(x, y, speed, bulletGroup);
 
 		this.mesh = this.createBody();
+
+		//Добавляем на сцену
 		this.add(this.mesh!);
 
 	}

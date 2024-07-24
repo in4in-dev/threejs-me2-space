@@ -5,15 +5,15 @@ import Component from "../Core/Component";
 export default class Sun extends Component
 {
 
-	protected mesh : THREE.Mesh;
-	protected glow : THREE.Sprite;
-	protected light : THREE.Light;
-	protected sparks : Sparks;
-
 	public color : any;
 	public glowColor : any;
 	public intensity : number;
 	public radius : number;
+
+	protected mesh : THREE.Mesh;
+	protected glow : THREE.Sprite;
+	protected light : THREE.Light;
+	protected sparks : Sparks;
 
 	constructor(radius : number = 2, intensity : number = 500, color : any = 'white', glowColor : any = '#fed36a') {
 
@@ -29,6 +29,7 @@ export default class Sun extends Component
 		this.glow = this.createGlow();
 		this.sparks = this.createSparks();
 
+		//Добавляем на сцену
 		this.add(this.mesh, this.light, this.sparks, this.glow);
 
 	}

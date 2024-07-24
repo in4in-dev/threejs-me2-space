@@ -9,25 +9,21 @@ export default class AsteroidBelt extends Component
 
 	public radius : number;
 
-	/**
-	 * Астероиды
-	 */
-	public asteroids : Asteroid[] = [];
-
-	/**
-	 * Искринки
-	 */
+	public asteroids : Asteroid[];
 	public belt : Belt;
 
 	constructor(radius : number) {
+
 		super();
+
 		this.radius = radius;
 
-		this.belt = this.createBelt();
-		this.asteroids = this.createAsteroids();
+		this.belt = this.createBelt(radius, Random.float(0.4, 3));
+		this.asteroids = this.createAsteroids(radius * 50);
 
-		this.add(this.belt);
-		this.add(...this.asteroids);
+		//Добавляем объекты на сцену
+		this.add(this.belt, ...this.asteroids);
+
 	}
 
 	protected createAsteroid() : Asteroid
@@ -56,12 +52,12 @@ export default class AsteroidBelt extends Component
 	}
 
 
-	protected createAsteroids() : Asteroid[]
+	protected createAsteroids(count : number) : Asteroid[]
 	{
 
 		let asteroids = [];
 
-		for(let i = 0; i < this.radius * 50; i++){
+		for(let i = 0; i < count; i++){
 
 			asteroids.push(
 				this.createAsteroid()
@@ -73,13 +69,9 @@ export default class AsteroidBelt extends Component
 
 	}
 
-	protected createBelt() : Belt
+	protected createBelt(radius : number, thickness : number) : Belt
 	{
-
-		let thickness = Random.float(0.4, 3);
-
-		return new Belt(this.radius, thickness);
-
+		return new Belt(radius, thickness);
 	}
 
 

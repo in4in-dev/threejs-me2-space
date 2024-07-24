@@ -22,15 +22,15 @@ export default class PlanetWithOrbit extends Component
 		this.planet = planet;
 		this.orbit = this.createOrbit();
 
-		this.setOrbitPosition(this.planetAngle);
+		this.setPlanetPosition(planetAngle);
 
-		this.add(this.orbit);
-		this.add(this.planet);
+		//Добавляем на сцену
+		this.add(this.orbit, this.planet);
 
 	}
 
 
-	public setOrbitPosition(angle : number)
+	public setPlanetPosition(angle : number)
 	{
 
 		this.planetAngle = angle;

@@ -109,11 +109,14 @@ export default class Game extends Engine
 
 		window.addEventListener('keydown', (event) => {
 
-			event.preventDefault();
+			if (event.code === 'Space') {
 
-			if (event.code === 'Space' && this.shipFireAllow) {
-				this.shipFireActive = true;
-				this.shipFireLastTime = 0;
+				event.preventDefault();
+
+				if (this.shipFireAllow) {
+					this.shipFireActive = true;
+				}
+
 			}
 
 		});
@@ -305,7 +308,7 @@ export default class Game extends Engine
 		}
 
 		//Стрельба из корабля
-		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 1000){
+		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 100){
 
 			this.ship.fire();
 

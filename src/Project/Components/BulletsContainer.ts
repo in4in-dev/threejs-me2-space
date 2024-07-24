@@ -2,6 +2,8 @@ import Component from "../Core/Component";
 import * as THREE from 'three';
 import Bullet from "./Bullet";
 import Enemy from "./Enemy";
+import Hittable from "./Hittable";
+import {Object3D} from "three";
 
 export default class BulletsContainer<B extends Bullet = Bullet> extends Component
 {
@@ -19,17 +21,18 @@ export default class BulletsContainer<B extends Bullet = Bullet> extends Compone
 
 	public async animate(
 		peaceObjects : THREE.Object3D[] = [],
-		enemiesObjects : THREE.Object3D[] = [],
-		maxDistance : number = 150
+		enemiesObjects : Hittable[] = [],
+		maxDistanceDamage : number = 80,
+		maxDistanceShow : number = 150
 	){
 
 		//Проверяем столкновение пуль с объектами
 		this.bullets = this.bullets.filter(bullet => {
 
-			if(bullet.length > maxDistance){
+			if(bullet.length > maxDistanceShow){
 				//Если пуля улетела за 200, то просто удаляем ее
 				bullet.hide();
-			}else if(bullet.isMoving){
+			}else if(bullet.isMoving && bullet.length <= maxDistanceDamage){
 
 				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
 					bullet.boof();
@@ -41,10 +44,7 @@ export default class BulletsContainer<B extends Bullet = Bullet> extends Compone
 					if(bullet.checkCollisionWith(enemy)){
 
 						bullet.boom();
-
-						if(enemy instanceof Enemy){
-							enemy.hit(bullet.force);
-						}
+						enemy.hit(bullet.force);
 
 						return true;
 					}

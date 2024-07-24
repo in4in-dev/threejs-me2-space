@@ -7,8 +7,9 @@ import WarShip from "./WarShip";
 import {Object3D} from "three";
 import BulletsContainer from "./BulletsContainer";
 import Random from "../../Three/Random";
+import Hittable from "./Hittable";
 
-export default abstract class Enemy extends WarShip
+export default abstract class Enemy extends WarShip implements Hittable
 {
 
 	public health : number;
@@ -19,11 +20,10 @@ export default abstract class Enemy extends WarShip
 	protected autoFireLastTime : number = 0;
 	protected startHealth : number;
 
-	protected hp : CSS2DObject;
-
 	protected bulletColor = 'red';
 	protected bulletGlowColor = 'red';
 
+	protected hp : CSS2DObject;
 	protected attackTarget : Object3D | null = null;
 
 	constructor(health : number, startX : number = 0, startY : number = 0, bulletsContainer : BulletsContainer) {
@@ -34,6 +34,8 @@ export default abstract class Enemy extends WarShip
 		this.startHealth = health;
 
 		this.hp = this.createHp();
+
+		//Добавляем на сцену
 		this.add(this.hp);
 
 	}
@@ -110,7 +112,7 @@ export default abstract class Enemy extends WarShip
 		let now = Date.now();
 
 		if(this.autoFireActive && now - this.autoFireLastTime > this.autoFireInterval){
-			await this.fire();
+			this.fire();
 			this.autoFireLastTime = now;
 		}
 

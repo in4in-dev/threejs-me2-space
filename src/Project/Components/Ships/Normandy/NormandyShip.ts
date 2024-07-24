@@ -4,8 +4,9 @@ import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
 import BulletsContainer from "../../BulletsContainer";
+import Hittable from "../../Hittable";
 
-export class NormandyShip extends WarShip
+export class NormandyShip extends WarShip implements Hittable
 {
 
 	protected mesh : THREE.Group;
@@ -20,9 +21,10 @@ export class NormandyShip extends WarShip
 		this.engines = this.createEngines();
 		this.mesh = this.createBody();
 
+		//Добавляем на сцену
 		this.mesh.add(this.engines.l1, this.engines.l2, this.engines.r1, this.engines.r2);
-		this.mesh.add(this.light);
-		this.add(this.mesh);
+
+		this.add(this.mesh, this.light);
 
 
 	}
@@ -30,9 +32,9 @@ export class NormandyShip extends WarShip
 	protected createLight() : THREE.Light
 	{
 
-		let light = new THREE.PointLight('white', 1, 100);
+		let light = new THREE.PointLight('white', 1, 10);
 
-		light.position.set(5, 5, 5);
+		light.position.set(0, 0, 1);
 
 		return light;
 
@@ -101,6 +103,10 @@ export class NormandyShip extends WarShip
 		this.engines.r2.animate();
 		this.engines.l1.animate();
 		this.engines.l2.animate();
+
+	}
+
+	public hit(){
 
 	}
 

@@ -10,23 +10,16 @@ export default class Background extends Component
 	protected points : THREE.Points;
 	protected sprites : THREE.Sprite[];
 
-	public picture : string;
-	public opacity : number;
-
 	constructor(picture : string, opacity : number = 0.7) {
 
 		super();
 
-		this.picture = picture;
-		this.opacity = opacity;
-
-		this.mesh = this.createBody();
-		this.points = this.createPoints();
+		this.mesh = this.createBody(picture, opacity);
+		this.points = this.createPoints(20000);
 		this.sprites = this.createSprites();
 
-		this.add(this.mesh);
-		this.add(this.points);
-		this.add(...this.sprites);
+		//Добавляем на сцену
+		this.add(this.mesh, this.points, ...this.sprites);
 
 	}
 
@@ -65,12 +58,12 @@ export default class Background extends Component
 
 	}
 
-	protected createPoints() : THREE.Points
+	protected createPoints(count : number) : THREE.Points
 	{
 
 		let positions = [];
 
-		for (let i = 0; i < 20000; i++) {
+		for (let i = 0; i < count; i++) {
 
 			let phi = Math.acos(2 * Math.random() - 1);
 			let theta = 2 * Math.PI * Math.random();
@@ -101,12 +94,12 @@ export default class Background extends Component
 
 	}
 
-	protected createBody() : THREE.Mesh
+	protected createBody(picture : string, opacity : number) : THREE.Mesh
 	{
 
-		let spaceTexture = new THREE.TextureLoader().load(this.picture);
+		let spaceTexture = new THREE.TextureLoader().load(picture);
 
-		let spaceMaterial = new MeshBasicTextureMaterial(spaceTexture, this.opacity, {side: THREE.BackSide});
+		let spaceMaterial = new MeshBasicTextureMaterial(spaceTexture, opacity, {side: THREE.BackSide});
 
 		let spaceGeometry = new THREE.SphereGeometry(500, 14, 14); // Большая сфера, окружающая сцену
 		let spaceBackground = new THREE.Mesh(spaceGeometry, spaceMaterial);

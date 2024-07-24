@@ -10,11 +10,11 @@ export default class Planet extends Component
 
 	public name : string;
 	public hasRing : boolean;
-	public activeColor = 0xff0000;
 	public texture : string;
 	public radius : number;
+	public activeColor = 0xff0000;
 
-	public moons : Moon[] = [];
+	public  moons : Moon[] = [];
 
 	protected label : CSS2DObject;
 	protected mesh : THREE.Mesh;

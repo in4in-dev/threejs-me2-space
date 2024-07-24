@@ -24,6 +24,7 @@ export default class Sparks extends Component
 
 		this.points = this.createPoints();
 
+		//Добавляем на сцену
 		this.add(this.points);
 
 	}

@@ -4,8 +4,8 @@ import Component from "../Core/Component";
 export default class Belt extends Component
 {
 
-	public radius : number;
-	public thickness : number;
+	public  radius : number;
+	public  thickness : number;
 
 	protected mesh : THREE.Points;
 
@@ -16,18 +16,19 @@ export default class Belt extends Component
 		this.radius = radius;
 		this.thickness = thickness;
 
-		this.mesh = this.createBody();
+		this.mesh = this.createBody(radius, thickness);
 
+		//Добавляем на сцену
 		this.add(this.mesh);
 
 	}
 
-	protected createBody() : THREE.Points
+	protected createBody(radius : number, thickness : number) : THREE.Points
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
-		let particleCount = this.radius * 2000;
+		let particleCount = radius * 2000;
 
 		let particles = new Float32Array(particleCount * 3);
 
@@ -35,11 +36,11 @@ export default class Belt extends Component
 			let angle = Math.random() * Math.PI * 2;
 			let tubeAngle = Math.random() * Math.PI * 2;
 
-			let thickness = this.thickness * Math.random();
+			let t = thickness * Math.random();
 
-			let x = (this.radius + thickness * Math.cos(tubeAngle)) * Math.cos(angle);
-			let y = (this.radius + thickness * Math.cos(tubeAngle)) * Math.sin(angle);
-			let z = thickness * Math.sin(tubeAngle);
+			let x = (radius + t * Math.cos(tubeAngle)) * Math.cos(angle);
+			let y = (radius + t * Math.cos(tubeAngle)) * Math.sin(angle);
+			let z = t * Math.sin(tubeAngle);
 
 			particles[i * 3] = x;
 			particles[i * 3 + 1] = y;

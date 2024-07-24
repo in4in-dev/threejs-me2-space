@@ -5,13 +5,13 @@ import Random from "../../../../Three/Random";
 export default class NormandyEngine extends Component
 {
 
-	protected mesh : THREE.Points;
-	protected glow : THREE.Sprite;
-
 	public color : any;
 	public glowColor : any;
 	public length : number;
 	public speed : number;
+
+	protected mesh : THREE.Points;
+	protected glow : THREE.Sprite;
 
 	protected positions : Float32Array;
 
@@ -27,7 +27,9 @@ export default class NormandyEngine extends Component
 		this.mesh = this.createBody();
 		this.glow = this.createGlow();
 
+		//Добавляем на сцену
 		this.mesh.add(this.glow);
+
 		this.add(this.mesh);
 	}
 

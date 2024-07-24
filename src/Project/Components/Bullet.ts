@@ -8,33 +8,28 @@ export default class Bullet extends Component
 	public isMoving : boolean = true;
 	public isVisible : boolean = true;
 
-	public fromX : number;
-	public fromY : number;
-	public toX : number;
-	public toY : number;
+	public from : Vector3;
+	public to : Vector3;
+
 	public color : any;
 	public glowColor : any;
 	public force : number;
 
 	public length : number = 0;
 
-	public mesh : THREE.Mesh;
-	public glow : THREE.Sprite;
+	protected mesh : THREE.Mesh;
+	protected glow : THREE.Sprite;
 
 	constructor(
-		fromX : number,
-		fromY : number,
-		toX : number,
-		toY : number,
+		from : Vector3,
+		to : Vector3,
 		force : number,
 		color : any,
 		glowColor : any
 	) {
 		super();
-		this.fromX = fromX;
-		this.fromY = fromY;
-		this.toX = toX;
-		this.toY = toY;
+		this.from = from;
+		this.to = to;
 		this.color = color;
 		this.glowColor = glowColor;
 		this.force = force;
@@ -42,6 +37,7 @@ export default class Bullet extends Component
 		this.mesh = this.createMesh();
 		this.glow = this.createGlow();
 
+		//Добавляем на сцену
 		this.mesh.add(this.glow);
 		this.add(this.mesh);
 
@@ -77,10 +73,7 @@ export default class Bullet extends Component
 			new THREE.MeshBasicMaterial({color : this.color})
 		);
 
-		mesh.position.x = this.fromX;
-		mesh.position.y = this.fromY;
-		mesh.position.z = -0.1;
-
+		mesh.position.set(this.from.x, this.from.y, -0.1);
 		mesh.scale.set(0.3, 1, 1);
 
 		return mesh;
@@ -114,7 +107,7 @@ export default class Bullet extends Component
 		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#757575');
 		this.glow.material.color.set('#888888');
 		this.glow.material.opacity = 0.2;
-		this.glow.scale.set(4, 2, 2);
+		this.glow.scale.set(8, 4, 4);
 
 		this.stopMoving();
 
@@ -140,9 +133,11 @@ export default class Bullet extends Component
 
 		if(this.isMoving) {
 
-			this.mesh.position.add(new Vector3(this.toX, this.toY, 0));
+			this.mesh.position.add(
+				this.to.normalize()
+			);
 
-			this.length = this.mesh.position.length();
+			this.length = this.from.distanceTo(this.mesh.position);
 
 		}
 
