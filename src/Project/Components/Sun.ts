@@ -33,7 +33,7 @@ export default class Sun extends Component
 
 	}
 
-	public getSunMesh() : THREE.Mesh | null
+	public getSunMesh() : THREE.Mesh
 	{
 		return this.mesh;
 	}
@@ -90,7 +90,7 @@ export default class Sun extends Component
 	}
 
 	public animateSparks(){
-		this.sparks!.animate();
+		this.sparks.animate();
 	}
 
 }

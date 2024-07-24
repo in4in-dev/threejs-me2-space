@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Component from "../../../Core/Component";
+import Random from "../../../../Three/Random";
 
 export default class NormandyEngine extends Component
 {
@@ -52,7 +53,6 @@ export default class NormandyEngine extends Component
 		for (let i = 0; i < numPoints; i++) {
 
 			let radius = 1;
-			//THREE.MathUtils.randInt(0.2, 1);
 
 			let r = radius * Math.sqrt(Math.random());
 			let theta = Math.random() * 2 * Math.PI;
@@ -124,14 +124,14 @@ export default class NormandyEngine extends Component
 
 		for(let i = 0; i<this.positions.length;i+=3){
 
-			let max = THREE.MathUtils.randFloat(0.8, 1);
+			let max = Random.float(0.8, 1);
 
 			positions[i] = this.positions[i];
 
 			if(this.positions[i+1] < -this.length * max){
 				positions[i+1] = 0;
 			}else{
-				positions[i+1] = this.positions[i+1] - THREE.MathUtils.randFloat(0.1 * this.speed, 1 * this.speed);
+				positions[i+1] = this.positions[i+1] - Random.float(0.1 * this.speed, this.speed);
 			}
 
 			positions[i+2] = this.positions[i+2];
@@ -143,7 +143,7 @@ export default class NormandyEngine extends Component
 		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
 
-		this.mesh!.geometry.copy(pointsGeometry);
+		this.mesh.geometry.copy(pointsGeometry);
 
 
 	}

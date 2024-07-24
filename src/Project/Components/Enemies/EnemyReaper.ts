@@ -24,11 +24,11 @@ export default class EnemyReaper extends Enemy
 		//Движение до цели
 		if(this.attackTarget){
 
-			let distance = this.position.distanceTo(this.attackTarget!.position);
+			let distance = this.position.distanceTo(this.attackTarget.position);
 
 			if(distance > 10){
 
-				this.moveTo(this.attackTarget!.position);
+				this.moveTo(this.attackTarget.position);
 
 				if(distance > 20){
 					this.setSpeed(0.05);
@@ -38,7 +38,7 @@ export default class EnemyReaper extends Enemy
 
 			}else{
 				this.stop();
-				this.rotateTo(this.attackTarget!.position);
+				this.rotateTo(this.attackTarget.position);
 			}
 
 

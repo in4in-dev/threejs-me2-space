@@ -24,17 +24,17 @@ export default class SinglePlayerGame extends Game
 		 */
 		let glows = [ '#fed36a', 'blue', 'pink', '#a63737', '#d0652c'];
 		let sun = new Sun(
-			THREE.MathUtils.randFloat(0.4, 4),
+			Random.float(0.4, 4),
 			500,
 			'white',
-			glows[THREE.MathUtils.randInt(0, glows.length)]
+			Random.arr(glows)
 		);
 
 		/**
 		 * Генерация пояса астероидов
 		 */
 		let asteroidBelt = new AsteroidBelt(
-			THREE.MathUtils.randInt(6, 20)
+			Random.int(6, 20)
 		);
 
 
@@ -65,16 +65,16 @@ export default class SinglePlayerGame extends Game
 			"assets/planets/8.png"
 		];
 
-		let planetsCount = THREE.MathUtils.randInt(4, 8);
+		let planetsCount = Random.int(4, 8);
 
 		for(let i = 0, orbitRadius = 0; i < planetsCount; i++){
 
-			orbitRadius += THREE.MathUtils.randInt(5, 10);
+			orbitRadius += Random.int(5, 10);
 
-			let planetRadius = THREE.MathUtils.randFloat(0.2, 1.5);
+			let planetRadius = Random.float(0.2, 1.5);
 
 			let moons = [];
-			for(let m = 0, moonsCount = THREE.MathUtils.randInt(0, 3); m < moonsCount; m++){
+			for(let m = 0, moonsCount = Random.int(0, 3); m < moonsCount; m++){
 
 				let moon = new Moon(
 					Random.float(planetRadius * 0.1, planetRadius * 0.2),
@@ -94,7 +94,7 @@ export default class SinglePlayerGame extends Game
 						planetNames[i],
 						planetTextures[i],
 						moons,
-						!THREE.MathUtils.randInt(0, 3)
+						!Random.int(0, 3)
 					),
 					Math.random() * 2 * Math.PI,
 				)

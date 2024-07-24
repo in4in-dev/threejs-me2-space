@@ -91,7 +91,7 @@ export default class Bullet extends Component
 
 		this.isMoving = false;
 
-		this.mesh!.position.set(this.mesh!.position.x, this.mesh!.position.y, 0);
+		this.mesh.position.set(this.mesh.position.x, this.mesh.position.y, 0);
 
 	}
 
@@ -111,10 +111,10 @@ export default class Bullet extends Component
 
 	public boof(){
 
-		(<THREE.MeshBasicMaterial>this.mesh!.material).color.set('#757575');
-		this.glow!.material.color.set('#888888');
-		this.glow!.material.opacity = 0.2;
-		this.glow!.scale.set(4, 2, 2);
+		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#757575');
+		this.glow.material.color.set('#888888');
+		this.glow.material.opacity = 0.2;
+		this.glow.scale.set(4, 2, 2);
 
 		this.stopMoving();
 
@@ -124,10 +124,10 @@ export default class Bullet extends Component
 
 	public boom(){
 
-		(<THREE.MeshBasicMaterial>this.mesh!.material).color.set('#ffac70');
-		this.glow!.material.color.set('#ff8b33');
-		this.glow!.material.opacity = 0.2;
-		this.glow!.scale.set(4, 2, 2);
+		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#ffac70');
+		this.glow.material.color.set('#ff8b33');
+		this.glow.material.opacity = 0.2;
+		this.glow.scale.set(4, 2, 2);
 
 		this.stopMoving();
 
@@ -140,9 +140,9 @@ export default class Bullet extends Component
 
 		if(this.isMoving) {
 
-			this.mesh!.position.add(new Vector3(this.toX, this.toY, 0));
+			this.mesh.position.add(new Vector3(this.toX, this.toY, 0));
 
-			this.length = this.mesh!.position.length();
+			this.length = this.mesh.position.length();
 
 		}
 

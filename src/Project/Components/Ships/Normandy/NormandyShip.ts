@@ -76,31 +76,31 @@ export class NormandyShip extends WarShip
 	public startEngines() : void
 	{
 
-		this.engines!.l1.setLength(8).setSpeed(1);
-		this.engines!.r1.setLength(8).setSpeed(1);
+		this.engines.l1.setLength(8).setSpeed(1);
+		this.engines.r1.setLength(8).setSpeed(1);
 
-		this.engines!.l2.setLength(10).setSpeed(1);
-		this.engines!.r2.setLength(10).setSpeed(1);
+		this.engines.l2.setLength(10).setSpeed(1);
+		this.engines.r2.setLength(10).setSpeed(1);
 
 	}
 
 	public stopEngines() : void
 	{
 
-		this.engines!.l1.setLength(1.5).setSpeed(0.4);
-		this.engines!.r1.setLength(1.5).setSpeed(0.4);
+		this.engines.l1.setLength(1.5).setSpeed(0.4);
+		this.engines.r1.setLength(1.5).setSpeed(0.4);
 
-		this.engines!.l2.setLength(2).setSpeed(0.4);
-		this.engines!.r2.setLength(2).setSpeed(0.4);
+		this.engines.l2.setLength(2).setSpeed(0.4);
+		this.engines.r2.setLength(2).setSpeed(0.4);
 
 	}
 
 	public animateEngines(){
 
-		this.engines!.r1.animate();
-		this.engines!.r2.animate();
-		this.engines!.l1.animate();
-		this.engines!.l2.animate();
+		this.engines.r1.animate();
+		this.engines.r2.animate();
+		this.engines.l1.animate();
+		this.engines.l2.animate();
 
 	}
 

@@ -66,7 +66,7 @@ export default class Belt extends Component
 
 	// public animateCollision(mesh : THREE.Mesh){
 	//
-	// 	let positions = this.mesh!.geometry.attributes.position.array;
+	// 	let positions = this.mesh.geometry.attributes.position.array;
 	//
 	// 	for (let i = 0; i < positions.length; i += 3) {
 	// 		let dx = mesh.position.x - positions[i];
@@ -90,7 +90,7 @@ export default class Belt extends Component
 	// 			let particleGeometry = new THREE.BufferGeometry();
 	// 			particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 	//
-	// 			this.mesh!.geometry.copy(particleGeometry);
+	// 			this.mesh.geometry.copy(particleGeometry);
 	// 		}
 	// 	}
 	//

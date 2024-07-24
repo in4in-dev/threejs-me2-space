@@ -6,6 +6,7 @@ import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
 import {Object3D} from "three";
 import BulletsContainer from "./BulletsContainer";
+import Random from "../../Three/Random";
 
 export default abstract class Enemy extends WarShip
 {
@@ -129,8 +130,8 @@ export default abstract class Enemy extends WarShip
 
 			let label = this.createHitLabel('-' + force);
 
-			label.position.x = THREE.MathUtils.randFloat(-1.25, 1.25);
-			label.position.y = THREE.MathUtils.randFloat(-1.25, 1.25);
+			label.position.x = Random.float(-1.25, 1.25);
+			label.position.y = Random.float(-1.25, 1.25);
 
 			this.add(label);
 

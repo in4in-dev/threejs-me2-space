@@ -64,16 +64,16 @@ export default class Planet extends Component
 	{
 
 		if(active){
-			(<THREE.MeshLambertMaterial>this.mesh!.material).color.set(this.activeColor);
+			(<THREE.MeshLambertMaterial>this.mesh.material).color.set(this.activeColor);
 			this.label.element.style.opacity = '1';
 		}else{
-			(<THREE.MeshLambertMaterial>this.mesh!.material).color.set(0xffffff);
+			(<THREE.MeshLambertMaterial>this.mesh.material).color.set(0xffffff);
 			this.label.element.style.opacity = '0';
 		}
 
 	}
 
-	public getPlanetMesh() : THREE.Mesh | null
+	public getPlanetMesh() : THREE.Mesh
 	{
 		return this.mesh;
 	}

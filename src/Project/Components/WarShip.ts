@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import Ship from "./Ship";
 import Bullet from "./Bullet";
 import BulletsContainer from "./BulletsContainer";
+import Random from "../../Three/Random";
 
 
 export default class WarShip extends Ship
@@ -27,7 +28,7 @@ export default class WarShip extends Ship
 			this.position.y - 0.3,
 			to.x,
 			to.y,
-			THREE.MathUtils.randInt(1, 5),
+			Random.int(1, 5),
 			this.bulletColor,
 			this.bulletGlowColor
 		);
@@ -37,16 +38,12 @@ export default class WarShip extends Ship
 			this.position.y - 0.3,
 			to.x,
 			to.y,
-			THREE.MathUtils.randInt(1, 5),
+			Random.int(1, 5),
 			this.bulletColor,
 			this.bulletGlowColor
 		);
 
-		this.bulletsGroup.add(bullet1);
-		this.bulletsGroup.add(bullet2);
-
-		this.bullets.push(bullet1);
-		this.bullets.push(bullet2);
+		this.bulletsGroup.addBullets(bullet1, bullet2)
 
 	}
 
@@ -55,7 +52,7 @@ export default class WarShip extends Ship
 		this.bullets = this.bullets.filter(bullet => {
 
 			if(!bullet.isVisible){
-				this.bulletsGroup!.remove(bullet.mesh!);
+				this.bulletsGroup.remove(bullet.mesh!);
 				return false;
 			}
 

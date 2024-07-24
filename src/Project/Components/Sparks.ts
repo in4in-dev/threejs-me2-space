@@ -102,7 +102,7 @@ export default class Sparks extends Component
 		let particleGeometry = new THREE.BufferGeometry();
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		this.points!.geometry.copy(particleGeometry);
+		this.points.geometry.copy(particleGeometry);
 
 	}
 

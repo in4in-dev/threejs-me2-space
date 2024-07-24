@@ -31,9 +31,9 @@ export default class Orbit extends Component
 	{
 
 		if (active) {
-			(<THREE.MeshBasicMaterial>this.mesh!.material).color.set(this.activeColor);
+			(<THREE.MeshBasicMaterial>this.mesh.material).color.set(this.activeColor);
 		} else {
-			(<THREE.MeshBasicMaterial>this.mesh!.material).color.set(this.color);
+			(<THREE.MeshBasicMaterial>this.mesh.material).color.set(this.color);
 		}
 
 	}

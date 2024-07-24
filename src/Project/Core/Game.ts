@@ -14,6 +14,7 @@ import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
 import BulletsContainer from "../Components/BulletsContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import ModelLoader from "../../Three/ModelLoader";
+import Random from "../../Three/Random";
 
 export default class Game extends Engine
 {
@@ -214,100 +215,36 @@ export default class Game extends Engine
 
 	protected animateShipBullets(){
 
-		//Проверяем столкновение пуль с объектами
-		this.ship.bullets.forEach((bullet : Bullet) => {
-
-			if(bullet.length > 200){
-				//Если пуля улетела за 200, то просто удаляем ее
-				bullet.hide();
-			}else if(bullet.isMoving){
-
-				//Столкновение с безобидными объектами
-				let peaceObjects = [
-					...this.planets.map(planet => planet.planet.getPlanetMesh()!),
-					this.sun.getSunMesh()!
-				];
-
-				if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
-					bullet.boof();
-				}
-
-				//Столкновение с вражескими кораблями
-				this.enemies.some(enemy => {
-
-					if(bullet.checkCollisionWith(enemy)){
-
-						bullet.boom();
-						enemy.hit(bullet.force);
-
-						return true;
-					}
-
-					return false;
-
-				});
-
-			}
-
-			if(bullet.isVisible && bullet.isMoving) {
-				bullet.animate();
-			}
-
-		});
-
-		//Чистим ненужные пули
-		this.ship.clearBullets();
+		this.friendsBullets.animate(
+			[
+				...this.planets.map(planet => planet.planet.getPlanetMesh()),
+				this.sun.getSunMesh()
+			],
+			this.enemies
+		)
 
 	}
 
 	protected animateEnemiesBullets(){
 
-		this.enemies.forEach(enemy => {
-
-			//Проверяем столкновение вражеских пуль с объектами
-			enemy.bullets.forEach((bullet : Bullet) => {
-
-				if(bullet.length > 200){
-					//Если пуля улетела за 200, то просто удаляем ее
-					bullet.hide();
-				}else if(bullet.isMoving){
-
-					//Столкновение с безобидными объектами
-					let peaceObjects = [
-						...this.planets.map(planet => planet.planet.getPlanetMesh()!),
-						this.sun.getSunMesh()!
-					];
-
-					if(peaceObjects.some(object => bullet.checkCollisionWith(object))){
-						bullet.boof();
-					}
-
-					//Столкновение с вражескими кораблями
-					if(bullet.checkCollisionWith(this.ship!)){
-						bullet.boom();
-					}
-
-				}
-
-				if(bullet.isVisible && bullet.isMoving) {
-					bullet.animate();
-				}
-
-			});
-
-			//Удаляем ненужные пули
-			enemy.clearBullets();
-
-		});
+		this.enemiesBullets.animate(
+			[
+				...this.planets.map(planet => planet.planet.getPlanetMesh()),
+				this.sun.getSunMesh()
+			],
+			[
+				this.ship
+			]
+		);
 
 	}
 
 	protected async addEnemy(){
 
 		let enemy = new EnemyReaper(
-			THREE.MathUtils.randInt(100, 500),
-			THREE.MathUtils.randInt(-this.border.radius, this.border.radius),
-			THREE.MathUtils.randInt(-this.border.radius, this.border.radius),
+			Random.int(100, 500),
+			Random.int(-this.border.radius, this.border.radius),
+			Random.int(-this.border.radius, this.border.radius),
 			this.enemiesBullets
 		);
 
@@ -328,10 +265,10 @@ export default class Game extends Engine
 
 				//Ближайшая планета
 				let planet = this.planets.reduce((p, t) => {
-					return p.planet.getPlanetMesh()!.position.distanceTo(enemy.position) > t.planet.getPlanetMesh()!.position.distanceTo(enemy.position) ? t : p;
+					return p.planet.position.distanceTo(enemy.position) > t.planet.position.distanceTo(enemy.position) ? t : p;
 				});
 
-				enemy.setAttackTarget(planet.planet.getPlanetMesh()!);
+				enemy.setAttackTarget(planet.planet);
 				enemy.stopAutoFire();
 
 			}else{
@@ -368,9 +305,9 @@ export default class Game extends Engine
 		}
 
 		//Стрельба из корабля
-		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 500){
+		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 1000){
 
-			await this.ship.fire();
+			this.ship.fire();
 
 			this.shipFireLastTime = Date.now();
 
@@ -379,7 +316,7 @@ export default class Game extends Engine
 		//Отображаем название активной планеты
 		this.planets.forEach((planet : PlanetWithOrbit) => {
 
-			planet.orbit!.setActive(
+			planet.orbit.setActive(
 				this.checkProximityToOrbit(planet.orbit!,  1.2)
 			);
 
