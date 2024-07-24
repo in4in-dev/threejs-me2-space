@@ -5,7 +5,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
 import {Object3D} from "three";
-import BulletsContainer from "./BulletsContainer";
+import AttacksContainer from "./AttacksContainer";
 import Random from "../../Three/Random";
 import Hittable from "./Hittable";
 import Animation from "../../Three/Animation";
@@ -27,7 +27,7 @@ export default abstract class Enemy extends WarShip implements Hittable
 	protected hp : CSS2DObject;
 	protected attackTarget : Object3D | null = null;
 
-	constructor(health : number, startX : number = 0, startY : number = 0, bulletsContainer : BulletsContainer) {
+	constructor(health : number, startX : number = 0, startY : number = 0, bulletsContainer : AttacksContainer) {
 
 		super(startX, startY, 0.05, bulletsContainer);
 
@@ -109,8 +109,8 @@ export default abstract class Enemy extends WarShip implements Hittable
 
 	public animate(){
 
-		if(this.autoFireActive){
-			this.autoFireThrottler(() => this.fire());
+		if(this.autoFireActive && this.attackTarget){
+			this.autoFireThrottler(() => this.fire(this.attackTarget!.position));
 		}
 
 	}

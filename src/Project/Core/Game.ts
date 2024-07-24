@@ -1,19 +1,16 @@
 import Engine from "./Engine";
 import * as THREE from "three";
 import Sun from "../Components/Sun";
-import Planet from "../Components/Planet";
 import Background from "../Components/Background";
 import Orbit from "../Components/Orbit";
 import AsteroidBelt from "../Components/AsteroidBelt";
 import Border from "../Components/Border";
 import {Vector3} from "three";
 import Enemy from "../Components/Enemy";
-import Bullet from "../Components/Bullet";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
-import BulletsContainer from "../Components/BulletsContainer";
+import AttacksContainer from "../Components/AttacksContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
-import ModelLoader from "../../Three/ModelLoader";
 import Random from "../../Three/Random";
 import Animation from "../../Three/Animation";
 
@@ -26,6 +23,10 @@ export default class Game extends Engine
 	protected shipFireAllow : boolean = true;
 	protected shipFireActive : boolean = false;
 	protected shipFireThrottler : Function = Animation.createThrottler(100);
+
+	protected shipAltFireAllow : boolean = true;
+	protected shipAltFireActive : boolean = false;
+	protected shipAltFireThrottler : Function = Animation.createThrottler(2000);
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
@@ -43,8 +44,8 @@ export default class Game extends Engine
 	protected planets : PlanetWithOrbit[] = [];
 	protected enemies : Enemy[] = [];
 
-	protected enemiesBullets : BulletsContainer;
-	protected friendsBullets : BulletsContainer;
+	protected enemiesBullets : AttacksContainer;
+	protected friendsBullets : AttacksContainer;
 
 	constructor(
 		background : Background,
@@ -61,8 +62,8 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.enemiesBullets = new BulletsContainer;
-		this.friendsBullets = new BulletsContainer;
+		this.enemiesBullets = new AttacksContainer;
+		this.friendsBullets = new AttacksContainer;
 
 		this.ship = new NormandyShip(10, 10, 0.3, this.friendsBullets);
 
@@ -124,6 +125,14 @@ export default class Game extends Engine
 					this.shipFireActive = true;
 				}
 
+			}else if(event.code == 'KeyJ'){
+
+				event.preventDefault();
+
+				if(this.shipAltFireAllow){
+					this.shipAltFireActive = true;
+				}
+
 			}
 
 		});
@@ -132,6 +141,8 @@ export default class Game extends Engine
 
 			if (event.code === 'Space') {
 				this.shipFireActive = false;
+			}else if(event.code === 'KeyJ'){
+				this.shipAltFireActive = false;
 			}
 
 		});
@@ -335,15 +346,6 @@ export default class Game extends Engine
 	}
 
 	/**
-	 * Удаляем умерших врагов
-	 */
-	protected clearDiedEnemies(){
-
-
-
-	}
-
-	/**
 	 * Главная функция анимации
 	 */
 	protected tick(){
@@ -360,8 +362,16 @@ export default class Game extends Engine
 
 		//Стрельба из корабля
 		if(this.shipFireActive){
-			this.shipFireThrottler(() => this.ship.fire());
+			this.shipFireThrottler(() => this.ship.fire(
+				new THREE.Vector3(0, -1, 0).applyQuaternion(this.ship.quaternion).normalize()
+			));
 		}
+
+		//Стрельба из корабля
+		if(this.shipAltFireActive){
+			this.shipAltFireThrottler(() => this.ship.altFire());
+		}
+
 
 		//Отображаем название активной планеты
 		this.planets.forEach((planet : PlanetWithOrbit) => {

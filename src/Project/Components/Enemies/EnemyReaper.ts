@@ -1,15 +1,18 @@
 import Enemy from "../Enemy";
 import * as THREE from 'three';
-import {Scene} from "three";
+import {Scene, Vector3} from "three";
 import ModelLoader from "../../../Three/ModelLoader";
-import BulletsContainer from "../BulletsContainer";
+import AttacksContainer from "../AttacksContainer";
+import RayBulletAttack from "../Attacks/RayBulletAttack";
+import Random from "../../../Three/Random";
 
 export default class EnemyReaper extends Enemy
 {
 
 	protected mesh : THREE.Group | null = null;
+	protected bullet : RayBulletAttack | null = null;
 
-	constructor(x : number, y : number, speed : number, bulletGroup : BulletsContainer) {
+	constructor(x : number, y : number, speed : number, bulletGroup : AttacksContainer) {
 
 		super(x, y, speed, bulletGroup);
 
@@ -25,6 +28,11 @@ export default class EnemyReaper extends Enemy
 
 		//Движение до цели
 		if(this.attackTarget){
+
+			if(this.bullet){
+				this.bullet.updateStartPoint(this.position);
+				this.bullet.updateTarget(this.attackTarget.position);
+			}
 
 			let distance = this.position.distanceTo(this.attackTarget.position);
 
@@ -90,6 +98,25 @@ export default class EnemyReaper extends Enemy
 		group.add(glow);
 
 		return group;
+
+	}
+
+	public fire(to : Vector3){
+
+		let bullet = new RayBulletAttack(
+			this.position.clone().setZ(-1).add(new Vector3(0, 1 , 0)),
+			to,
+			Random.int(1, 5),
+			'red'
+		);
+
+		this.bulletsGroup.addBullets(bullet);
+
+		this.bullet = bullet;
+
+	}
+
+	public altFire(to: Vector3) {
 
 	}
 

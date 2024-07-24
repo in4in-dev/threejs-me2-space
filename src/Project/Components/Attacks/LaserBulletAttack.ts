@@ -1,24 +1,24 @@
-import Component from "../Core/Component";
-import * as THREE from 'three';
 import {Vector3} from "three";
+import * as THREE from "three";
+import Attack from "../Attack";
+import Hittable from "../Hittable";
 
-export default class Bullet extends Component
+export default class LaserBulletAttack extends Attack
 {
 
 	public isMoving : boolean = true;
-	public isVisible : boolean = true;
 
-	public from : Vector3;
 	public to : Vector3;
 
 	public color : any;
 	public glowColor : any;
-	public force : number;
-
 	public length : number = 0;
 
 	protected mesh : THREE.Mesh;
 	protected glow : THREE.Sprite;
+
+	protected maxDistanceShow : number = 150;
+	protected maxDistanceDamage : number = 50;
 
 	constructor(
 		from : Vector3,
@@ -27,12 +27,12 @@ export default class Bullet extends Component
 		color : any,
 		glowColor : any
 	) {
-		super();
-		this.from = from;
-		this.to = to;
+
+		super(from.clone(), force);
+
+		this.to = to.clone();
 		this.color = color;
 		this.glowColor = glowColor;
-		this.force = force;
 
 		this.mesh = this.createMesh();
 		this.glow = this.createGlow();
@@ -88,10 +88,6 @@ export default class Bullet extends Component
 
 	}
 
-	public hide(){
-		this.isVisible = false;
-	}
-
 	public checkCollisionWith(object : THREE.Object3D) : boolean
 	{
 
@@ -111,7 +107,7 @@ export default class Bullet extends Component
 
 		this.stopMoving();
 
-		setTimeout(() => this.isVisible = false, 500);
+		setTimeout(() => this.hide(), 500);
 
 	}
 
@@ -124,14 +120,42 @@ export default class Bullet extends Component
 
 		this.stopMoving();
 
-		setTimeout(() => this.isVisible = false, 500);
+		setTimeout(() => this.hide(), 500);
 
 	}
 
 
-	public animate(){
+	public animate(
+		peaceObjects : THREE.Object3D[] = [],
+		enemiesObjects : Hittable[] = []
+	){
 
-		if(this.isMoving) {
+		if(this.length > this.maxDistanceShow){
+			this.hide();
+		}else if(this.isMoving && this.length <= this.maxDistanceDamage){
+
+			if(peaceObjects.some(object => this.checkCollisionWith(object))){
+				this.boof();
+			}
+
+			//Столкновение с вражескими кораблями
+			enemiesObjects.some(enemy => {
+
+				if(this.checkCollisionWith(enemy)){
+
+					this.boom();
+					enemy.hit(this.force);
+
+					return true;
+				}
+
+				return false;
+
+			});
+
+		}
+
+		if(this.isVisible && this.isMoving){
 
 			this.mesh.position.add(
 				this.to.normalize()
@@ -142,5 +166,7 @@ export default class Bullet extends Component
 		}
 
 	}
+
+
 
 }

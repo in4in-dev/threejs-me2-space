@@ -3,8 +3,13 @@ import * as THREE from "three";
 import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
-import BulletsContainer from "../../BulletsContainer";
+import AttacksContainer from "../../AttacksContainer";
 import Hittable from "../../Hittable";
+import {Vector3} from "three";
+import Random from "../../../../Three/Random";
+import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
+import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
+import Attack from "../../Attack";
 
 export class NormandyShip extends WarShip implements Hittable
 {
@@ -13,7 +18,10 @@ export class NormandyShip extends WarShip implements Hittable
 	protected light : THREE.Light;
 	protected engines : NormandyEngines;
 
-	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : BulletsContainer) {
+	protected bulletColor : any = '#ffffff';
+	protected bulletGlowColor : any = '#1c80ff';
+
+	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
 
 		super(x, y, speed, bulletGroup);
 
@@ -107,6 +115,42 @@ export class NormandyShip extends WarShip implements Hittable
 	}
 
 	public hit(){
+
+	}
+
+	public fire(to : Vector3){
+
+		let bullet1 = new LaserBulletAttack(
+			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
+			to,
+			Random.int(1, 5),
+			this.bulletColor,
+			this.bulletGlowColor
+		);
+
+		let bullet2 = new LaserBulletAttack(
+			new Vector3(this.position.x - 0.3, this.position.y - 0.3, 0),
+			to,
+			Random.int(1, 5),
+			this.bulletColor,
+			this.bulletGlowColor
+		);
+
+		this.bulletsGroup.addBullets(bullet1, bullet2)
+
+	}
+
+	public altFire() {
+
+		let bullet = new ShockWaveAttack(
+			this.position,
+			50,
+			20,
+			'white',
+			'white'
+		);
+
+		this.bulletsGroup.addBullets(bullet);
 
 	}
 
