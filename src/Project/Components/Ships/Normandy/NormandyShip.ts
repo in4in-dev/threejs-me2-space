@@ -10,6 +10,7 @@ import Random from "../../../../Three/Random";
 import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
 import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
 import Attack from "../../Attack";
+import RayBulletAttack from "../../Attacks/RayBulletAttack";
 
 export class NormandyShip extends WarShip implements Hittable
 {
@@ -118,7 +119,9 @@ export class NormandyShip extends WarShip implements Hittable
 
 	}
 
-	public fire(to : Vector3){
+	public fire(){
+
+		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).normalize();
 
 		let bullet1 = new LaserBulletAttack(
 			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
@@ -149,6 +152,9 @@ export class NormandyShip extends WarShip implements Hittable
 			'white',
 			'white'
 		);
+
+		bullet.position.y += 7;
+		bullet.position.z = -1;
 
 		this.bulletsGroup.addBullets(bullet);
 

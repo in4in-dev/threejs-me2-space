@@ -362,9 +362,7 @@ export default class Game extends Engine
 
 		//Стрельба из корабля
 		if(this.shipFireActive){
-			this.shipFireThrottler(() => this.ship.fire(
-				new THREE.Vector3(0, -1, 0).applyQuaternion(this.ship.quaternion).normalize()
-			));
+			this.shipFireThrottler(() => this.ship.fire());
 		}
 
 		//Стрельба из корабля

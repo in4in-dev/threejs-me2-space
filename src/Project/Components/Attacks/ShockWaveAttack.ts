@@ -2,6 +2,7 @@ import Attack from "../Attack";
 import {Object3D, Vector3} from "three";
 import * as THREE from 'three';
 import Hittable from "../Hittable";
+import Random from "../../../Three/Random";
 
 export default class ShockWaveAttack extends Attack
 {
@@ -13,7 +14,7 @@ export default class ShockWaveAttack extends Attack
 
 	protected speed : number = 500;
 
-	protected mesh : THREE.Mesh;
+	protected mesh : THREE.Points;
 
 	protected hitEnemies : Hittable[] = [];
 
@@ -36,13 +37,46 @@ export default class ShockWaveAttack extends Attack
 
 	}
 
-	protected createBody(radius : number) : THREE.Mesh
+	protected generatePositions(radius : number) : number[]
 	{
 
-		let mesh = new THREE.Mesh(
-			new THREE.CircleGeometry(radius, 64),
-			new THREE.MeshBasicMaterial({ color: this.color, transparent : true, opacity : 0.2 })
-		);
+		let positions = [];
+
+		for (let i = 0; i < radius * 2000; i++) {
+
+			let theta = 2 * Math.PI * Math.random();
+
+			let x = Random.float(0.9, 1.1) * radius *  Math.cos(theta);
+			let y = Random.float(0.9, 1.1) * radius *  Math.sin(theta);
+			let z = -2;
+
+			positions.push(x, y, z);
+
+		}
+
+		return positions;
+
+	}
+
+	protected createBody(radius : number) : THREE.Points
+	{
+
+		// let geometry = new THREE.CircleGeometry(radius, 64);
+
+		let positions = this.generatePositions(radius);
+
+		let geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+		let material = new THREE.PointsMaterial({
+			// map: particleTexture,
+			size: 0.1,
+			color : 'white',
+			opacity : 0.4,
+			transparent: true
+		});
+
+		let mesh = new THREE.Points(geometry, material);
 
 		mesh.position.copy(this.from);
 

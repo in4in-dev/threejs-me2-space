@@ -11,6 +11,7 @@ export default class RayBulletAttack extends Attack
 	protected color : any;
 
 	protected mesh : THREE.Mesh;
+	protected glow : THREE.Sprite;
 	protected createTime : number;
 
 	protected speed : number = 200;
@@ -30,6 +31,9 @@ export default class RayBulletAttack extends Attack
 
 		this.createTime = Date.now();
 		this.mesh = this.createBody();
+		this.glow = this.createGlow();
+
+		this.mesh.add(this.glow);
 
 		this.add(this.mesh);
 
@@ -55,16 +59,38 @@ export default class RayBulletAttack extends Attack
 
 	}
 
-	protected noEffect(){
+	protected createGlow() : THREE.Sprite
+	{
 
+		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
+
+		let glowMaterial = new THREE.SpriteMaterial({
+			map: glowTexture,
+			opacity : 0,
+			transparent: true,
+			blending: THREE.AdditiveBlending,
+			depthWrite:false
+		});
+
+		let glowSprite = new THREE.Sprite(glowMaterial);
+		glowSprite.scale.set(4, 2, 2);
+
+		return glowSprite;
+
+	}
+
+	protected noEffect(){
+		this.glow.material.opacity = 0;
 	}
 
 	protected boom(){
-
+		this.glow.material.color.set('#ff8b33');
+		this.glow.material.opacity = 1;
 	}
 
 	protected boof(){
-
+		this.glow.material.color.set('gray');
+		this.glow.material.opacity = 1;
 	}
 
 	public updateTarget(to : Vector3){
@@ -83,17 +109,60 @@ export default class RayBulletAttack extends Attack
 
 			this.noEffect();
 
+			let progress = this.getRayProgress(),
+				maxLength = this.from.distanceTo(this.to),
+				length = progress * maxLength;
+
 			let direction = new THREE.Vector3().subVectors(this.from, this.to).normalize();
 
-			let progress = this.getRayProgress(),
-				length = progress * this.from.distanceTo(this.to);
+			let boofed = peaceObjects.some(obj => {
 
-			peaceObjects.some(obj => {
-				//@TODO
+				let raycastler = new THREE.Raycaster(this.from, direction.clone().multiplyScalar(-1), 0, length);
+				let enemyBox = new THREE.Box3().setFromObject(obj);
+
+				let vector = new Vector3();
+
+				if(raycastler.ray.intersectBox(enemyBox, vector)){
+
+					length = Math.min(
+						this.from.distanceTo(vector),
+						length
+					);
+
+					this.boof();
+
+					return true;
+
+				}
+
+				return false;
+
 			});
 
-			enemies.some(enemy => {
-				//@TODO
+			boofed || enemies.some(enemy => {
+
+				let raycastler = new THREE.Raycaster(this.from, direction.clone().multiplyScalar(-1), 0, length);
+				let enemyBox = new THREE.Box3().setFromObject(enemy);
+
+				let vector = new Vector3();
+
+				if(raycastler.ray.intersectBox(enemyBox, vector)){
+
+					length = Math.min(
+						this.from.distanceTo(vector),
+						length
+					);
+
+					this.damageThrottler(() => enemy.hit(this.force));
+
+					this.boom();
+
+					return true;
+
+				}
+
+				return false;
+
 			});
 
 
@@ -102,7 +171,7 @@ export default class RayBulletAttack extends Attack
 
 			this.mesh.position.copy(
 				this.from.clone().add(
-					this.to.clone().sub(this.from).multiplyScalar(progress / 2)
+					this.to.clone().sub(this.from).multiplyScalar((length / maxLength) / 2)
 				)
 			);
 
@@ -112,6 +181,7 @@ export default class RayBulletAttack extends Attack
 
 			this.mesh.setRotationFromQuaternion(quaternion);
 
+			this.glow.position.set(0, -length / 2, 0);
 
 		}
 

@@ -47,7 +47,7 @@ export default class LaserBulletAttack extends Attack
 	protected createGlow() : THREE.Sprite
 	{
 
-		let glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
+		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
 
 		let glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
