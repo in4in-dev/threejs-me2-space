@@ -20,7 +20,7 @@ export default class EnemyReaper extends Enemy
 
 	}
 
-	public async animate(): Promise<void>
+	public animate()
 	{
 
 		//Движение до цели
@@ -47,7 +47,7 @@ export default class EnemyReaper extends Enemy
 		}
 
 		//Автоматический огонь
-		await super.animate();
+		super.animate();
 
 	}
 

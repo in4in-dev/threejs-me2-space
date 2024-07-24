@@ -119,7 +119,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	public async animate() : Promise<void>
+	public animate()
 	{
 
 		let positions = new Float32Array(this.positions.length);

@@ -8,6 +8,7 @@ import {Object3D} from "three";
 import BulletsContainer from "./BulletsContainer";
 import Random from "../../Three/Random";
 import Hittable from "./Hittable";
+import Animation from "../../Three/Animation";
 
 export default abstract class Enemy extends WarShip implements Hittable
 {
@@ -16,8 +17,8 @@ export default abstract class Enemy extends WarShip implements Hittable
 	public isVisible : boolean = true;
 
 	protected autoFireActive : boolean = false;
-	protected autoFireInterval : number = 1000;
-	protected autoFireLastTime : number = 0;
+	protected autoFireThrottler : Function = Animation.createThrottler(1000);
+
 	protected startHealth : number;
 
 	protected bulletColor = 'red';
@@ -106,14 +107,10 @@ export default abstract class Enemy extends WarShip implements Hittable
 		this.attackTarget = object;
 	}
 
-	public async animate(){
+	public animate(){
 
-		//Автоматический огонь
-		let now = Date.now();
-
-		if(this.autoFireActive && now - this.autoFireLastTime > this.autoFireInterval){
-			this.fire();
-			this.autoFireLastTime = now;
+		if(this.autoFireActive){
+			this.autoFireThrottler(() => this.fire());
 		}
 
 	}

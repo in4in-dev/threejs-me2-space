@@ -15,23 +15,25 @@ import BulletsContainer from "../Components/BulletsContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import ModelLoader from "../../Three/ModelLoader";
 import Random from "../../Three/Random";
+import Animation from "../../Three/Animation";
 
 export default class Game extends Engine
 {
 
 	protected shipMovingAllow : boolean = true;
 	protected shipMovingActive : boolean = false;
-	protected shipMovingTarget : any = null;
 
 	protected shipFireAllow : boolean = true;
 	protected shipFireActive : boolean = false;
-	protected shipFireLastTime : number = 0;
+	protected shipFireThrottler : Function = Animation.createThrottler(100);
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
-	protected enemyLastAddedTime : number = 0;
 	protected enemyMaxCount : number = 3;
+	protected enemySpawnThrottler : Function = Animation.createThrottler(5000);
+
+	protected showAxis : boolean = false;
 
 	protected background : Background;
 	protected ship : NormandyShip;
@@ -66,13 +68,19 @@ export default class Game extends Engine
 
 	}
 
-	public async init(){
+	/**
+	 * Инициализация игры
+	 */
+	public init(){
 
 		this.initScene();
 		this.initListeners();
 
 	}
 
+	/**
+	 * Установка обработчиков мыши и клавиатуры
+	 */
 	protected initListeners(){
 
 		window.addEventListener('mousedown', (event) => {
@@ -101,7 +109,6 @@ export default class Game extends Engine
 
 			if(this.shipMovingAllow) {
 				this.shipMovingActive = false;
-				this.shipMovingTarget = this.ship.position;
 				this.ship.stopEngines();
 			}
 
@@ -131,6 +138,9 @@ export default class Game extends Engine
 
 	}
 
+	/**
+	 * Инициализация сцены
+	 */
 	protected initScene(){
 
 		this.scene.add(
@@ -146,10 +156,15 @@ export default class Game extends Engine
 
 		this.moveCameraToShip();
 
-		// this.showAxisHelper();
+		if(this.showAxis){
+			this.showAxisHelper();
+		}
 
 	}
 
+	/**
+	 * Показать оси X,Y,Z
+	 */
 	protected showAxisHelper() : void
 	{
 		this.scene.add(
@@ -157,6 +172,9 @@ export default class Game extends Engine
 		);
 	}
 
+	/**
+	 * Проверяем нахождение на орбите
+	 */
 	protected checkProximityToOrbit(orbit : Orbit, proximityDistance : number)  : boolean
 	{
 
@@ -166,6 +184,9 @@ export default class Game extends Engine
 
 	}
 
+	/**
+	 * Проверяем нахождение на планете
+	 */
 	protected checkProximityToPlanet(planet : PlanetWithOrbit, proximityDistance : number) : boolean
 	{
 
@@ -175,19 +196,24 @@ export default class Game extends Engine
 
 	}
 
+	/**
+	 * Двигаем камеру за кораблем
+	 */
 	protected moveCameraToShip(){
 
-		// Перемещение камеры за кораблем
 		this.camera.position.x = this.ship.position.x;
-		this.camera.position.y = this.ship.position.y - 15; // Камера будет находиться ниже корабля
-		this.camera.position.z = this.ship.position.z + 10; // Камера будет находиться позади корабля
+		this.camera.position.y = this.ship.position.y - 15;
+		this.camera.position.z = this.ship.position.z + 10;
 		this.camera.lookAt(
 			this.ship.position.clone().setZ(0)
 		);
 
 	}
 
-	protected updateShipMovingTarget(){
+	/**
+	 * Обновляем позицию корабля
+	 */
+	protected updateShipPosition(){
 
 		// Обновление координат мыши
 		let mouse = new THREE.Vector2(
@@ -212,10 +238,13 @@ export default class Game extends Engine
 			intersection.normalize().multiplyScalar(this.border.radius);
 		}
 
-		this.shipMovingTarget = intersection;
+		this.ship.moveTo(intersection);
 
 	}
 
+	/**
+	 * Анимируем наши пули
+	 */
 	protected animateShipBullets(){
 
 		this.friendsBullets.animate(
@@ -228,6 +257,9 @@ export default class Game extends Engine
 
 	}
 
+	/**
+	 * Анимируем вражеские пули
+	 */
 	protected animateEnemiesBullets(){
 
 		this.enemiesBullets.animate(
@@ -242,7 +274,10 @@ export default class Game extends Engine
 
 	}
 
-	protected async addEnemy(){
+	/**
+	 * Добавляем врага
+	 */
+	protected addEnemy(){
 
 		let enemy = new EnemyReaper(
 			Random.int(100, 500),
@@ -257,6 +292,9 @@ export default class Game extends Engine
 
 	}
 
+	/**
+	 * Анимируем поведение врагов
+	 */
 	protected animateEnemies(){
 
 		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
@@ -285,7 +323,28 @@ export default class Game extends Engine
 
 	}
 
-	protected async tick(){
+	/**
+	 * Удаляем умерших врагов
+	 */
+	protected clearDiedEnemies(){
+
+		this.enemies = this.enemies.filter(enemy => {
+
+			if(!enemy.isVisible){
+				this.scene.remove(enemy);
+				return false;
+			}
+
+			return true;
+
+		});
+
+	}
+
+	/**
+	 * Главная функция анимации
+	 */
+	protected tick(){
 
 		// console.time('tick');
 
@@ -293,27 +352,15 @@ export default class Game extends Engine
 		if (this.shipMovingAllow) {
 
 			if(this.shipMovingActive) {
-				this.updateShipMovingTarget();
-			}
-
-
-			if(this.shipMovingTarget){
-
-				this.ship.moveTo(this.shipMovingTarget);
-
+				this.updateShipPosition();
 				this.moveCameraToShip();
-
 			}
 
 		}
 
 		//Стрельба из корабля
-		if(this.shipFireActive && (Date.now() - this.shipFireLastTime) > 100){
-
-			this.ship.fire();
-
-			this.shipFireLastTime = Date.now();
-
+		if(this.shipFireActive){
+			this.shipFireThrottler(() => this.ship.fire());
 		}
 
 		//Отображаем название активной планеты
@@ -342,40 +389,19 @@ export default class Game extends Engine
 		this.animateEnemiesBullets();
 
 		//Удаляем ненужные корабли
-		this.enemies = this.enemies.filter(enemy => {
-
-			if(!enemy.isVisible){
-				this.scene.remove(enemy);
-				return false;
-			}
-
-			return true;
-
-		});
-
-
-		//Добавляем врагов
-		if(this.enemies.length < this.enemyMaxCount && Date.now() - this.enemyLastAddedTime > 5000){
-
-			await this.addEnemy();
-
-			this.enemyLastAddedTime = Date.now();
-
-		}
-
+		this.clearDiedEnemies();
 
 		//Анимируем действия врагов
 		this.animateEnemies();
 
-
-		//Анимация пояса астероидов
-		// this.belt.animateCollision(this.ship.mesh!);
-
+		//Добавляем врагов
+		if(this.enemies.length < this.enemyMaxCount){
+			this.enemySpawnThrottler(() => this.addEnemy());
+		}
 
 	}
 
 	public afterTick(){
-		// console.timeEnd('tick');
 	}
 
 }

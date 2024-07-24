@@ -4,6 +4,7 @@ import {WebGLRenderer} from "three";
 import {CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import * as TWEEN from '@tweenjs/tween.js';
 import ModelLoader from "../../Three/ModelLoader";
+import Animation from "../../Three/Animation";
 
 
 export default abstract class Engine

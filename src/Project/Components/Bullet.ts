@@ -129,7 +129,7 @@ export default class Bullet extends Component
 	}
 
 
-	public async animate(){
+	public animate(){
 
 		if(this.isMoving) {
 

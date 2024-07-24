@@ -65,38 +65,5 @@ export default class Belt extends Component
 
 	}
 
-	// public animateCollision(mesh : THREE.Mesh){
-	//
-	// 	let positions = this.mesh.geometry.attributes.position.array;
-	//
-	// 	for (let i = 0; i < positions.length; i += 3) {
-	// 		let dx = mesh.position.x - positions[i];
-	// 		let dy = mesh.position.y - positions[i + 1];
-	// 		let dz = mesh.position.z - positions[i + 2];
-	// 		let distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-	//
-	// 		if (distance < 2) {
-	//
-	// 			// Вычисление силы отталкивания
-	// 			let forceX = (dx / distance) * -2;
-	// 			let forceY = (dy / distance) * -2;
-	// 			let forceZ = (dz / distance) * -0.5;
-	//
-	// 			// Обновление позиции астероида
-	// 			positions[i] += forceX;
-	// 			positions[i + 1] += forceY;
-	// 			positions[i + 2] += forceZ;
-	//
-	// 			// Установка флага обновления позиций
-	// 			let particleGeometry = new THREE.BufferGeometry();
-	// 			particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-	//
-	// 			this.mesh.geometry.copy(particleGeometry);
-	// 		}
-	// 	}
-	//
-	//
-	// }
-
 
 }

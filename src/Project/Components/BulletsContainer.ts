@@ -19,7 +19,7 @@ export default class BulletsContainer<B extends Bullet = Bullet> extends Compone
 	}
 
 
-	public async animate(
+	public animate(
 		peaceObjects : THREE.Object3D[] = [],
 		enemiesObjects : Hittable[] = [],
 		maxDistanceDamage : number = 80,

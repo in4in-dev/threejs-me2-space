@@ -72,7 +72,7 @@ export default class Sparks extends Component
 
 	}
 
-	public async animate(){
+	public animate(){
 
 		for(let i = 0; i< this.positions.length;i+=3){
 
