@@ -97,7 +97,7 @@ export class NormandyShip extends WarShip implements Hittable
 
 	}
 
-	public animateEngines(){
+	public animate(){
 
 		this.engines.r1.animate();
 		this.engines.r2.animate();

@@ -321,13 +321,7 @@ export default class Game extends Engine
 
 		});
 
-	}
-
-	/**
-	 * Удаляем умерших врагов
-	 */
-	protected clearDiedEnemies(){
-
+		//Удаляем уничтоженных врагов
 		this.enemies = this.enemies.filter(enemy => {
 
 			if(!enemy.isVisible){
@@ -338,6 +332,14 @@ export default class Game extends Engine
 			return true;
 
 		});
+	}
+
+	/**
+	 * Удаляем умерших врагов
+	 */
+	protected clearDiedEnemies(){
+
+
 
 	}
 
@@ -345,8 +347,6 @@ export default class Game extends Engine
 	 * Главная функция анимации
 	 */
 	protected tick(){
-
-		// console.time('tick');
 
 		//Обновление позиции для движения корабля
 		if (this.shipMovingAllow) {
@@ -377,19 +377,16 @@ export default class Game extends Engine
 		});
 
 		//Анимируем солнце
-		this.sun.animateSparks();
+		this.sun.animate();
 
 		//Анимируем двигатели корабля
-		this.ship.animateEngines();
+		this.ship.animate();
 
 		//Анимируем наши пули
 		this.animateShipBullets();
 
 		//Анимируем вражеские пули
 		this.animateEnemiesBullets();
-
-		//Удаляем ненужные корабли
-		this.clearDiedEnemies();
 
 		//Анимируем действия врагов
 		this.animateEnemies();

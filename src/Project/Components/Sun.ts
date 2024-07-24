@@ -90,7 +90,7 @@ export default class Sun extends Component
 		return new Sparks(this.radius, this.color);
 	}
 
-	public animateSparks(){
+	public animate(){
 		this.sparks.animate();
 	}
 

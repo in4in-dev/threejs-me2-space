@@ -6,29 +6,23 @@ import Random from "../../Three/Random";
 export default class Asteroid extends Component
 {
 
-	protected texture : string;
-	protected material : string;
-
 	protected mesh : THREE.Object3D;
 
 	constructor(texture : string, material : string) {
 
 		super();
 
-		this.texture = texture;
-		this.material = material;
-
-		this.mesh = this.createBody();
+		this.mesh = this.createBody(texture, material);
 
 		//Добавляем на сцену
 		this.add(this.mesh);
 
 	}
 
-	protected createBody() : THREE.Object3D
+	protected createBody(texture : string, material : string) : THREE.Object3D
 	{
 
-		let asteroid = new ModelLoader(this.texture, this.material).loadInBackground();
+		let asteroid = new ModelLoader(texture, material).loadInBackground();
 
 		let scale = Random.float(0.0001, 0.03);
 
