@@ -1,73 +1,76 @@
 import * as THREE from 'three';
 // @ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import Orbit from "./Orbit";
-import Sphere from "./Sphere";
 import Moon from "./Moon";
 import Random from "../../Three/Random";
+import Component from "../Core/Component";
 
-export default class Planet extends Sphere
+export default class Planet extends Component
 {
 
 	public name : string;
-	public orbitRadius : number;
-	public orbitAngle : number;
-	public moonsCount : number;
 	public hasRing : boolean;
 	public activeColor = 0xff0000;
+	public texture : string;
+	public radius : number;
 
-	public orbit : Orbit | null = null;
-	public moons : Moon[] | null = null;
+	public moons : Moon[] = [];
 
 	protected label : CSS2DObject | null = null;
 	protected mesh : THREE.Mesh | null = null;
 	protected rings : THREE.Group | null = null;
-	protected group : THREE.Group | null = null;
 
 	constructor(
 		radius : number,
-		orbitRadius : number,
-		orbitAngle : number,
 		name : string,
 		texture : string,
-		moonsCount : number = 0,
+		moons : Moon[] = [],
 		hasRing : boolean = false
 	) {
+		super();
 
-		super(radius, texture);
-
+		this.radius = radius;
+		this.texture = texture;
 		this.name = name;
-		this.moonsCount = moonsCount;
-		this.orbitAngle = orbitAngle;
 		this.hasRing = hasRing;
-		this.orbitRadius = orbitRadius;
+		this.moons = moons;
 
 	}
 
 	public async load() : Promise<this>
 	{
 
-		this.group = await this.createGroup();
-		this.add(this.group);
-
-		this.orbit = await this.createOrbit();
-		this.add(this.orbit);
-
 		this.mesh = await this.createBody();
-		this.group.add(this.mesh);
+		this.add(this.mesh);
 
 		this.label = await this.createLabel();
-		this.group.add(this.label);
-
-		this.moons = await this.createMoons(this.moonsCount);
+		this.add(this.label);
 
 		if(this.moons.length){
-			this.group.add(...this.moons);
+
+			for(let i = 0; i < this.moons.length; i++){
+
+				await this.moons[i].load();
+
+				//Случайная позиция
+				let angle = Math.random() * 2 * Math.PI;
+
+				this.moons[i].position.set(
+					(this.radius * 1.2) * Math.cos(angle),
+					(this.radius + 1.2) * Math.sin(angle),
+					0.5
+				);
+
+			}
+
+
+			this.add(...this.moons);
+
 		}
 
 		if(this.hasRing){
 			this.rings = await this.createRings();
-			this.group.add(this.rings);
+			this.add(this.rings);
 		}
 
 		return this;
@@ -90,31 +93,6 @@ export default class Planet extends Sphere
 	public getPlanetMesh() : THREE.Mesh | null
 	{
 		return this.mesh;
-	}
-
-	public getPlanetGroup() : THREE.Group | null
-	{
-		return this.group;
-	}
-
-	protected async createGroup() : Promise<THREE.Group>
-	{
-
-		let group = new THREE.Group();
-
-		group.position.set(
-			this.orbitRadius * Math.cos(this.orbitAngle),
-			this.orbitRadius * Math.sin(this.orbitAngle),
-			0
-		);
-
-		return group;
-
-	}
-
-	protected async createOrbit() : Promise<Orbit>
-	{
-		return await new Orbit(this.orbitRadius).load();
 	}
 
 	protected createRing(minRadius : number, maxRadius : number, color : any) : THREE.Mesh
@@ -159,42 +137,22 @@ export default class Planet extends Sphere
 
 	}
 
-	protected async createMoons(moonsCount : number) : Promise<Moon[]>
+
+	protected async createBody() : Promise<THREE.Mesh>
 	{
 
-		//Moons
-		let moonTextures = [
-			"../../assets/planets/1.png",
-			"../../assets/planets/2.png",
-			"../../assets/planets/3.png",
-			"../../assets/planets/4.png",
-			"../../assets/planets/5.png",
-			"../../assets/planets/6.png",
-			"../../assets/planets/7.png",
-			"../../assets/planets/8.png"
-		];
+		let planetTexturre = new THREE.TextureLoader().load(this.texture);
+		let planetMaterial = new THREE.MeshLambertMaterial({ map: planetTexturre });
 
-		let moons = [];
-		for(let i = 0; i < moonsCount; i++){
+		let planet = new THREE.Mesh(
+			new THREE.SphereGeometry(this.radius, 200, 200),
+			planetMaterial
+		);
 
-			let moonRadius = Random.float(this.radius * 0.1, this.radius * 0.2);
-
-			let moon = new Moon(
-				this.radius,
-				moonRadius,
-				Random.arr(moonTextures),
-			);
-
-			await moon.load();
-
-			moons.push(moon);
-
-		}
-
-
-		return moons;
+		return planet;
 
 	}
+
 
 	protected async createLabel() : Promise<CSS2DObject>
 	{

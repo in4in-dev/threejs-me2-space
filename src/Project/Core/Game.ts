@@ -12,6 +12,7 @@ import Bullet from "../Components/Bullet";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
 import BulletsContainer from "../Components/BulletsContainer";
+import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 
 export default class Game extends Engine
 {
@@ -35,7 +36,7 @@ export default class Game extends Engine
 	protected sun : Sun;
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
-	protected planets : Planet[] = [];
+	protected planets : PlanetWithOrbit[] = [];
 	protected enemies : Enemy[] = [];
 
 	protected enemiesBullets : BulletsContainer;
@@ -45,7 +46,7 @@ export default class Game extends Engine
 		background : Background,
 		sun : Sun,
 		asteroidBelt : AsteroidBelt,
-		planets : Planet[],
+		planets : PlanetWithOrbit[],
 		border : Border
 	) {
 		super(document.body);
@@ -170,10 +171,10 @@ export default class Game extends Engine
 
 	}
 
-	protected checkProximityToPlanet(planet : Planet, proximityDistance : number) : boolean
+	protected checkProximityToPlanet(planet : PlanetWithOrbit, proximityDistance : number) : boolean
 	{
 
-		let distance = this.ship.position.distanceTo(planet.getPlanetGroup()!.position);
+		let distance = this.ship.position.distanceTo(planet.planet.position);
 
 		return distance < proximityDistance;
 
@@ -232,7 +233,7 @@ export default class Game extends Engine
 
 				//Столкновение с безобидными объектами
 				let peaceObjects = [
-					...this.planets.map(planet => planet.getPlanetMesh()!),
+					...this.planets.map(planet => planet.planet.getPlanetMesh()!),
 					this.sun.getSunMesh()!
 				];
 
@@ -282,7 +283,7 @@ export default class Game extends Engine
 
 					//Столкновение с безобидными объектами
 					let peaceObjects = [
-						...this.planets.map(planet => planet.getPlanetMesh()!),
+						...this.planets.map(planet => planet.planet.getPlanetMesh()!),
 						this.sun.getSunMesh()!
 					];
 
@@ -338,10 +339,10 @@ export default class Game extends Engine
 
 				//Ближайшая планета
 				let planet = this.planets.reduce((p, t) => {
-					return p.getPlanetMesh()!.position.distanceTo(enemy.position) > t.getPlanetMesh()!.position.distanceTo(enemy.position) ? t : p;
+					return p.planet.getPlanetMesh()!.position.distanceTo(enemy.position) > t.planet.getPlanetMesh()!.position.distanceTo(enemy.position) ? t : p;
 				});
 
-				enemy.setAttackTarget(planet.getPlanetMesh()!);
+				enemy.setAttackTarget(planet.planet.getPlanetMesh()!);
 				enemy.stopAutoFire();
 
 			}else{
@@ -387,13 +388,13 @@ export default class Game extends Engine
 		}
 
 		//Отображаем название активной планеты
-		this.planets.forEach((planet : Planet) => {
+		this.planets.forEach((planet : PlanetWithOrbit) => {
 
 			planet.orbit!.setActive(
 				this.checkProximityToOrbit(planet.orbit!,  1.2)
 			);
 
-			planet.setActive(
+			planet.planet.setActive(
 				this.checkProximityToPlanet(planet, 1.5)
 			);
 

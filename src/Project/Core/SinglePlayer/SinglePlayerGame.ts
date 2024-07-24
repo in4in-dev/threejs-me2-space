@@ -5,6 +5,9 @@ import Background from "../../Components/Background";
 import AsteroidBelt from "../../Components/AsteroidBelt";
 import Border from "../../Components/Border";
 import Game from "../Game";
+import PlanetWithOrbit from "../../Components/PlanetWithOrbit";
+import Moon from "../../Components/Moon";
+import Random from "../../../Three/Random";
 
 export default class SinglePlayerGame extends Game
 {
@@ -68,15 +71,32 @@ export default class SinglePlayerGame extends Game
 
 			orbitRadius += THREE.MathUtils.randInt(5, 10);
 
+			let planetRadius = THREE.MathUtils.randFloat(0.2, 1.5);
+
+			let moons = [];
+			for(let m = 0, moonsCount = THREE.MathUtils.randInt(0, 3); m < moonsCount; m++){
+
+				let moon = new Moon(
+					Random.float(planetRadius * 0.1, planetRadius * 0.2),
+					'Test',
+					Random.arr(planetTextures)
+				);
+
+				moons.push(moon);
+
+			}
+
 			planets.push(
-				new Planet(
-					THREE.MathUtils.randFloat(0.2, 1.5),
+				new PlanetWithOrbit(
 					orbitRadius,
+					new Planet(
+						planetRadius,
+						planetNames[i],
+						planetTextures[i],
+						moons,
+						!THREE.MathUtils.randInt(0, 3)
+					),
 					Math.random() * 2 * Math.PI,
-					planetNames[i],
-					planetTextures[i],
-					THREE.MathUtils.randInt(0, 3),
-					!THREE.MathUtils.randInt(0, 3)
 				)
 			);
 
