@@ -7,9 +7,9 @@ import WarShip from "./WarShip";
 import {Object3D, Vector3} from "three";
 import AttacksContainer from "./AttacksContainer";
 import Random from "../../Three/Random";
-import Hittable from "./Hittable";
+import Hittable from "./../Contracts/Hittable";
 import Animation from "../../Three/Animation";
-import Healthy from "./Healthy";
+import Healthy from "./../Contracts/Healthy";
 import HealsContainer from "./HealsContainer";
 import Heal from "./Heal";
 

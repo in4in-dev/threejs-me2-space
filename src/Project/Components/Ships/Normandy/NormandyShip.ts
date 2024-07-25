@@ -4,14 +4,12 @@ import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
 import AttacksContainer from "../../AttacksContainer";
-import Hittable from "../../Hittable";
+import Hittable from "../../../Contracts/Hittable";
 import {Vector3} from "three";
 import Random from "../../../../Three/Random";
 import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
 import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
-import Attack from "../../Attack";
-import RayBulletAttack from "../../Attacks/RayBulletAttack";
-import Healthy from "../../Healthy";
+import Healthy from "../../../Contracts/Healthy";
 
 export class NormandyShip extends WarShip implements Hittable, Healthy
 {

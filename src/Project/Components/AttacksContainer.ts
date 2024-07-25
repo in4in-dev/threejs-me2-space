@@ -1,6 +1,6 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
-import Hittable from "./Hittable";
+import Hittable from "../Contracts/Hittable";
 import Attack from "./Attack";
 
 export default class AttacksContainer extends Component

@@ -1,7 +1,7 @@
 import Component from "../Core/Component";
 import {Vector3} from "three";
 import * as THREE from "three";
-import Hittable from "./Hittable";
+import Hittable from "../Contracts/Hittable";
 
 export default abstract class Attack extends Component
 {

@@ -371,6 +371,11 @@ export default class Game extends Engine
 
 		(<HTMLElement>this.shipHpIndicator.children[0]).style.width = percent.toFixed(2) + '%';
 
+		if(!this.ship.health){
+			//@TODO пока просто восстанавливаем здоровье
+			this.ship.heal(this.ship.maxHealth);
+		}
+
 	}
 
 	/**

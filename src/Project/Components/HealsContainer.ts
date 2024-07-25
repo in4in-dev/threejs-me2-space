@@ -1,8 +1,7 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
-import {Vector3} from "three";
 import Heal from "./Heal";
-import Healthy from "./Healthy";
+import Healthy from "../Contracts/Healthy";
 
 export default class HealsContainer extends Component
 {

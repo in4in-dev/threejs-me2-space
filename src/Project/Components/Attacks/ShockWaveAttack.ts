@@ -1,7 +1,7 @@
 import Attack from "../Attack";
 import {Object3D, Vector3} from "three";
 import * as THREE from 'three';
-import Hittable from "../Hittable";
+import Hittable from "../../Contracts/Hittable";
 import Random from "../../../Three/Random";
 
 export default class ShockWaveAttack extends Attack

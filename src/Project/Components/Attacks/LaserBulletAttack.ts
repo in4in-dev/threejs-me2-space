@@ -1,7 +1,7 @@
 import {Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
-import Hittable from "../Hittable";
+import Hittable from "../../Contracts/Hittable";
 
 export default class LaserBulletAttack extends Attack
 {

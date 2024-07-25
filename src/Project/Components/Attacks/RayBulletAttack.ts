@@ -1,7 +1,7 @@
 import {Object3D, Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
-import Hittable from "../Hittable";
+import Hittable from "../../Contracts/Hittable";
 import Animation from "../../../Three/Animation";
 
 export default class RayBulletAttack extends Attack
