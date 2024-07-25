@@ -9,13 +9,14 @@ import {AxesHelper, Vector3} from "three";
 import Mob from "../Components/Mob";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
-import AttacksContainer from "../Components/AttacksContainer";
+import AttacksContainer from "../Containers/AttacksContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import Random from "../../Three/Random";
 import {Animation, AnimationThrottler} from "../../Three/Animation";
-import HealsContainer from "../Components/HealsContainer";
+import HealsContainer from "../Containers/HealsContainer";
 import Enemy from "../Components/Enemy";
 import FriendHammerhead from "../Components/Friends/FriendHammerhead";
+import MobsContainer from "../Containers/MobsContainer";
 
 export default class Game extends Engine
 {
@@ -53,8 +54,9 @@ export default class Game extends Engine
 	protected border : Border;
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : PlanetWithOrbit[] = [];
-	protected enemies : Enemy[] = [];
-	protected friends : Mob[] = [];
+
+	protected enemiesContainer : MobsContainer<Enemy>;
+	protected friendsContainer : MobsContainer<Mob>;
 
 	protected enemiesAttacks : AttacksContainer;
 	protected friendsAttacks : AttacksContainer;
@@ -82,6 +84,9 @@ export default class Game extends Engine
 		this.enemiesAttacks = new AttacksContainer;
 		this.friendsAttacks = new AttacksContainer;
 		this.healsContainer = new HealsContainer;
+
+		this.friendsContainer = new MobsContainer<Mob>;
+		this.enemiesContainer = new MobsContainer<Enemy>;
 
 		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
 
@@ -224,6 +229,8 @@ export default class Game extends Engine
 			this.friendsAttacks,
 			this.enemiesAttacks,
 			this.healsContainer,
+			this.enemiesContainer,
+			this.friendsContainer,
 			...this.planets
 		)
 
@@ -325,7 +332,7 @@ export default class Game extends Engine
 				...this.planets.map(planet => planet.planet.getPlanetMesh()),
 				this.sun.getSunMesh()
 			],
-			this.enemies
+			this.enemiesContainer.getAliveMobs()
 		)
 
 	}
@@ -342,7 +349,7 @@ export default class Game extends Engine
 			],
 			[
 				this.ship,
-				...this.friends
+				...this.friendsContainer.getAliveMobs()
 			]
 		);
 
@@ -362,9 +369,7 @@ export default class Game extends Engine
 			this.healsContainer
 		);
 
-		this.enemies.push(enemy);
-
-		this.scene.add(enemy);
+		this.enemiesContainer.addMobs(enemy);
 
 	}
 
@@ -381,9 +386,7 @@ export default class Game extends Engine
 			this.friendsAttacks
 		);
 
-		this.friends.push(friend);
-
-		this.scene.add(friend);
+		this.friendsContainer.addMobs(friend);
 
 	}
 
@@ -392,13 +395,13 @@ export default class Game extends Engine
 	 */
 	protected animateEnemies(){
 
-		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
+		this.enemiesContainer.getAliveMobs().forEach(enemy => {
 
 			//Дистанция до нас
 			enemy.setNearestAttackTarget(
 				[
 					this.ship,
-					...this.friends.filter(friend => friend.health > 0)
+					...this.friendsContainer.getAliveMobs()
 				],
 				50
 			);
@@ -419,26 +422,17 @@ export default class Game extends Engine
 
 		});
 
-		//Удаляем уничтоженных врагов
-		this.enemies = this.enemies.filter(enemy => {
+		this.enemiesContainer.animate();
 
-			if(!enemy.isVisible){
-				this.scene.remove(enemy);
-				return false;
-			}
-
-			return true;
-
-		});
 	}
 
 	protected animateFriends(){
 
-		this.friends.filter(friend => friend.health > 0).forEach(friend => {
+		this.friendsContainer.getAliveMobs().forEach(friend => {
 
 			//Выбираем ближайшую цель
 			friend.setNearestAttackTarget(
-				this.enemies.filter(friend => friend.health > 0),
+				this.enemiesContainer.getAliveMobs(),
 				50
 			);
 
@@ -454,17 +448,7 @@ export default class Game extends Engine
 
 		});
 
-		//Удаляем уничтоженных союзников
-		this.friends = this.friends.filter(friend => {
-
-			if(!friend.isVisible){
-				this.scene.remove(friend);
-				return false;
-			}
-
-			return true;
-
-		});
+		this.friendsContainer.animate();
 
 	}
 
@@ -499,22 +483,23 @@ export default class Game extends Engine
 
 		let beforeFriendSpawn = this.friendsSpawnThrottler.getBeforeCall(),
 			delayFriendSpawn = this.friendsSpawnThrottler.getDelay(),
-			cooldownFriendSpawn = (1 - beforeFriendSpawn / delayFriendSpawn);
+			cooldownFriendSpawn = (1 - beforeFriendSpawn / delayFriendSpawn),
+			aliveCountFriends = this.friendsContainer.getAliveMobs().length;
 
-		if(this.friends.length === this.friendsMaxCount){
+		if(aliveCountFriends === this.friendsMaxCount){
 			cooldownFriendSpawn = 0;
 		}
 
 		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-cd')).style.width = (cooldownFriendSpawn * 100).toFixed(2) + '%';
 		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-max')).textContent = this.friendsMaxCount.toString();
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-value')).textContent = (this.friendsMaxCount - this.friends.length).toString();
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-value')).textContent = (this.friendsMaxCount - aliveCountFriends).toString();
 
 
 		let beforeRocket = this.shipRocketFireThrottler.getBeforeCall(),
 			delayRocket = this.shipRocketFireThrottler.getDelay(),
 			cooldownRocket = (1 - beforeRocket / delayRocket);
 
-		if(this.enemies.filter(e => e.health).length < 1){
+		if(this.enemiesContainer.getAliveMobs().length < 1){
 			cooldownRocket = 0;
 		}
 
@@ -554,7 +539,7 @@ export default class Game extends Engine
 		//Стрельба (второй режим) из корабля
 		if(this.shipRocketFireActive){
 
-			let enemies = this.enemies.filter(enemy => enemy.health);
+			let enemies = this.enemiesContainer.getAliveMobs();
 
 			if(enemies.length){
 
@@ -570,7 +555,7 @@ export default class Game extends Engine
 		}
 
 		//Спавн союзников
-		if(this.friendsSpawnActive && this.friends.length < this.friendsMaxCount){
+		if(this.friendsSpawnActive && this.friendsContainer.getAliveMobs().length < this.friendsMaxCount){
 			this.friendsSpawnThrottler(() => this.addFriend());
 		}
 
@@ -612,7 +597,7 @@ export default class Game extends Engine
 		]);
 
 		//Добавляем врагов
-		if(this.enemies.length < this.enemyMaxCount){
+		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
 			this.enemySpawnThrottler(() => this.addEnemy());
 		}
 

@@ -5,7 +5,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
 import {Object3D, Vector3} from "three";
-import AttacksContainer from "./AttacksContainer";
+import AttacksContainer from "./../Containers/AttacksContainer";
 import Random from "../../Three/Random";
 import Hittable from "./../Contracts/Hittable";
 import {Animation, AnimationThrottler} from "../../Three/Animation";

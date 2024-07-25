@@ -1,16 +1,12 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
-import Heal from "./Heal";
+import Heal from "./../Components/Heal";
 import Healthy from "../Contracts/Healthy";
 
 export default class HealsContainer extends Component
 {
 
 	protected heals : Heal[] = [];
-
-	constructor() {
-		super();
-	}
 
 	public dropHeals(...healths : Heal[]){
 

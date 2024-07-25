@@ -2,8 +2,8 @@ import Mob from "./Mob";
 import Random from "../../Three/Random";
 import Heal from "./Heal";
 import {Vector3} from "three";
-import HealsContainer from "./HealsContainer";
-import AttacksContainer from "./AttacksContainer";
+import HealsContainer from "./../Containers/HealsContainer";
+import AttacksContainer from "./../Containers/AttacksContainer";
 
 export default abstract class Enemy extends Mob
 {

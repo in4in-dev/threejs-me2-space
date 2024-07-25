@@ -10,7 +10,8 @@ export default class RocketBulletAttack extends Attack
 
 	public to : Vector3;
 
-	protected mesh : THREE.Mesh;
+	protected outsideMesh : THREE.Mesh;
+	protected insideMesh : THREE.Mesh;
 	protected glow : THREE.Sprite;
 
 	protected explosionTime : number = 2000;
@@ -31,12 +32,14 @@ export default class RocketBulletAttack extends Attack
 
 		this.to = to.clone();
 
-		this.mesh = this.createMesh();
+		this.outsideMesh = this.createOutsideMesh();
+		this.insideMesh = this.createInsideMesh();
 		this.glow = this.createGlow();
 
 		//Добавляем на сцену
 		// this.mesh.add(this.glow);
-		this.add(this.mesh);
+		this.add(this.insideMesh);
+		this.add(this.outsideMesh);
 
 	}
 
@@ -62,12 +65,24 @@ export default class RocketBulletAttack extends Attack
 	}
 
 
-	protected createMesh(): THREE.Mesh
+	protected createOutsideMesh(): THREE.Mesh
 	{
 
 		let mesh = new THREE.Mesh(
 			new THREE.SphereGeometry(0.4, 10, 10),
-			new THREE.MeshBasicMaterial({color : 'black' })
+			new THREE.MeshStandardMaterial({color : 'black', side : THREE.BackSide })
+		);
+
+		return mesh;
+
+	}
+
+	protected createInsideMesh(): THREE.Mesh
+	{
+
+		let mesh = new THREE.Mesh(
+			new THREE.SphereGeometry(0.2, 10, 10),
+			new THREE.MeshBasicMaterial({color : '#000000' })
 		);
 
 		return mesh;
@@ -98,9 +113,11 @@ export default class RocketBulletAttack extends Attack
 
 			let radius = explosionProgress * this.explosionMaxRadius;
 
-			let sphere = new THREE.SphereGeometry(radius, 50, 50);
+			let outSideSphere = new THREE.SphereGeometry(radius, 50, 50);
+			let inSideSphere = new THREE.SphereGeometry(radius * 0.8, 50, 50);
 
-			this.mesh.geometry.copy(sphere);
+			this.outsideMesh.geometry.copy(outSideSphere);
+			this.insideMesh.geometry.copy(inSideSphere);
 
 			this.explosionRadius = radius;
 

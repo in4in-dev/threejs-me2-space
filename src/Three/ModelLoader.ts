@@ -6,6 +6,8 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {Object3D} from "three";
 //@ts-ignore
 import {TGALoader} from "three/examples/jsm/loaders/TGALoader";
+//@ts-ignore
+import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
 interface ModelLoaderBackgroundCallback
 {
@@ -48,13 +50,22 @@ export default class ModelLoader
 	
 	protected static async loadModel(path : string, material : THREE.Material | null) : Promise<THREE.Object3D>
 	{
-		let objLoader = new OBJLoader();
 
-		if(material){
-			objLoader.setMaterials(material);
+		let loader;
+
+		if(path.indexOf('.obj')){
+
+			loader = new OBJLoader();
+
+			if(material){
+				loader.setMaterials(material);
+			}
+
+		}else{
+			loader = new FBXLoader();
 		}
-		
-		return await objLoader.loadAsync(path);
+
+		return await loader.loadAsync(path);
 
 	}
 	

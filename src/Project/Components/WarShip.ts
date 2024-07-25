@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Ship from "./Ship";
-import AttacksContainer from "./AttacksContainer";
+import AttacksContainer from "./../Containers/AttacksContainer";
 import Random from "../../Three/Random";
 import {Vector3} from "three";
 

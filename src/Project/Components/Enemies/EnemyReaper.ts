@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import {Scene, Vector3} from "three";
 import ModelLoader from "../../../Three/ModelLoader";
-import AttacksContainer from "../AttacksContainer";
+import AttacksContainer from "../../Containers/AttacksContainer";
 import RayBulletAttack from "../Attacks/RayBulletAttack";
 import Random from "../../../Three/Random";
-import HealsContainer from "../HealsContainer";
+import HealsContainer from "../../Containers/HealsContainer";
 import Enemy from "../Enemy";
 
 export default class EnemyReaper extends Enemy

@@ -3,7 +3,7 @@ import * as THREE from "three";
 import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
-import AttacksContainer from "../../AttacksContainer";
+import AttacksContainer from "../../../Containers/AttacksContainer";
 import Hittable from "../../../Contracts/Hittable";
 import {Vector3} from "three";
 import Random from "../../../../Three/Random";
