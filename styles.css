@@ -130,6 +130,7 @@ body{
 .skills__row-key{
     color: white;
     text-transform: uppercase;
+    font-size: 16px;
 }
 
 .skills__row-cd{
@@ -158,4 +159,17 @@ body{
 
 .skills__row-picture--friend{
     background-image: url("assets/skills/friend.svg");
+}
+
+.skills__row-picture--rocket{
+    background-image: url("assets/skills/rocket.svg");
+}
+
+
+.skills__row-increment{
+    color: white;
+    font-size: 14px;
+    margin-left: 10px;
+    position: relative;
+    bottom: 0.2px;
 }

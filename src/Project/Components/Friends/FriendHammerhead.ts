@@ -75,10 +75,11 @@ export default class FriendHammerhead extends Mob
 		ship.scale.set(0.005, 0.005, 0.005);
 
 		ship.rotation.x = 1.7;
+		ship.rotation.y = Math.PI;
 
-		let light = new THREE.PointLight('white', 10, 10);
-		light.position.z = 1;
-		light.position.y = 1;
+		let light = new THREE.PointLight('white', 2, 5);
+		light.position.z = 2;
+		light.position.y = 0;
 
 		group.add(light);
 		group.add(ship);

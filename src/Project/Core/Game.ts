@@ -5,7 +5,7 @@ import Background from "../Components/Background";
 import Orbit from "../Components/Orbit";
 import AsteroidBelt from "../Components/AsteroidBelt";
 import Border from "../Components/Border";
-import {Vector3} from "three";
+import {AxesHelper, Vector3} from "three";
 import Mob from "../Components/Mob";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
@@ -27,9 +27,13 @@ export default class Game extends Engine
 	protected shipFireActive : boolean = false;
 	protected shipFireThrottler : AnimationThrottler = Animation.createThrottler(100);
 
-	protected shipAltFireAllow : boolean = true;
-	protected shipAltFireActive : boolean = false;
-	protected shipAltFireThrottler : AnimationThrottler = Animation.createThrottler(2000);
+	protected shipShockwaveFireAllow : boolean = true;
+	protected shipShockwaveFireActive : boolean = false;
+	protected shipShockwaveFireThrottler : AnimationThrottler = Animation.createThrottler(2000);
+
+	protected shipRocketFireAllow : boolean = true;
+	protected shipRocketFireActive : boolean = false;
+	protected shipRocketFireThrottler : AnimationThrottler = Animation.createThrottler(10000);
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
@@ -94,7 +98,8 @@ export default class Game extends Engine
 		skillsDiv.innerHTML = [
 			`<div class="skills__row skills__row--fire"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--fire"></i><span class="skills__row-key">SPACE</span></div>`,
 			`<div class="skills__row skills__row--wave"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--wave"></i><span class="skills__row-key">J</span></div>`,
-			`<div class="skills__row skills__row--friend"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--friend"></i><span class="skills__row-key">H</span></div>`,
+			`<div class="skills__row skills__row--rocket"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--rocket"></i><span class="skills__row-key">K</span></div>`,
+			`<div class="skills__row skills__row--friend"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--friend"></i><span class="skills__row-key">H</span><span class="skills__row-increment">(<span class="skills__row-increment-value"></span>/<span class="skills__row-increment-max"></span>)</span></div>`,
 		].join("");
 
 		this.skillsIndicator = skillsDiv;
@@ -162,8 +167,8 @@ export default class Game extends Engine
 
 				event.preventDefault();
 
-				if(this.shipAltFireAllow){
-					this.shipAltFireActive = true;
+				if(this.shipShockwaveFireAllow){
+					this.shipShockwaveFireActive = true;
 				}
 
 			}else if(event.code === 'KeyH'){
@@ -171,6 +176,14 @@ export default class Game extends Engine
 				event.preventDefault();
 
 				this.friendsSpawnActive = true;
+
+			}else if(event.code === 'KeyK'){
+
+				event.preventDefault();
+
+				if(this.shipRocketFireAllow) {
+					this.shipRocketFireActive = true;
+				}
 
 			}
 
@@ -181,9 +194,11 @@ export default class Game extends Engine
 			if (event.code === 'Space') {
 				this.shipFireActive = false;
 			}else if(event.code === 'KeyJ'){
-				this.shipAltFireActive = false;
+				this.shipShockwaveFireActive = false;
 			}else if(event.code === 'KeyH'){
 				this.friendsSpawnActive = false;
+			}else if(event.code === 'KeyK'){
+				this.shipRocketFireActive = false;
 			}
 
 		});
@@ -427,8 +442,12 @@ export default class Game extends Engine
 				50
 			);
 
-			//Разрешаем стрельбу
-			friend.startAutoFire();
+			if(!friend.hasAttackTarget()){
+				friend.setAttackTarget(this.ship);
+				friend.stopAutoFire();
+			}else{
+				friend.startAutoFire();
+			}
 
 			//Анимируем поведение
 			friend.animate();
@@ -471,8 +490,8 @@ export default class Game extends Engine
 		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--fire .skills__row-cd')).style.width = (cooldownFire * 100).toFixed(2) + '%';
 
 
-		let beforeShockWave = this.shipAltFireThrottler.getBeforeCall(),
-			delayShockWave = this.shipAltFireThrottler.getDelay(),
+		let beforeShockWave = this.shipShockwaveFireThrottler.getBeforeCall(),
+			delayShockWave = this.shipShockwaveFireThrottler.getDelay(),
 			cooldownShowWave = (1 - beforeShockWave / delayShockWave);
 
 		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--wave .skills__row-cd')).style.width = (cooldownShowWave * 100).toFixed(2) + '%';
@@ -487,6 +506,20 @@ export default class Game extends Engine
 		}
 
 		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-cd')).style.width = (cooldownFriendSpawn * 100).toFixed(2) + '%';
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-max')).textContent = this.friendsMaxCount.toString();
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-value')).textContent = (this.friendsMaxCount - this.friends.length).toString();
+
+
+		let beforeRocket = this.shipRocketFireThrottler.getBeforeCall(),
+			delayRocket = this.shipRocketFireThrottler.getDelay(),
+			cooldownRocket = (1 - beforeRocket / delayRocket);
+
+		if(this.enemies.filter(e => e.health).length < 1){
+			cooldownRocket = 0;
+		}
+
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--rocket .skills__row-cd')).style.width = (cooldownRocket * 100).toFixed(2) + '%';
+
 
 	}
 
@@ -514,8 +547,26 @@ export default class Game extends Engine
 		}
 
 		//Стрельба (второй режим) из корабля
-		if(this.shipAltFireActive){
-			this.shipAltFireThrottler(() => this.ship.altFire());
+		if(this.shipShockwaveFireActive){
+			this.shipShockwaveFireThrottler(() => this.ship.shockwaveFire());
+		}
+
+		//Стрельба (второй режим) из корабля
+		if(this.shipRocketFireActive){
+
+			let enemies = this.enemies.filter(enemy => enemy.health);
+
+			if(enemies.length){
+
+				let target = this.ship.whoNearest(enemies);
+
+				if(target) {
+					this.shipRocketFireThrottler(() => this.ship.rocketFire(target));
+				}
+
+			}
+
+
 		}
 
 		//Спавн союзников

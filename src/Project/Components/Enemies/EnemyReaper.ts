@@ -112,7 +112,7 @@ export default class EnemyReaper extends Enemy
 	public fire(to : Vector3){
 
 		let bullet = new RayBulletAttack(
-			this.position.clone().setZ(-1).add(new Vector3(0, 1 , 0)),
+			this.position.clone().setZ(-1.5).add(new Vector3(0, 1 , 0)),
 			to,
 			Random.int(10, 50),
 			'red'

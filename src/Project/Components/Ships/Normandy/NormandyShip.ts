@@ -10,6 +10,8 @@ import Random from "../../../../Three/Random";
 import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
 import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
 import Healthy from "../../../Contracts/Healthy";
+import RocketBulletAttack from "../../Attacks/RocketBulletAttack";
+import Enemy from "../../Enemy";
 
 export class NormandyShip extends WarShip implements Hittable, Healthy
 {
@@ -23,6 +25,9 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 	protected bulletColor : any = '#ffffff';
 	protected bulletGlowColor : any = '#1c80ff';
+
+	protected rocketAttackTarget : THREE.Object3D | null = null;
+	protected rocketAttackBullet : RocketBulletAttack | null = null;
 
 	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
 
@@ -118,6 +123,19 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		this.engines.l1.animate();
 		this.engines.l2.animate();
 
+		if(this.rocketAttackBullet){
+
+			if(this.rocketAttackBullet.isVisible){
+				this.rocketAttackBullet.updateTo(
+					this.rocketAttackTarget!.position
+				)
+			}else{
+				this.rocketAttackBullet = null;
+				this.rocketAttackTarget = null;
+			}
+
+		}
+
 	}
 
 	public hit(x : number){
@@ -129,7 +147,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).multiplyScalar(999);
 
 		let bullet1 = new LaserBulletAttack(
-			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
+			new Vector3(this.position.x + 0.3, this.position.y - 0.3, -1),
 			to,
 			Random.int(1, 5),
 			this.bulletColor,
@@ -137,7 +155,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		);
 
 		let bullet2 = new LaserBulletAttack(
-			new Vector3(this.position.x - 0.3, this.position.y - 0.3, 0),
+			new Vector3(this.position.x - 0.3, this.position.y - 0.3, -1),
 			to,
 			Random.int(1, 5),
 			this.bulletColor,
@@ -148,7 +166,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 	}
 
-	public altFire() {
+	public shockwaveFire() {
 
 		let bullet = new ShockWaveAttack(
 			this.position,
@@ -160,6 +178,21 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 		bullet.position.y += 7;
 		bullet.position.z = -1;
+
+		this.attacksContainer.addAttacks(bullet);
+
+	}
+
+	public rocketFire(to : THREE.Object3D){
+
+		let bullet = new RocketBulletAttack(
+			this.position,
+			to.position,
+			Random.int(500, 1000)
+		)
+
+		this.rocketAttackTarget = to;
+		this.rocketAttackBullet = bullet;
 
 		this.attacksContainer.addAttacks(bullet);
 

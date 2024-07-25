@@ -34,7 +34,6 @@ export default class RayBulletAttack extends Attack
 		this.glow = this.createGlow();
 
 		this.mesh.add(this.glow);
-
 		this.add(this.mesh);
 
 	}
@@ -169,7 +168,7 @@ export default class RayBulletAttack extends Attack
 			this.mesh.geometry.dispose();
 			this.mesh.geometry = new THREE.CylinderGeometry(0.05, 0.05, length, 32);
 
-			this.mesh.position.copy(
+			this.position.copy(
 				this.from.clone().add(
 					this.to.clone().sub(this.from).multiplyScalar((length / maxLength) / 2)
 				)

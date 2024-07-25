@@ -111,23 +111,7 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 	public setNearestAttackTarget(objects : Object3D[], maxDistance : number = Infinity)
 	{
 
-		let target = null, targetDistance = Infinity;
-
-		for(let i = 0; i < objects.length; i++){
-
-			let object = objects[i];
-
-			let distance = this.position.distanceTo(object.position);
-
-			if(
-				distance <= maxDistance &&
-				(!target || targetDistance > distance)
-			){
-				target = object;
-				targetDistance = distance;
-			}
-
-		}
+		let target = this.whoNearest(objects, maxDistance);
 
 		if(target){
 			this.setAttackTarget(target);

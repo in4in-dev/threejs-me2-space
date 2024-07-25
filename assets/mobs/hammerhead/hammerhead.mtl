@@ -6,9 +6,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_184228153
 Ns 100.000
 d 1.00000
@@ -17,9 +17,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_087225198
 Ns 100.000
 d 1.00000
@@ -28,9 +28,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_088199225
 Ns 100.000
 d 1.00000
@@ -39,9 +39,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_135059008
 Ns 100.000
 d 1.00000
@@ -50,9 +50,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_006135006
 Ns 100.000
 d 1.00000
@@ -61,9 +61,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_087225087
 Ns 100.000
 d 1.00000
@@ -72,9 +72,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_229166215
 Ns 100.000
 d 1.00000
@@ -83,9 +83,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_088144225
 Ns 100.000
 d 1.00000
@@ -94,9 +94,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_177148027
 Ns 100.000
 d 1.00000
@@ -105,9 +105,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_087225143
 Ns 100.000
 d 1.00000
@@ -116,9 +116,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_141007058
 Ns 100.000
 d 1.00000
@@ -127,9 +127,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_227153153
 Ns 100.000
 d 1.00000
@@ -138,9 +138,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_153228184
 Ns 100.000
 d 1.00000
@@ -149,9 +149,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_214229166
 Ns 100.000
 d 1.00000
@@ -160,9 +160,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_229154215
 Ns 100.000
 d 1.00000
@@ -171,9 +171,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_166229229
 Ns 100.000
 d 1.00000
@@ -182,9 +182,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_228184153
 Ns 100.000
 d 1.00000
@@ -193,9 +193,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_228214153
 Ns 100.000
 d 1.00000
@@ -204,9 +204,9 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png
 newmtl wire_138008110
 Ns 100.000
 d 1.00000
@@ -215,6 +215,6 @@ Kd 1.00000 1.00000 1.00000
 Ka 0.00000 0.00000 0.00000
 Ks 1.00000 1.00000 1.00000
 Ke 0.00000e+0 0.00000e+0 0.00000e+0
-map_Kd M-44 Hammerhead_wire_196088225_color.tga
-map_Ks M-44 Hammerhead_wire_196088225_rough.tga
-map_bump M-44 Hammerhead_wire_196088225_nmap.tga
+map_Kd M-44 Hammerhead_wire_196088225_color.png
+map_Ks M-44 Hammerhead_wire_196088225_rough.png
+map_bump M-44 Hammerhead_wire_196088225_nmap.png

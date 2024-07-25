@@ -21,6 +21,8 @@ export default abstract class Attack extends Component
 		this.from = from.clone();
 		this.force = force;
 
+		this.position.copy(from);
+
 	}
 
 	public hide(){

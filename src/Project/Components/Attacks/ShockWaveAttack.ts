@@ -76,16 +76,8 @@ export default class ShockWaveAttack extends Attack
 			transparent: true
 		});
 
-		let mesh = new THREE.Points(geometry, material);
+		return new THREE.Points(geometry, material);
 
-		mesh.position.copy(this.from);
-
-		return mesh;
-
-	}
-
-	public updateFrom(from : Vector3){
-		this.from = from.clone();
 	}
 
 	public animate(

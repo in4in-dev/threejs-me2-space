@@ -19,6 +19,5 @@ export default abstract class WarShip extends Ship
 	}
 
 	public abstract fire(to : Vector3) : void;
-	public abstract altFire(to : Vector3) : void;
 
 }

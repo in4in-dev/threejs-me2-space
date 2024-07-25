@@ -1,4 +1,4 @@
-import {Vector3} from "three";
+import {AxesHelper, Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
@@ -73,7 +73,6 @@ export default class LaserBulletAttack extends Attack
 			new THREE.MeshBasicMaterial({color : this.color})
 		);
 
-		mesh.position.set(this.from.x, this.from.y, -0.1);
 		mesh.scale.set(0.3, 1, 1);
 
 		return mesh;
@@ -84,14 +83,14 @@ export default class LaserBulletAttack extends Attack
 
 		this.isMoving = false;
 
-		this.mesh.position.set(this.mesh.position.x, this.mesh.position.y, 0);
+		this.position.set(this.position.x, this.position.y, 0);
 
 	}
 
 	public checkCollisionWith(object : THREE.Object3D) : boolean
 	{
 
-		let bulletBox = new THREE.Box3().setFromObject(this.mesh!);
+		let bulletBox = new THREE.Box3().setFromObject(this);
 		let objectBox = new THREE.Box3().setFromObject(object);
 
 		return bulletBox.intersectsBox(objectBox)
@@ -157,11 +156,11 @@ export default class LaserBulletAttack extends Attack
 
 		if(this.isVisible && this.isMoving){
 
-			this.mesh.position.add(
-				new Vector3().subVectors(this.to, this.from).normalize()
+			this.position.add(
+				new Vector3().subVectors(this.to, this.position).normalize()
 			);
 
-			this.length = this.from.distanceTo(this.mesh.position);
+			this.length = this.from.distanceTo(this.position);
 
 		}
 
