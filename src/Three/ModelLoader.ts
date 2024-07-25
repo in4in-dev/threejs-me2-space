@@ -4,6 +4,8 @@ import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 //@ts-ignore
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {Object3D} from "three";
+//@ts-ignore
+import {TGALoader} from "three/examples/jsm/loaders/TGALoader";
 
 interface ModelLoaderBackgroundCallback
 {
@@ -36,11 +38,31 @@ export default class ModelLoader
 	{
 
 		let mtlLoader = new MTLLoader();
+		let tgaLoader = new TGALoader();
 		
-		let material = await mtlLoader.loadAsync(path);
-		material.preload();
+		let materials = await mtlLoader.loadAsync(path);
+		materials.preload();
+
+		// let directory = path.substr(0, path.lastIndexOf('/'));
+
+		// Перебор всех материалов и замена TGA текстур
+		for (const materialName in materials.materials) {
+
+			let material = materials.materials[materialName];
+
+			// if (material.map && material.map.name.endsWith('.tga')) {
+			// 	material.map = tgaLoader.load(directory + '/' + material.map.name);
+			// }
+			// if (material.specularMap && material.specularMap.name.endsWith('.tga')) {
+			// 	material.specularMap = tgaLoader.load(directory + '/' + material.specularMap.name);
+			// }
+			// if (material.normalMap && material.normalMap.name.endsWith('.tga')) {
+			// 	material.normalMap = tgaLoader.load(directory + '/' + material.normalMap.name);
+			// }
+
+		}
 		
-		return material;
+		return materials;
 		
 	}
 	

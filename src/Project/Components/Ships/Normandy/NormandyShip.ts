@@ -57,7 +57,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 	protected createBody() : THREE.Group
 	{
 
-		let ship = new ModelLoader('../../assets/ship/ship.obj', '../../../../assets/ship/ship.mtl').loadInBackground();
+		let ship = new ModelLoader('../../assets/mobs/normandy/normandy.obj', '../../../../assets/mobs/normandy/normandy.mtl').loadInBackground();
 
 		ship.scale.set(0.15, 0.15, 0.15);
 		ship.rotation.x = 1.5;
@@ -126,7 +126,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 	public fire(){
 
-		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).normalize();
+		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).multiplyScalar(999);
 
 		let bullet1 = new LaserBulletAttack(
 			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
@@ -144,7 +144,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 			this.bulletGlowColor
 		);
 
-		this.attacksContainer.addAttacks(bullet1, bullet2)
+		this.attacksContainer.addAttacks(bullet1, bullet2);
 
 	}
 

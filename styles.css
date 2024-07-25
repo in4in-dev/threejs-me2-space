@@ -108,3 +108,54 @@ body{
     display: block;
     background: #37b41b;
 }
+
+.skills{
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+
+.skills__row{
+    padding: 10px 20px 10px 10px;
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 5px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0 15px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.skills__row-key{
+    color: white;
+    text-transform: uppercase;
+}
+
+.skills__row-cd{
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.2);
+}
+
+.skills__row-picture{
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 10px;
+}
+
+.skills__row-picture--fire{
+    background-image: url("assets/skills/fire.svg");
+}
+
+.skills__row-picture--wave{
+    background-image: url("assets/skills/wave.svg");
+}
+
+.skills__row-picture--friend{
+    background-image: url("assets/skills/friend.svg");
+}

@@ -2,7 +2,7 @@ import {Object3D, Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
-import Animation from "../../../Three/Animation";
+import {Animation, AnimationThrottler} from "../../../Three/Animation";
 
 export default class RayBulletAttack extends Attack
 {
@@ -16,7 +16,7 @@ export default class RayBulletAttack extends Attack
 
 	protected speed : number = 200;
 
-	protected damageThrottler = Animation.createThrottler(100);
+	protected damageThrottler : AnimationThrottler = Animation.createThrottler(100);
 
 	constructor(
 		from : Vector3,

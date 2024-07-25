@@ -1,30 +1,12 @@
-import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
-
-//@ts-ignore
-import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
-import WarShip from "./WarShip";
-import {Object3D, Vector3} from "three";
-import AttacksContainer from "./AttacksContainer";
+import Mob from "./Mob";
 import Random from "../../Three/Random";
-import Hittable from "./../Contracts/Hittable";
-import Animation from "../../Three/Animation";
-import Healthy from "./../Contracts/Healthy";
-import HealsContainer from "./HealsContainer";
 import Heal from "./Heal";
+import {Vector3} from "three";
+import HealsContainer from "./HealsContainer";
+import AttacksContainer from "./AttacksContainer";
 
-export default abstract class Enemy extends WarShip implements Hittable, Healthy
+export default abstract class Enemy extends Mob
 {
-
-	public health : number;
-	public maxHealth : number;
-	public isVisible : boolean = true;
-
-	protected autoFireActive : boolean = false;
-	protected autoFireThrottler : Function = Animation.createThrottler(1000);
-
-	protected hp : CSS2DObject;
-	protected attackTarget : Object3D | null = null;
 
 	protected healsContainer : HealsContainer;
 
@@ -32,74 +14,14 @@ export default abstract class Enemy extends WarShip implements Hittable, Healthy
 		health : number,
 		startX : number = 0,
 		startY : number = 0,
+		speed : number,
 		bulletsContainer : AttacksContainer,
 		healsContainer : HealsContainer
 	) {
 
-		super(startX, startY, 0.05, bulletsContainer);
+		super(health, startX, startY, speed, bulletsContainer);
 
-		this.health = health;
-		this.maxHealth = health;
 		this.healsContainer = healsContainer;
-
-		this.hp = this.createHp();
-
-		//Добавляем на сцену
-		this.add(this.hp);
-
-	}
-
-	protected createHp() : CSS2DObject
-	{
-
-		let wrap = document.createElement('div');
-		wrap.className = 'health health--green';
-
-		let bar = document.createElement('div');
-		bar.className = 'health__bar';
-
-		wrap.appendChild(bar);
-
-		let label = new CSS2DObject(wrap);
-		label.position.set(0, 0, 1);
-
-		return label;
-
-	}
-
-	protected createHitLabel(text : string) : CSS2DObject
-	{
-
-		let div = document.createElement('div');
-		div.className = 'hit';
-		div.textContent = text;
-
-		let label = new CSS2DObject(div);
-		label.position.set(0, 0, 1);
-
-		return label;
-
-	}
-
-	protected explosion(){
-
-		let props = {
-			rotationZ : this.rotation.z,
-			rotationX : this.rotation.x,
-			position : this.position.z
-		}
-
-		new TWEEN.Tween(props)
-			.to({ rotationZ : Math.PI / 2, position : - 20, rotationX : Math.PI / 4 }, 5000)
-			.onUpdate(() => {
-				this.position.z = props.position;
-				this.rotation.z = props.rotationZ;
-				this.rotation.x = props.rotationX;
-			})
-			.onComplete(() => {
-				this.isVisible = false;
-			})
-			.start();
 
 	}
 
@@ -118,8 +40,8 @@ export default abstract class Enemy extends WarShip implements Hittable, Healthy
 			heal.position.copy(position);
 
 			let direction = new Vector3(
-				Random.int(-2, 2),
-				Random.int(-2, 2),
+				Random.int(-3, 3),
+				Random.int(-3, 3),
 				0
 			);
 
@@ -137,75 +59,25 @@ export default abstract class Enemy extends WarShip implements Hittable, Healthy
 
 	}
 
-	public startAutoFire(){
-		this.autoFireActive = true;
-	}
 
-	public stopAutoFire(){
-		this.autoFireActive = false;
-	}
-
-	public setAttackTarget(object : Object3D){
-		this.attackTarget = object;
-	}
-
-	public animate(){
-
-		if(this.autoFireActive && this.attackTarget){
-			this.autoFireThrottler(() => this.fire(this.attackTarget!.position));
-		}
-
-	}
-
-
-	public hit(force : number) : boolean
+	public hit(damage : number) : boolean
 	{
 
+		super.hit(damage);
+
 		if(!this.health){
-			return false;
-		}
 
-		this.health = Math.max(0, this.health - force);
-
-		if(this.health) {
-
-			let label = this.createHitLabel('-' + force);
-
-			label.position.x = Random.float(-1.25, 1.25);
-			label.position.y = Random.float(-1.25, 1.25);
-
-			this.add(label);
-
-			setTimeout(() => this.remove(label), 500);
-
-
-			//Обновляем здоровье
-			let percent = Math.ceil((this.health / this.maxHealth) * 100);
-			let color = percent > 50 ? 'green' : percent > 20 ? 'orange' : 'red';
-
-
-			this.hp.element.className = `health health--${color}`;
-			this.hp.element.children[0].style.width = percent + '%';
-
-		}else{
-
-			this.remove(this.hp);
-
-			this.stop();
 			this.dropHealths(
 				Random.int(50, 200),
 				Random.int(5, 30)
 			);
-			this.explosion();
 
+			return false;
 		}
 
 		return true;
 
 	}
 
-	public heal(h : number){
-
-	}
 
 }

@@ -158,7 +158,7 @@ export default class LaserBulletAttack extends Attack
 		if(this.isVisible && this.isMoving){
 
 			this.mesh.position.add(
-				this.to.normalize()
+				new Vector3().subVectors(this.to, this.from).normalize()
 			);
 
 			this.length = this.from.distanceTo(this.mesh.position);

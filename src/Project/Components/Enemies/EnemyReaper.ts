@@ -1,4 +1,3 @@
-import Enemy from "../Enemy";
 import * as THREE from 'three';
 import {Scene, Vector3} from "three";
 import ModelLoader from "../../../Three/ModelLoader";
@@ -6,6 +5,7 @@ import AttacksContainer from "../AttacksContainer";
 import RayBulletAttack from "../Attacks/RayBulletAttack";
 import Random from "../../../Three/Random";
 import HealsContainer from "../HealsContainer";
+import Enemy from "../Enemy";
 
 export default class EnemyReaper extends Enemy
 {
@@ -14,6 +14,7 @@ export default class EnemyReaper extends Enemy
 	protected bullet : RayBulletAttack | null = null;
 
 	constructor(
+		healths : number,
 		x : number,
 		y : number,
 		speed : number,
@@ -21,7 +22,7 @@ export default class EnemyReaper extends Enemy
 		healsContainer : HealsContainer
 	) {
 
-		super(x, y, speed, attacksContainer, healsContainer);
+		super(healths, x, y, speed, attacksContainer, healsContainer);
 
 		this.mesh = this.createBody();
 
@@ -36,7 +37,7 @@ export default class EnemyReaper extends Enemy
 		//Движение до цели
 		if(this.attackTarget){
 
-			if(this.bullet){
+			if(this.bullet && this.bullet.isVisible){
 				this.bullet.updateStartPoint(this.position);
 				this.bullet.updateTarget(this.attackTarget.position);
 			}
@@ -72,8 +73,8 @@ export default class EnemyReaper extends Enemy
 		let group = new THREE.Group;
 
 		let ship = new ModelLoader(
-			'../../assets/reaper/reaper.obj',
-			'../../assets/reaper/reaper.mtl'
+			'../../../assets/mobs/reaper/reaper.obj',
+			'../../../assets/mobs/reaper/reaper.mtl'
 		).loadInBackground((obj : any) => {
 			return obj.children[0].material.color.set('black'), obj;
 		});

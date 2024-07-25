@@ -6,14 +6,16 @@ import Orbit from "../Components/Orbit";
 import AsteroidBelt from "../Components/AsteroidBelt";
 import Border from "../Components/Border";
 import {Vector3} from "three";
-import Enemy from "../Components/Enemy";
+import Mob from "../Components/Mob";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
 import AttacksContainer from "../Components/AttacksContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import Random from "../../Three/Random";
-import Animation from "../../Three/Animation";
+import {Animation, AnimationThrottler} from "../../Three/Animation";
 import HealsContainer from "../Components/HealsContainer";
+import Enemy from "../Components/Enemy";
+import FriendHammerhead from "../Components/Friends/FriendHammerhead";
 
 export default class Game extends Engine
 {
@@ -23,17 +25,21 @@ export default class Game extends Engine
 
 	protected shipFireAllow : boolean = true;
 	protected shipFireActive : boolean = false;
-	protected shipFireThrottler : Function = Animation.createThrottler(100);
+	protected shipFireThrottler : AnimationThrottler = Animation.createThrottler(100);
 
 	protected shipAltFireAllow : boolean = true;
 	protected shipAltFireActive : boolean = false;
-	protected shipAltFireThrottler : Function = Animation.createThrottler(2000);
+	protected shipAltFireThrottler : AnimationThrottler = Animation.createThrottler(2000);
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
 	protected enemyMaxCount : number = 3;
-	protected enemySpawnThrottler : Function = Animation.createThrottler(5000);
+	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
+
+	protected friendsMaxCount : number = 3;
+	protected friendsSpawnActive : boolean = false;
+	protected friendsSpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
 	protected showAxis : boolean = false;
 
@@ -44,6 +50,7 @@ export default class Game extends Engine
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : PlanetWithOrbit[] = [];
 	protected enemies : Enemy[] = [];
+	protected friends : Mob[] = [];
 
 	protected enemiesAttacks : AttacksContainer;
 	protected friendsAttacks : AttacksContainer;
@@ -51,6 +58,7 @@ export default class Game extends Engine
 	protected healsContainer : HealsContainer;
 
 	protected shipHpIndicator : HTMLElement;
+	protected skillsIndicator : HTMLElement;
 
 	constructor(
 		background : Background,
@@ -79,6 +87,17 @@ export default class Game extends Engine
 		hpDiv.innerHTML = '<div class="ship-hp__bar"></div>';
 
 		this.shipHpIndicator = hpDiv;
+
+		//@TODO Skills indicator
+		let skillsDiv = document.createElement('div');
+		skillsDiv.className = 'skills';
+		skillsDiv.innerHTML = [
+			`<div class="skills__row skills__row--fire"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--fire"></i><span class="skills__row-key">SPACE</span></div>`,
+			`<div class="skills__row skills__row--wave"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--wave"></i><span class="skills__row-key">J</span></div>`,
+			`<div class="skills__row skills__row--friend"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--friend"></i><span class="skills__row-key">H</span></div>`,
+		].join("");
+
+		this.skillsIndicator = skillsDiv;
 
 	}
 
@@ -139,13 +158,19 @@ export default class Game extends Engine
 					this.shipFireActive = true;
 				}
 
-			}else if(event.code == 'KeyJ'){
+			}else if(event.code === 'KeyJ'){
 
 				event.preventDefault();
 
 				if(this.shipAltFireAllow){
 					this.shipAltFireActive = true;
 				}
+
+			}else if(event.code === 'KeyH'){
+
+				event.preventDefault();
+
+				this.friendsSpawnActive = true;
 
 			}
 
@@ -157,6 +182,8 @@ export default class Game extends Engine
 				this.shipFireActive = false;
 			}else if(event.code === 'KeyJ'){
 				this.shipAltFireActive = false;
+			}else if(event.code === 'KeyH'){
+				this.friendsSpawnActive = false;
 			}
 
 		});
@@ -165,6 +192,7 @@ export default class Game extends Engine
 
 	protected initHtml(){
 		document.body.appendChild(this.shipHpIndicator);
+		document.body.appendChild(this.skillsIndicator);
 	}
 
 	/**
@@ -298,7 +326,8 @@ export default class Game extends Engine
 				this.sun.getSunMesh()
 			],
 			[
-				this.ship
+				this.ship,
+				...this.friends
 			]
 		);
 
@@ -313,6 +342,7 @@ export default class Game extends Engine
 			Random.int(100, 500),
 			Random.int(-this.border.radius, this.border.radius),
 			Random.int(-this.border.radius, this.border.radius),
+			0.05,
 			this.enemiesAttacks,
 			this.healsContainer
 		);
@@ -324,6 +354,25 @@ export default class Game extends Engine
 	}
 
 	/**
+	 * Добавляем врага
+	 */
+	protected addFriend(){
+
+		let friend = new FriendHammerhead(
+			Random.int(500, 2000),
+			this.ship.position.x + Random.int(-2, 2),
+			this.ship.position.y + Random.int(-2, 2),
+			0.1,
+			this.friendsAttacks
+		);
+
+		this.friends.push(friend);
+
+		this.scene.add(friend);
+
+	}
+
+	/**
 	 * Анимируем поведение врагов
 	 */
 	protected animateEnemies(){
@@ -331,21 +380,24 @@ export default class Game extends Engine
 		this.enemies.filter(enemy => enemy.health > 0).forEach(enemy => {
 
 			//Дистанция до нас
-			let distance = this.ship.position.distanceTo(enemy.position);
+			enemy.setNearestAttackTarget(
+				[
+					this.ship,
+					...this.friends.filter(friend => friend.health > 0)
+				],
+				50
+			);
 
-			if(distance > 30){
+			if(enemy.hasAttackTarget()){
+				enemy.startAutoFire();
+			}else{
 
-				//Ближайшая планета
-				let planet = this.planets.reduce((p, t) => {
-					return p.planet.position.distanceTo(enemy.position) > t.planet.position.distanceTo(enemy.position) ? t : p;
-				});
+				enemy.setNearestAttackTarget(
+					this.planets.map(planet => planet.planet)
+				);
 
-				enemy.setAttackTarget(planet.planet);
 				enemy.stopAutoFire();
 
-			}else{
-				enemy.setAttackTarget(this.ship);
-				enemy.startAutoFire();
 			}
 
 			enemy.animate();
@@ -365,6 +417,38 @@ export default class Game extends Engine
 		});
 	}
 
+	protected animateFriends(){
+
+		this.friends.filter(friend => friend.health > 0).forEach(friend => {
+
+			//Выбираем ближайшую цель
+			friend.setNearestAttackTarget(
+				this.enemies.filter(friend => friend.health > 0),
+				50
+			);
+
+			//Разрешаем стрельбу
+			friend.startAutoFire();
+
+			//Анимируем поведение
+			friend.animate();
+
+		});
+
+		//Удаляем уничтоженных союзников
+		this.friends = this.friends.filter(friend => {
+
+			if(!friend.isVisible){
+				this.scene.remove(friend);
+				return false;
+			}
+
+			return true;
+
+		});
+
+	}
+
 	protected updateShipHp(){
 
 		let percent = this.ship.health / this.ship.maxHealth * 100;
@@ -375,6 +459,34 @@ export default class Game extends Engine
 			//@TODO пока просто восстанавливаем здоровье
 			this.ship.heal(this.ship.maxHealth);
 		}
+
+	}
+
+	protected updateSkillsStatus(){
+
+		let beforeFire = this.shipFireThrottler.getBeforeCall(),
+			delayFire = this.shipFireThrottler.getDelay(),
+			cooldownFire = (1 - beforeFire / delayFire);
+
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--fire .skills__row-cd')).style.width = (cooldownFire * 100).toFixed(2) + '%';
+
+
+		let beforeShockWave = this.shipAltFireThrottler.getBeforeCall(),
+			delayShockWave = this.shipAltFireThrottler.getDelay(),
+			cooldownShowWave = (1 - beforeShockWave / delayShockWave);
+
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--wave .skills__row-cd')).style.width = (cooldownShowWave * 100).toFixed(2) + '%';
+
+
+		let beforeFriendSpawn = this.friendsSpawnThrottler.getBeforeCall(),
+			delayFriendSpawn = this.friendsSpawnThrottler.getDelay(),
+			cooldownFriendSpawn = (1 - beforeFriendSpawn / delayFriendSpawn);
+
+		if(this.friends.length === this.friendsMaxCount){
+			cooldownFriendSpawn = 0;
+		}
+
+		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-cd')).style.width = (cooldownFriendSpawn * 100).toFixed(2) + '%';
 
 	}
 
@@ -401,9 +513,14 @@ export default class Game extends Engine
 			this.shipFireThrottler(() => this.ship.fire());
 		}
 
-		//Стрельба из корабля
+		//Стрельба (второй режим) из корабля
 		if(this.shipAltFireActive){
 			this.shipAltFireThrottler(() => this.ship.altFire());
+		}
+
+		//Спавн союзников
+		if(this.friendsSpawnActive && this.friends.length < this.friendsMaxCount){
+			this.friendsSpawnThrottler(() => this.addFriend());
 		}
 
 
@@ -435,6 +552,9 @@ export default class Game extends Engine
 		//Анимируем действия врагов
 		this.animateEnemies();
 
+		//Анимируем друзей
+		this.animateFriends();
+
 		//Анимация хилок
 		this.healsContainer.animate([
 			this.ship
@@ -444,6 +564,9 @@ export default class Game extends Engine
 		if(this.enemies.length < this.enemyMaxCount){
 			this.enemySpawnThrottler(() => this.addEnemy());
 		}
+
+		//Анимируем кд
+		this.updateSkillsStatus();
 
 	}
 

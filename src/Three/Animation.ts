@@ -1,4 +1,11 @@
-export default class Animation
+interface AnimationThrottler{
+	(p: () => void) : void,
+	getDelay() : number,
+	getBeforeCall() : number,
+	getAfterCall() : number
+}
+
+class Animation
 {
 
 	public static loop(n : number, callback : (...args : any[]) => any)
@@ -11,9 +18,10 @@ export default class Animation
 
 	}
 
-	public static createThrottler(n : number, lastTime : number = 0){
+	public static createThrottler(n : number, lastTime : number = 0) : AnimationThrottler
+	{
 
-		return (fn : () => void) => {
+		let fn = (fn : () => void) => {
 
 			let now = Date.now();
 
@@ -24,6 +32,23 @@ export default class Animation
 
 		}
 
+		Object.assign(fn, {
+			getDelay(){
+				return n;
+			},
+			getBeforeCall(){
+				return Math.max(0, lastTime + n - Date.now());
+			},
+			getAfterCall(){
+				return Date.now() - lastTime;
+			}
+		})
+
+		return <AnimationThrottler>fn;
+
 	}
 
 }
+
+export {Animation};
+export type { AnimationThrottler };

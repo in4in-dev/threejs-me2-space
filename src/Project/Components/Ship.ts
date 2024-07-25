@@ -48,6 +48,8 @@ export default class Ship extends Component
 
 	public moveTo(cords : Vector3){
 
+		cords = cords.clone().setZ(0);
+
 		let direction = new THREE.Vector3().subVectors(cords, this.position);
 
 		if (direction.length() > 0.1) {

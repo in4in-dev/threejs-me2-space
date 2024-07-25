@@ -25,7 +25,7 @@ export default class Heal extends Component
 
 		let sphere = new THREE.Mesh(
 			new THREE.SphereGeometry(0.07, 10, 10),
-			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.5})
+			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.7})
 		);
 
 		let sprite = new THREE.Sprite(
