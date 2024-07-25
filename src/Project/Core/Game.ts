@@ -17,6 +17,8 @@ import HealsContainer from "../Containers/HealsContainer";
 import Enemy from "../Components/Enemy";
 import FriendHammerhead from "../Components/Friends/FriendHammerhead";
 import MobsContainer from "../Containers/MobsContainer";
+import SkillsHtmlViewer from "../Html/SkillsHtmlViewer";
+import HpHtmlViewer from "../Html/HpHtmlViewer";
 
 export default class Game extends Engine
 {
@@ -63,8 +65,8 @@ export default class Game extends Engine
 
 	protected healsContainer : HealsContainer;
 
-	protected shipHpIndicator : HTMLElement;
-	protected skillsIndicator : HTMLElement;
+	protected shipHpIndicator : HpHtmlViewer;
+	protected skillsIndicator : SkillsHtmlViewer;
 
 	constructor(
 		background : Background,
@@ -90,24 +92,8 @@ export default class Game extends Engine
 
 		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
 
-		//@TODO Hp indicator
-		let hpDiv = document.createElement('div');
-		hpDiv.className = 'ship-hp';
-		hpDiv.innerHTML = '<div class="ship-hp__bar"></div>';
-
-		this.shipHpIndicator = hpDiv;
-
-		//@TODO Skills indicator
-		let skillsDiv = document.createElement('div');
-		skillsDiv.className = 'skills';
-		skillsDiv.innerHTML = [
-			`<div class="skills__row skills__row--fire"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--fire"></i><span class="skills__row-key">SPACE</span></div>`,
-			`<div class="skills__row skills__row--wave"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--wave"></i><span class="skills__row-key">J</span></div>`,
-			`<div class="skills__row skills__row--rocket"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--rocket"></i><span class="skills__row-key">K</span></div>`,
-			`<div class="skills__row skills__row--friend"><i class="skills__row-cd"></i><i class="skills__row-picture skills__row-picture--friend"></i><span class="skills__row-key">H</span><span class="skills__row-increment">(<span class="skills__row-increment-value"></span>/<span class="skills__row-increment-max"></span>)</span></div>`,
-		].join("");
-
-		this.skillsIndicator = skillsDiv;
+		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
+		this.skillsIndicator = new SkillsHtmlViewer;
 
 	}
 
@@ -211,8 +197,8 @@ export default class Game extends Engine
 	}
 
 	protected initHtml(){
-		document.body.appendChild(this.shipHpIndicator);
-		document.body.appendChild(this.skillsIndicator);
+		document.body.appendChild(this.shipHpIndicator.element);
+		document.body.appendChild(this.skillsIndicator.element);
 	}
 
 	/**
@@ -454,9 +440,7 @@ export default class Game extends Engine
 
 	protected updateShipHp(){
 
-		let percent = this.ship.health / this.ship.maxHealth * 100;
-
-		(<HTMLElement>this.shipHpIndicator.children[0]).style.width = percent.toFixed(2) + '%';
+		this.shipHpIndicator.setHealth(this.ship.health);
 
 		if(!this.ship.health){
 			//@TODO пока просто восстанавливаем здоровье
@@ -471,14 +455,13 @@ export default class Game extends Engine
 			delayFire = this.shipFireThrottler.getDelay(),
 			cooldownFire = (1 - beforeFire / delayFire);
 
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--fire .skills__row-cd')).style.width = (cooldownFire * 100).toFixed(2) + '%';
-
+		this.skillsIndicator.fireSkill.setCooldown(cooldownFire);
 
 		let beforeShockWave = this.shipShockwaveFireThrottler.getBeforeCall(),
 			delayShockWave = this.shipShockwaveFireThrottler.getDelay(),
-			cooldownShowWave = (1 - beforeShockWave / delayShockWave);
+			cooldownShockWave = (1 - beforeShockWave / delayShockWave);
 
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--wave .skills__row-cd')).style.width = (cooldownShowWave * 100).toFixed(2) + '%';
+		this.skillsIndicator.waveSkill.setCooldown(cooldownShockWave);
 
 
 		let beforeFriendSpawn = this.friendsSpawnThrottler.getBeforeCall(),
@@ -490,9 +473,9 @@ export default class Game extends Engine
 			cooldownFriendSpawn = 0;
 		}
 
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-cd')).style.width = (cooldownFriendSpawn * 100).toFixed(2) + '%';
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-max')).textContent = this.friendsMaxCount.toString();
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--friend .skills__row-increment-value')).textContent = (this.friendsMaxCount - aliveCountFriends).toString();
+		this.skillsIndicator.friendSkill.setCooldown(cooldownFriendSpawn);
+		this.skillsIndicator.friendSkill.setCounterValue(this.friendsMaxCount - aliveCountFriends);
+		this.skillsIndicator.friendSkill.setCounterMax(this.friendsMaxCount);
 
 
 		let beforeRocket = this.shipRocketFireThrottler.getBeforeCall(),
@@ -503,8 +486,7 @@ export default class Game extends Engine
 			cooldownRocket = 0;
 		}
 
-		(<HTMLElement>this.skillsIndicator.querySelector('.skills__row--rocket .skills__row-cd')).style.width = (cooldownRocket * 100).toFixed(2) + '%';
-
+		this.skillsIndicator.rocketSkill.setCooldown(cooldownRocket);
 
 	}
 
