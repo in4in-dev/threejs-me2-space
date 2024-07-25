@@ -5,6 +5,7 @@ import ModelLoader from "../../../Three/ModelLoader";
 import AttacksContainer from "../AttacksContainer";
 import RayBulletAttack from "../Attacks/RayBulletAttack";
 import Random from "../../../Three/Random";
+import HealsContainer from "../HealsContainer";
 
 export default class EnemyReaper extends Enemy
 {
@@ -12,9 +13,15 @@ export default class EnemyReaper extends Enemy
 	protected mesh : THREE.Group | null = null;
 	protected bullet : RayBulletAttack | null = null;
 
-	constructor(x : number, y : number, speed : number, bulletGroup : AttacksContainer) {
+	constructor(
+		x : number,
+		y : number,
+		speed : number,
+		attacksContainer : AttacksContainer,
+		healsContainer : HealsContainer
+	) {
 
-		super(x, y, speed, bulletGroup);
+		super(x, y, speed, attacksContainer, healsContainer);
 
 		this.mesh = this.createBody();
 
@@ -106,11 +113,11 @@ export default class EnemyReaper extends Enemy
 		let bullet = new RayBulletAttack(
 			this.position.clone().setZ(-1).add(new Vector3(0, 1 , 0)),
 			to,
-			Random.int(1, 5),
+			Random.int(10, 50),
 			'red'
 		);
 
-		this.bulletsGroup.addBullets(bullet);
+		this.attacksContainer.addAttacks(bullet);
 
 		this.bullet = bullet;
 

@@ -8,13 +8,13 @@ import {Vector3} from "three";
 export default abstract class WarShip extends Ship
 {
 
-	protected bulletsGroup : AttacksContainer;
+	protected attacksContainer : AttacksContainer;
 
-	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
+	constructor(x : number = 10, y : number = 10, speed : number = 0.1, attacksContainer : AttacksContainer) {
 
 		super(x, y, speed);
 
-		this.bulletsGroup = bulletGroup;
+		this.attacksContainer = attacksContainer;
 
 	}
 

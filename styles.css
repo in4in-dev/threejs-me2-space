@@ -86,3 +86,25 @@ body{
         margin-top: -10px;
     }
 }
+
+.ship-hp{
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40vw;
+    height: 5px;
+    background: black;
+    border-radius: 5px;
+    overflow: hidden;
+    display: block;
+}
+
+.ship-hp__bar{
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: block;
+    background: #37b41b;
+}

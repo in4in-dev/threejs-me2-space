@@ -11,9 +11,13 @@ import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
 import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
 import Attack from "../../Attack";
 import RayBulletAttack from "../../Attacks/RayBulletAttack";
+import Healthy from "../../Healthy";
 
-export class NormandyShip extends WarShip implements Hittable
+export class NormandyShip extends WarShip implements Hittable, Healthy
 {
+
+	public health : number;
+	public maxHealth : number;
 
 	protected mesh : THREE.Group;
 	protected light : THREE.Light;
@@ -25,6 +29,9 @@ export class NormandyShip extends WarShip implements Hittable
 	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
 
 		super(x, y, speed, bulletGroup);
+
+		this.health = 5000;
+		this.maxHealth = 5000;
 
 		this.light = this.createLight();
 		this.engines = this.createEngines();
@@ -115,8 +122,8 @@ export class NormandyShip extends WarShip implements Hittable
 
 	}
 
-	public hit(){
-
+	public hit(x : number){
+		this.health = Math.max(0, this.health - x);
 	}
 
 	public fire(){
@@ -139,7 +146,7 @@ export class NormandyShip extends WarShip implements Hittable
 			this.bulletGlowColor
 		);
 
-		this.bulletsGroup.addBullets(bullet1, bullet2)
+		this.attacksContainer.addAttacks(bullet1, bullet2)
 
 	}
 
@@ -156,8 +163,12 @@ export class NormandyShip extends WarShip implements Hittable
 		bullet.position.y += 7;
 		bullet.position.z = -1;
 
-		this.bulletsGroup.addBullets(bullet);
+		this.attacksContainer.addAttacks(bullet);
 
+	}
+
+	public heal(x : number){
+		this.health = Math.min(this.maxHealth, this.health + x);
 	}
 
 

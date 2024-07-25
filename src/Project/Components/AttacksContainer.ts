@@ -6,11 +6,11 @@ import Attack from "./Attack";
 export default class AttacksContainer extends Component
 {
 
-	protected bullets : Attack[] = [];
+	protected attacks : Attack[] = [];
 
-	public addBullets(...bullets : Attack[]){
+	public addAttacks(...bullets : Attack[]){
 
-		this.bullets.push(...bullets);
+		this.attacks.push(...bullets);
 
 		this.add(...bullets);
 
@@ -22,7 +22,7 @@ export default class AttacksContainer extends Component
 		enemiesObjects : Hittable[] = []
 	){
 
-		this.bullets = this.bullets.filter(bullet => {
+		this.attacks = this.attacks.filter(bullet => {
 
 			bullet.animate(peaceObjects, enemiesObjects);
 

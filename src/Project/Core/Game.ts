@@ -13,6 +13,7 @@ import AttacksContainer from "../Components/AttacksContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import Random from "../../Three/Random";
 import Animation from "../../Three/Animation";
+import HealsContainer from "../Components/HealsContainer";
 
 export default class Game extends Engine
 {
@@ -44,8 +45,12 @@ export default class Game extends Engine
 	protected planets : PlanetWithOrbit[] = [];
 	protected enemies : Enemy[] = [];
 
-	protected enemiesBullets : AttacksContainer;
-	protected friendsBullets : AttacksContainer;
+	protected enemiesAttacks : AttacksContainer;
+	protected friendsAttacks : AttacksContainer;
+
+	protected healsContainer : HealsContainer;
+
+	protected shipHpIndicator : HTMLElement;
 
 	constructor(
 		background : Background,
@@ -62,10 +67,18 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.enemiesBullets = new AttacksContainer;
-		this.friendsBullets = new AttacksContainer;
+		this.enemiesAttacks = new AttacksContainer;
+		this.friendsAttacks = new AttacksContainer;
+		this.healsContainer = new HealsContainer;
 
-		this.ship = new NormandyShip(10, 10, 0.3, this.friendsBullets);
+		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
+
+		//@TODO Hp indicator
+		let hpDiv = document.createElement('div');
+		hpDiv.className = 'ship-hp';
+		hpDiv.innerHTML = '<div class="ship-hp__bar"></div>';
+
+		this.shipHpIndicator = hpDiv;
 
 	}
 
@@ -75,6 +88,7 @@ export default class Game extends Engine
 	public init(){
 
 		this.initScene();
+		this.initHtml();
 		this.initListeners();
 
 	}
@@ -149,6 +163,10 @@ export default class Game extends Engine
 
 	}
 
+	protected initHtml(){
+		document.body.appendChild(this.shipHpIndicator);
+	}
+
 	/**
 	 * Инициализация сцены
 	 */
@@ -160,8 +178,9 @@ export default class Game extends Engine
 			this.background,
 			this.asteroidBelt,
 			this.border,
-			this.friendsBullets,
-			this.enemiesBullets,
+			this.friendsAttacks,
+			this.enemiesAttacks,
+			this.healsContainer,
 			...this.planets
 		)
 
@@ -256,9 +275,9 @@ export default class Game extends Engine
 	/**
 	 * Анимируем наши пули
 	 */
-	protected animateShipBullets(){
+	protected animateFriendsAttacks(){
 
-		this.friendsBullets.animate(
+		this.friendsAttacks.animate(
 			[
 				...this.planets.map(planet => planet.planet.getPlanetMesh()),
 				this.sun.getSunMesh()
@@ -271,9 +290,9 @@ export default class Game extends Engine
 	/**
 	 * Анимируем вражеские пули
 	 */
-	protected animateEnemiesBullets(){
+	protected animateEnemiesAttacks(){
 
-		this.enemiesBullets.animate(
+		this.enemiesAttacks.animate(
 			[
 				...this.planets.map(planet => planet.planet.getPlanetMesh()),
 				this.sun.getSunMesh()
@@ -294,7 +313,8 @@ export default class Game extends Engine
 			Random.int(100, 500),
 			Random.int(-this.border.radius, this.border.radius),
 			Random.int(-this.border.radius, this.border.radius),
-			this.enemiesBullets
+			this.enemiesAttacks,
+			this.healsContainer
 		);
 
 		this.enemies.push(enemy);
@@ -345,10 +365,21 @@ export default class Game extends Engine
 		});
 	}
 
+	protected updateShipHp(){
+
+		let percent = this.ship.health / this.ship.maxHealth * 100;
+
+		(<HTMLElement>this.shipHpIndicator.children[0]).style.width = percent.toFixed(2) + '%';
+
+	}
+
 	/**
 	 * Главная функция анимации
 	 */
 	protected tick(){
+
+		//Обновляем здоровье корабля
+		this.updateShipHp();
 
 		//Обновление позиции для движения корабля
 		if (this.shipMovingAllow) {
@@ -391,13 +422,18 @@ export default class Game extends Engine
 		this.ship.animate();
 
 		//Анимируем наши пули
-		this.animateShipBullets();
+		this.animateFriendsAttacks();
 
 		//Анимируем вражеские пули
-		this.animateEnemiesBullets();
+		this.animateEnemiesAttacks();
 
 		//Анимируем действия врагов
 		this.animateEnemies();
+
+		//Анимация хилок
+		this.healsContainer.animate([
+			this.ship
+		]);
 
 		//Добавляем врагов
 		if(this.enemies.length < this.enemyMaxCount){

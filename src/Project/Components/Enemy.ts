@@ -4,35 +4,43 @@ import * as TWEEN from '@tweenjs/tween.js';
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
-import {Object3D} from "three";
+import {Object3D, Vector3} from "three";
 import AttacksContainer from "./AttacksContainer";
 import Random from "../../Three/Random";
 import Hittable from "./Hittable";
 import Animation from "../../Three/Animation";
+import Healthy from "./Healthy";
+import HealsContainer from "./HealsContainer";
+import Heal from "./Heal";
 
-export default abstract class Enemy extends WarShip implements Hittable
+export default abstract class Enemy extends WarShip implements Hittable, Healthy
 {
 
 	public health : number;
+	public maxHealth : number;
 	public isVisible : boolean = true;
 
 	protected autoFireActive : boolean = false;
 	protected autoFireThrottler : Function = Animation.createThrottler(1000);
 
-	protected startHealth : number;
-
-	protected bulletColor = 'red';
-	protected bulletGlowColor = 'red';
-
 	protected hp : CSS2DObject;
 	protected attackTarget : Object3D | null = null;
 
-	constructor(health : number, startX : number = 0, startY : number = 0, bulletsContainer : AttacksContainer) {
+	protected healsContainer : HealsContainer;
+
+	constructor(
+		health : number,
+		startX : number = 0,
+		startY : number = 0,
+		bulletsContainer : AttacksContainer,
+		healsContainer : HealsContainer
+	) {
 
 		super(startX, startY, 0.05, bulletsContainer);
 
 		this.health = health;
-		this.startHealth = health;
+		this.maxHealth = health;
+		this.healsContainer = healsContainer;
 
 		this.hp = this.createHp();
 
@@ -95,6 +103,40 @@ export default abstract class Enemy extends WarShip implements Hittable
 
 	}
 
+	protected dropHealths(healths : number, count : number = 1){
+
+		let step = healths / count, heals = [];
+
+		for(let i = 0, c = healths; i < count; i++){
+
+			let heal = new Heal(
+				Math.min(c, step)
+			);
+
+			let position = this.position.clone().setZ(0);
+
+			heal.position.copy(position);
+
+			let direction = new Vector3(
+				Random.int(-2, 2),
+				Random.int(-2, 2),
+				0
+			);
+
+			heal.setMovingTarget(
+				position.add(direction).setZ(0)
+			);
+
+			heals.push(heal);
+
+			c -= step;
+
+		}
+
+		this.healsContainer.dropHeals(...heals);
+
+	}
+
 	public startAutoFire(){
 		this.autoFireActive = true;
 	}
@@ -138,7 +180,7 @@ export default abstract class Enemy extends WarShip implements Hittable
 
 
 			//Обновляем здоровье
-			let percent = Math.ceil((this.health / this.startHealth) * 100);
+			let percent = Math.ceil((this.health / this.maxHealth) * 100);
 			let color = percent > 50 ? 'green' : percent > 20 ? 'orange' : 'red';
 
 
@@ -150,11 +192,19 @@ export default abstract class Enemy extends WarShip implements Hittable
 			this.remove(this.hp);
 
 			this.stop();
+			this.dropHealths(
+				Random.int(50, 200),
+				Random.int(5, 30)
+			);
 			this.explosion();
 
 		}
 
 		return true;
+
+	}
+
+	public heal(h : number){
 
 	}
 
