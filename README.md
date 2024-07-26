@@ -9,6 +9,6 @@ npm i
 npx vite
 ```
 
-# [DEMO HERE](https://codesandbox.io/p/github/in4in-dev/threejs-me2-space/main)
+# [DEMO HERE](https://stackblitz.com/~/github.com/in4in-dev/threejs-me2-space)
 
 ![Intro](https://github.com/in4in-dev/threejs-me2-space/raw/main/intro.gif)
