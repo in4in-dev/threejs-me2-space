@@ -3,12 +3,14 @@ import {Vector3} from "three";
 import * as THREE from "three";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import ModelLoader from "../../../Three/ModelLoader";
+import Random from "../../../Three/Random";
+import BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 export default class FriendRelay extends Mob
 {
 
 	protected mesh : THREE.Group;
-	protected shield : THREE.Mesh;
+	protected shield : THREE.Points;
 
 	protected shieldEnabled : boolean = false;
 	protected shieldStartTime : number = 0;
@@ -30,11 +32,44 @@ export default class FriendRelay extends Mob
 		this.add(this.mesh);
 	}
 
-	protected createShield() : THREE.Mesh
+	protected generateShieldGeometry(radius : number){
+
+		// Установить необходимые параметры
+		// const outerRadius = radius;
+		// const thickness = 1;
+		// const innerRadius = outerRadius - thickness;
+
+		const points = [];
+		for (let i = 0; i < 3000; i++) {
+			const phi = Math.acos(2 * Math.random() - 1);
+			const theta = 2 * Math.PI * Math.random();
+			const x = radius * Math.sin(phi) * Math.cos(theta);
+			const y = radius * Math.sin(phi) * Math.sin(theta);
+			const z = radius * Math.cos(phi);
+			points.push(new THREE.Vector3(x, y, z));
+		}
+
+		return new THREE.BufferGeometry().setFromPoints(points);
+
+
+	}
+
+	protected createShield() : THREE.Points
 	{
-		return new THREE.Mesh(
-			new THREE.SphereGeometry(0, 50, 50),
-			new THREE.MeshBasicMaterial({ color : '#2289c4', transparent : true, opacity: 0.15 })
+
+		let particleTexture = new THREE.TextureLoader().load('../../../../assets/sand.png');
+
+		return new THREE.Points(
+			this.generateShieldGeometry(0),
+			new THREE.PointsMaterial({
+				transparent : true,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				color : '#2289c4',
+				// opacity: 0.25,
+				size : 0.3 ,
+				map : particleTexture
+			})
 		);
 	}
 
@@ -83,7 +118,7 @@ export default class FriendRelay extends Mob
 
 			let radius = explosionProgress * this.shieldMaxRadius;
 
-			let outSideSphere = new THREE.SphereGeometry(radius, 50, 50);
+			let outSideSphere = this.generateShieldGeometry(radius);
 
 			this.shield.geometry.copy(outSideSphere);
 
