@@ -128,7 +128,6 @@ export default class RocketBulletAttack extends Attack
 					this.damagedEnemies.indexOf(enemy) < 0 &&
 					enemy.position.distanceTo(this.explosionPoint!) <= this.explosionRadius
 				){
-					console.log('Enemy hit');
 					enemy.hit(this.force);
 					this.damagedEnemies.push(enemy);
 				}

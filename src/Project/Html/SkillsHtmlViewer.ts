@@ -28,7 +28,7 @@ class Skill
 	{
 		this.cooldown = x;
 
-		this.element.querySelector('.skills__row-cd')!.style.width = (x * 100).toFixed(2) + '%';
+		(<HTMLElement>this.element.querySelector('.skills__row-cd')).style.width = (x * 100).toFixed(2) + '%';
 
 		return this;
 	}
