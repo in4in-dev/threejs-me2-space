@@ -165,6 +165,10 @@ body{
     background-image: url("assets/skills/rocket.svg");
 }
 
+.skills__row-picture--shield{
+    background-image: url("assets/skills/shield.svg");
+}
+
 
 .skills__row-increment{
     color: white;

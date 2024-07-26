@@ -10,9 +10,11 @@ import {Animation, AnimationThrottler} from "../../../Three/Animation";
 export default class FriendHammerhead extends Mob
 {
 
-	protected mesh : THREE.Group | null = null;
+	protected mesh : THREE.Group;
 
 	protected autoFireThrottler : AnimationThrottler = Animation.createThrottler(300);
+
+	protected autoFireMinDistance : number = 50;
 
 	constructor(
 		healths : number,

@@ -25,6 +25,8 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 	protected hp : CSS2DObject;
 	protected attackTarget : Object3D | null = null;
 
+	protected autoFireMinDistance : number = 50;
+
 	constructor(
 		health : number,
 		startX : number = 0,
@@ -135,7 +137,7 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	public animate(){
 
-		if(this.autoFireActive && this.attackTarget){
+		if(this.autoFireActive && this.attackTarget && this.attackTarget.position.distanceTo(this.position) < this.autoFireMinDistance){
 			this.autoFireThrottler(() => this.fire(this.attackTarget!.position));
 		}
 

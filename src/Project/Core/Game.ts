@@ -20,6 +20,7 @@ import MobsContainer from "../Containers/MobsContainer";
 import SkillsHtmlViewer from "../Html/SkillsHtmlViewer";
 import HpHtmlViewer from "../Html/HpHtmlViewer";
 import Skill from "./Skill";
+import FriendRelay from "../Components/Friends/FriendRelay";
 
 export default class Game extends Engine
 {
@@ -31,6 +32,7 @@ export default class Game extends Engine
 	protected shipShockwaveSkill : Skill;
 	protected shipRocketSkill : Skill;
 	protected shipFriendSkill : Skill;
+	protected relayShieldSkill : Skill;
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
@@ -51,6 +53,7 @@ export default class Game extends Engine
 
 	protected enemiesContainer : MobsContainer<Enemy>;
 	protected friendsContainer : MobsContainer<Mob>;
+	protected relaysContainer : MobsContainer<FriendRelay>;
 
 	protected enemiesAttacks : AttacksContainer;
 	protected friendsAttacks : AttacksContainer;
@@ -81,6 +84,7 @@ export default class Game extends Engine
 
 		this.friendsContainer = new MobsContainer<Mob>;
 		this.enemiesContainer = new MobsContainer<Enemy>;
+		this.relaysContainer = new MobsContainer<FriendRelay>;
 
 		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
 
@@ -88,13 +92,15 @@ export default class Game extends Engine
 		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
 		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 2000);
 		this.shipFriendSkill    = new Skill('H', 'KeyH', 5000, this.friendsMaxCount);
-		this.shipRocketSkill    = new Skill('K', 'KeyK', 3000);
+		this.shipRocketSkill    = new Skill('K', 'KeyK', 20000);
+		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
 
 		this.skillsIndicator = new SkillsHtmlViewer()
 			.addSkill('fire', this.shipFireSkill)
 			.addSkill('wave', this.shipShockwaveSkill)
 			.addSkill('friend', this.shipFriendSkill)
-			.addSkill('rocket', this.shipRocketSkill);
+			.addSkill('rocket', this.shipRocketSkill)
+			.addSkill('shield', this.relayShieldSkill);
 
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
 
@@ -152,6 +158,7 @@ export default class Game extends Engine
 		this.shipShockwaveSkill.initListeners();
 		this.shipRocketSkill.initListeners();
 		this.shipFriendSkill.initListeners();
+		this.relayShieldSkill.initListeners();
 
 	}
 
@@ -176,6 +183,7 @@ export default class Game extends Engine
 			this.healsContainer,
 			this.enemiesContainer,
 			this.friendsContainer,
+			this.relaysContainer,
 			...this.planets
 		)
 
@@ -183,6 +191,10 @@ export default class Game extends Engine
 
 		if(this.showAxis){
 			this.showAxisHelper();
+		}
+
+		for(let i = 0; i < 5; i++){
+			this.addRelay();
 		}
 
 	}
@@ -275,6 +287,7 @@ export default class Game extends Engine
 		this.friendsAttacks.animate(
 			[
 				...this.planets.map(planet => planet.planet.getPlanetMesh()),
+				...this.relaysContainer.getAliveMobs(),
 				this.sun.getSunMesh()
 			],
 			this.enemiesContainer.getAliveMobs()
@@ -294,8 +307,21 @@ export default class Game extends Engine
 			],
 			[
 				this.ship,
+				...this.relaysContainer.getAliveMobs(),
 				...this.friendsContainer.getAliveMobs()
 			]
+		);
+
+	}
+
+	protected addRelay(){
+
+		let relay = new FriendRelay(7000, Random.int(-40, 40), Random.int(-40, 40), this.friendsAttacks);
+
+		relay.rotation.z = Math.random() * Math.PI * 2;
+
+		this.relaysContainer.addMobs(
+			relay
 		);
 
 	}
@@ -342,24 +368,22 @@ export default class Game extends Engine
 
 		this.enemiesContainer.getAliveMobs().forEach(enemy => {
 
+			enemy.startAutoFire();
+
 			//Дистанция до нас
 			enemy.setNearestAttackTarget(
 				[
 					this.ship,
 					...this.friendsContainer.getAliveMobs()
 				],
-				50
+				30
 			);
 
-			if(enemy.hasAttackTarget()){
-				enemy.startAutoFire();
-			}else{
+			if(!enemy.hasAttackTarget()){
 
 				enemy.setNearestAttackTarget(
-					this.planets.map(planet => planet.planet)
+					this.relaysContainer.getAliveMobs()
 				);
-
-				enemy.stopAutoFire();
 
 			}
 
@@ -395,6 +419,11 @@ export default class Game extends Engine
 
 		this.friendsContainer.animate();
 
+	}
+
+	protected animateRelays(){
+		this.relaysContainer.animate();
+		this.relaysContainer.getAliveMobs().forEach(relay => relay.animate());
 	}
 
 	protected animateShipHp(){
@@ -439,6 +468,10 @@ export default class Game extends Engine
 			.useIfNeed(() => this.addFriend());
 
 
+		//Щит ретранслятора
+		this.relayShieldSkill.useIfNeed(() => {
+			this.relaysContainer.getAliveMobs().forEach(relay => relay.activateShield(10000))
+		});
 
 		//Анимируем кд
 		this.skillsIndicator.updateView();
@@ -508,6 +541,9 @@ export default class Game extends Engine
 
 		//Анимируем действия друзей
 		this.animateFriends();
+
+		//Анимация ретрансляторов
+		this.animateRelays();
 
 		//Анимация хилок
 		this.healsContainer.animate([this.ship]);

@@ -10,8 +10,10 @@ import Enemy from "../Enemy";
 export default class EnemyReaper extends Enemy
 {
 
-	protected mesh : THREE.Group | null = null;
+	protected mesh : THREE.Group;
 	protected bullet : RayBulletAttack | null = null;
+
+	protected autoFireMinDistance : number = 30;
 
 	constructor(
 		healths : number,
