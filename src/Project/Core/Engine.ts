@@ -4,7 +4,7 @@ import {WebGLRenderer} from "three";
 import {CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import * as TWEEN from '@tweenjs/tween.js';
 import ModelLoader from "../../Three/ModelLoader";
-import {Animation} from "../../Three/Animation";
+import {Animation, AnimationThrottler} from "../../Three/Animation";
 
 
 export default abstract class Engine
@@ -17,6 +17,8 @@ export default abstract class Engine
 	public cssRenderer : CSS2DRenderer;
 
 	protected active : boolean = false;
+
+	protected slowTickThrottler : AnimationThrottler = Animation.createThrottler(50);
 
 	constructor(element : HTMLElement) {
 
@@ -53,6 +55,10 @@ export default abstract class Engine
 
 	}
 
+	protected slowTick(){
+
+	}
+
 	public run(){
 
 		let animate = async () => {
@@ -64,6 +70,7 @@ export default abstract class Engine
 			}
 
 			this.tick();
+			this.slowTickThrottler(() => this.slowTick());
 
 			this.webGLRenderer.render(this.scene, this.camera);
 			this.cssRenderer.render(this.scene, this.camera);

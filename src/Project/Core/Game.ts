@@ -397,7 +397,7 @@ export default class Game extends Engine
 
 	}
 
-	protected updateShipHp(){
+	protected animateShipHp(){
 
 		if(!this.ship.health){
 			//@TODO пока просто восстанавливаем здоровье
@@ -446,12 +446,27 @@ export default class Game extends Engine
 	}
 
 	/**
+	 * То, что нужно обновлять по реже
+	 */
+	protected slowTick(){
+
+		//Обновляем отображение здоровья корабля
+		this.animateShipHp();
+
+		//Анимируем скиллы
+		this.animateSkills();
+
+		//Добавляем врагов
+		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
+			this.enemySpawnThrottler(() => this.addEnemy());
+		}
+
+	}
+
+	/**
 	 * Главная функция анимации
 	 */
 	protected tick(){
-
-		//Обновляем здоровье корабля
-		this.updateShipHp();
 
 		//Обновление позиции для движения корабля
 		if (this.shipMovingAllow) {
@@ -462,10 +477,6 @@ export default class Game extends Engine
 			}
 
 		}
-
-		//Анимируем скиллы
-		this.animateSkills();
-
 
 		//Отображаем название активной планеты
 		this.planets.forEach((planet : PlanetWithOrbit) => {
@@ -500,11 +511,6 @@ export default class Game extends Engine
 
 		//Анимация хилок
 		this.healsContainer.animate([this.ship]);
-
-		//Добавляем врагов
-		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
-			this.enemySpawnThrottler(() => this.addEnemy());
-		}
 
 	}
 

@@ -40,8 +40,8 @@ export default abstract class Enemy extends Mob
 			heal.position.copy(position);
 
 			let direction = new Vector3(
-				Random.int(-3, 3),
-				Random.int(-3, 3),
+				Random.float(-3, 3),
+				Random.float(-3, 3),
 				0
 			);
 
@@ -69,7 +69,7 @@ export default abstract class Enemy extends Mob
 
 			this.dropHealths(
 				Random.int(50, 200),
-				Random.int(5, 30)
+				Random.int(5, 50)
 			);
 
 			return false;
