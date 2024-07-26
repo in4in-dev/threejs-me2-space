@@ -1,54 +1,47 @@
 import HtmlComponent from "../Core/HtmlComponent";
+import Skill from "../Core/Skill";
 
-class Skill
+class SkillsHtmlRow
 {
 
 	public element : HTMLElement;
 
-	protected cooldown : number = 0;
-	protected counterCurrent : number = 0;
-	protected counterMax : number = 0;
+	protected code : string;
+	protected skill : Skill;
 
-	constructor(code : string, key : string, showCounter : boolean = false) {
+	constructor(code : string, skill : Skill) {
 
 		let row = document.createElement('div');
 		row.className = `skills__row skills__row--${code}`;
 		row.innerHTML = `
 			<i class="skills__row-cd"></i>
 			<i class="skills__row-picture skills__row-picture--${code}"></i>
-			<span class="skills__row-key">${key}</span>
-			<span class="skills__row-increment" style="display: ${showCounter ? 'block' : 'none'}">(<span class="skills__row-increment-value"></span>/<span class="skills__row-increment-max"></span>)</span>
+			<span class="skills__row-key">${skill.key}</span>
+			<span class="skills__row-increment" style="display: ${(skill.maximumUses === Infinity) ? 'none' : 'block'}">(<span class="skills__row-increment-value"></span>/<span class="skills__row-increment-max"></span>)</span>
 		`;
 
 		this.element = row;
+		this.skill = skill;
+		this.code = code;
 
 	}
 
-	public setCooldown(x : number) : this
-	{
-		this.cooldown = x;
+	public updateView(){
 
-		(<HTMLElement>this.element.querySelector('.skills__row-cd')).style.width = (x * 100).toFixed(2) + '%';
+		let cooldown = this.skill.getCooldownPercent();
 
-		return this;
-	}
+		if(!this.skill.isAvailable()){
+			cooldown = 0;
+		}
 
-	public setCounterValue(current : number) : this
-	{
-		this.counterCurrent = current;
+		(<HTMLElement>this.element.querySelector('.skills__row-cd')).style.width = (cooldown * 100).toFixed(2) + '%';
 
-		this.element.querySelector('.skills__row-increment-value')!.textContent = current.toString()
+		if(this.skill.maximumUses !== Infinity) {
+			this.element.querySelector('.skills__row-increment-value')!.textContent = this.skill.availableUses.toString();
+			this.element.querySelector('.skills__row-increment-max')!.textContent = this.skill.maximumUses.toString();
+		}
 
-		return this;
-	}
 
-	public setCounterMax(max : number) : this
-	{
-		this.counterMax = max;
-
-		this.element.querySelector('.skills__row-increment-max')!.textContent = max.toString();
-
-		return this;
 	}
 
 }
@@ -58,36 +51,30 @@ export default class SkillsHtmlViewer extends HtmlComponent
 
 	public element : HTMLElement;
 
-	public fireSkill : Skill;
-	public waveSkill : Skill;
-	public rocketSkill : Skill;
-	public friendSkill : Skill;
+	protected skillRows : SkillsHtmlRow[] = [];
 
 	constructor() {
 
 		super();
 
-		let div = document.createElement('div')
-		div.className = 'skills';
-
-		this.element = div;
-
-		this.fireSkill = this.addSkill('fire', 'SPACE');
-		this.waveSkill = this.addSkill('wave', 'J');
-		this.rocketSkill = this.addSkill('rocket', 'K');
-		this.friendSkill = this.addSkill('friend', 'H', true);
+		this.element = this.createElement('<div class="skills"></div>');
 
 	}
 
-	public addSkill(code : string, name : string, showCounter : boolean = false) : Skill
+	public addSkill(code : string, skill : Skill) : this
 	{
 
-		let skill = new Skill(code, name, showCounter);
+		let skillRow = new SkillsHtmlRow(code, skill);
 
-		this.element.appendChild(skill.element);
+		this.skillRows.push(skillRow);
+		this.element.appendChild(skillRow.element);
 
-		return skill;
+		return this;
 
+	}
+
+	public updateView(){
+		this.skillRows.forEach(skill => skill.updateView());
 	}
 
 }

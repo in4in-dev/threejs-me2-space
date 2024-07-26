@@ -1,6 +1,7 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
 import {Vector3} from "three";
+import Random from "../../Three/Random";
 
 export default class Heal extends Component
 {
@@ -24,8 +25,8 @@ export default class Heal extends Component
 	{
 
 		let sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(0.07, 10, 10),
-			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.7})
+			new THREE.SphereGeometry(Random.float(0.07, 0.11), 10, 10),
+			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.88})
 		);
 
 		let sprite = new THREE.Sprite(

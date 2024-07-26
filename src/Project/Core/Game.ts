@@ -19,6 +19,7 @@ import FriendHammerhead from "../Components/Friends/FriendHammerhead";
 import MobsContainer from "../Containers/MobsContainer";
 import SkillsHtmlViewer from "../Html/SkillsHtmlViewer";
 import HpHtmlViewer from "../Html/HpHtmlViewer";
+import Skill from "./Skill";
 
 export default class Game extends Engine
 {
@@ -26,17 +27,10 @@ export default class Game extends Engine
 	protected shipMovingAllow : boolean = true;
 	protected shipMovingActive : boolean = false;
 
-	protected shipFireAllow : boolean = true;
-	protected shipFireActive : boolean = false;
-	protected shipFireThrottler : AnimationThrottler = Animation.createThrottler(100);
-
-	protected shipShockwaveFireAllow : boolean = true;
-	protected shipShockwaveFireActive : boolean = false;
-	protected shipShockwaveFireThrottler : AnimationThrottler = Animation.createThrottler(2000);
-
-	protected shipRocketFireAllow : boolean = true;
-	protected shipRocketFireActive : boolean = false;
-	protected shipRocketFireThrottler : AnimationThrottler = Animation.createThrottler(10000);
+	protected shipFireSkill : Skill;
+	protected shipShockwaveSkill : Skill;
+	protected shipRocketSkill : Skill;
+	protected shipFriendSkill : Skill;
 
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
@@ -45,8 +39,6 @@ export default class Game extends Engine
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
 	protected friendsMaxCount : number = 3;
-	protected friendsSpawnActive : boolean = false;
-	protected friendsSpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
 	protected showAxis : boolean = false;
 
@@ -92,8 +84,20 @@ export default class Game extends Engine
 
 		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
 
+
+		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
+		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 2000);
+		this.shipFriendSkill    = new Skill('H', 'KeyH', 5000, this.friendsMaxCount);
+		this.shipRocketSkill    = new Skill('K', 'KeyK', 3000);
+
+		this.skillsIndicator = new SkillsHtmlViewer()
+			.addSkill('fire', this.shipFireSkill)
+			.addSkill('wave', this.shipShockwaveSkill)
+			.addSkill('friend', this.shipFriendSkill)
+			.addSkill('rocket', this.shipRocketSkill);
+
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
-		this.skillsIndicator = new SkillsHtmlViewer;
+
 
 	}
 
@@ -144,55 +148,10 @@ export default class Game extends Engine
 
 		});
 
-		window.addEventListener('keydown', (event) => {
-
-			if (event.code === 'Space') {
-
-				event.preventDefault();
-
-				if (this.shipFireAllow) {
-					this.shipFireActive = true;
-				}
-
-			}else if(event.code === 'KeyJ'){
-
-				event.preventDefault();
-
-				if(this.shipShockwaveFireAllow){
-					this.shipShockwaveFireActive = true;
-				}
-
-			}else if(event.code === 'KeyH'){
-
-				event.preventDefault();
-
-				this.friendsSpawnActive = true;
-
-			}else if(event.code === 'KeyK'){
-
-				event.preventDefault();
-
-				if(this.shipRocketFireAllow) {
-					this.shipRocketFireActive = true;
-				}
-
-			}
-
-		});
-
-		window.addEventListener('keyup', (event) => {
-
-			if (event.code === 'Space') {
-				this.shipFireActive = false;
-			}else if(event.code === 'KeyJ'){
-				this.shipShockwaveFireActive = false;
-			}else if(event.code === 'KeyH'){
-				this.friendsSpawnActive = false;
-			}else if(event.code === 'KeyK'){
-				this.shipRocketFireActive = false;
-			}
-
-		});
+		this.shipFireSkill.initListeners();
+		this.shipShockwaveSkill.initListeners();
+		this.shipRocketSkill.initListeners();
+		this.shipFriendSkill.initListeners();
 
 	}
 
@@ -440,53 +399,49 @@ export default class Game extends Engine
 
 	protected updateShipHp(){
 
-		this.shipHpIndicator.setHealth(this.ship.health);
-
 		if(!this.ship.health){
 			//@TODO пока просто восстанавливаем здоровье
 			this.ship.heal(this.ship.maxHealth);
 		}
 
+		this.shipHpIndicator.setHealth(this.ship.health);
+
 	}
 
-	protected updateSkillsStatus(){
+	protected animateSkills(){
 
-		let beforeFire = this.shipFireThrottler.getBeforeCall(),
-			delayFire = this.shipFireThrottler.getDelay(),
-			cooldownFire = (1 - beforeFire / delayFire);
+		//Стрельба из корабля
+		this.shipFireSkill.useIfNeed(() => this.ship.fire());
 
-		this.skillsIndicator.fireSkill.setCooldown(cooldownFire);
+		//Шоковая волна
+		this.shipShockwaveSkill.useIfNeed(() => this.ship.shockwaveFire());
 
-		let beforeShockWave = this.shipShockwaveFireThrottler.getBeforeCall(),
-			delayShockWave = this.shipShockwaveFireThrottler.getDelay(),
-			cooldownShockWave = (1 - beforeShockWave / delayShockWave);
+		//Ракета
+		let enemies = this.enemiesContainer.getAliveMobs();
 
-		this.skillsIndicator.waveSkill.setCooldown(cooldownShockWave);
+		if(enemies.length){
 
+			let target = this.ship.whoNearest(enemies);
 
-		let beforeFriendSpawn = this.friendsSpawnThrottler.getBeforeCall(),
-			delayFriendSpawn = this.friendsSpawnThrottler.getDelay(),
-			cooldownFriendSpawn = (1 - beforeFriendSpawn / delayFriendSpawn),
-			aliveCountFriends = this.friendsContainer.getAliveMobs().length;
+			if(target){
+				this.shipRocketSkill.on().useIfNeed(() => this.ship.rocketFire(target));
+			}
 
-		if(aliveCountFriends === this.friendsMaxCount){
-			cooldownFriendSpawn = 0;
+		}else{
+
+			this.shipRocketSkill.off();
+
 		}
 
-		this.skillsIndicator.friendSkill.setCooldown(cooldownFriendSpawn);
-		this.skillsIndicator.friendSkill.setCounterValue(this.friendsMaxCount - aliveCountFriends);
-		this.skillsIndicator.friendSkill.setCounterMax(this.friendsMaxCount);
+		//Spawn союзников
+		this.shipFriendSkill
+			.setAvailableUses(this.friendsMaxCount - this.friendsContainer.getAliveMobs().length)
+			.useIfNeed(() => this.addFriend());
 
 
-		let beforeRocket = this.shipRocketFireThrottler.getBeforeCall(),
-			delayRocket = this.shipRocketFireThrottler.getDelay(),
-			cooldownRocket = (1 - beforeRocket / delayRocket);
 
-		if(this.enemiesContainer.getAliveMobs().length < 1){
-			cooldownRocket = 0;
-		}
-
-		this.skillsIndicator.rocketSkill.setCooldown(cooldownRocket);
+		//Анимируем кд
+		this.skillsIndicator.updateView();
 
 	}
 
@@ -508,38 +463,8 @@ export default class Game extends Engine
 
 		}
 
-		//Стрельба из корабля
-		if(this.shipFireActive){
-			this.shipFireThrottler(() => this.ship.fire());
-		}
-
-		//Стрельба (второй режим) из корабля
-		if(this.shipShockwaveFireActive){
-			this.shipShockwaveFireThrottler(() => this.ship.shockwaveFire());
-		}
-
-		//Стрельба (второй режим) из корабля
-		if(this.shipRocketFireActive){
-
-			let enemies = this.enemiesContainer.getAliveMobs();
-
-			if(enemies.length){
-
-				let target = this.ship.whoNearest(enemies);
-
-				if(target) {
-					this.shipRocketFireThrottler(() => this.ship.rocketFire(target));
-				}
-
-			}
-
-
-		}
-
-		//Спавн союзников
-		if(this.friendsSpawnActive && this.friendsContainer.getAliveMobs().length < this.friendsMaxCount){
-			this.friendsSpawnThrottler(() => this.addFriend());
-		}
+		//Анимируем скиллы
+		this.animateSkills();
 
 
 		//Отображаем название активной планеты
@@ -570,21 +495,16 @@ export default class Game extends Engine
 		//Анимируем действия врагов
 		this.animateEnemies();
 
-		//Анимируем друзей
+		//Анимируем действия друзей
 		this.animateFriends();
 
 		//Анимация хилок
-		this.healsContainer.animate([
-			this.ship
-		]);
+		this.healsContainer.animate([this.ship]);
 
 		//Добавляем врагов
 		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
 			this.enemySpawnThrottler(() => this.addEnemy());
 		}
-
-		//Анимируем кд
-		this.updateSkillsStatus();
 
 	}
 
