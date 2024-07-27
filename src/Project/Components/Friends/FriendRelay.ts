@@ -93,7 +93,7 @@ export default class FriendRelay extends Mob
 
 		this.shieldEnabled = true;
 		this.shieldStartTime = Date.now();
-		this.shieldEndTime = Date.now() + time;
+		this.shieldEndTime = Date.now() + time + (time * this.level * 0.5);
 
 	}
 

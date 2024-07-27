@@ -71,11 +71,9 @@ export default class Game extends Engine
 	protected skillsIndicator : SkillsHtmlViewer;
 	protected expIndicator : ExpHtmlViewer;
 
-	protected shipFireLevel : number = 1;
-	protected shipShockwaveLevel : number = 1;
-	protected shipRocketLevel : number = 1;
 	protected shipFriendLevel : number = 1;
 	protected shipHealthLevel : number = 1;
+	protected relaysLevel : number = 1;
 	protected enemiesLevel : number = 1;
 
 	constructor(
@@ -110,12 +108,19 @@ export default class Game extends Engine
 		this.shipRocketSkill    = new Skill('K', 'KeyK', 20000);
 		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
 
-		this.skillsIndicator = new SkillsHtmlViewer()
-			.addSkill('fire', this.shipFireSkill)
-			.addSkill('wave', this.shipShockwaveSkill)
-			.addSkill('friend', this.shipFriendSkill)
-			.addSkill('rocket', this.shipRocketSkill)
-			.addSkill('shield', this.relayShieldSkill);
+		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
+			.addSkill('fire', this.shipFireSkill, () => this.ship.fireLevel * 5000, () => this.ship.fireLevel++)
+			.addSkill('wave', this.shipShockwaveSkill, () => this.ship.shockWaveLevel * 10000, () => this.ship.shockWaveLevel++)
+			.addSkill('rocket', this.shipRocketSkill, () => this.ship.rocketLevel * 20000, () => this.ship.rocketLevel++)
+			.addSkill('friend', this.shipFriendSkill, () => this.shipFriendLevel * 10000, () => {
+				this.shipFriendLevel++
+				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
+				this.shipFriendSkill.setMaxUses(this.friendsMaxCount);
+			})
+			.addSkill('shield', this.relayShieldSkill, () => this.relaysLevel * 40000, () => {
+				this.relaysLevel++;
+				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
+			});
 
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
 		this.expIndicator = new ExpHtmlViewer(this.ship.experience);

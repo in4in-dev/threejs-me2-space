@@ -33,10 +33,10 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 	protected shockwaveAttackBullet : ShockWaveAttack | null = null;
 
-	protected fireLevel : number = 1;
-	protected shockWaveLevel : number = 1;
-	protected rocketLevel : number = 1;
-	protected healthLevel : number = 1;
+	public fireLevel : number = 1;
+	public shockWaveLevel : number = 1;
+	public rocketLevel : number = 1;
+	public healthLevel : number = 1;
 
 
 	constructor(bulletGroup : AttacksContainer) {
@@ -217,7 +217,8 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 			this.position,
 			this.shockWaveLevel * 10,
 			20,
-			'white'
+			'white',
+			this
 		);
 
 		bullet.position.y += 7;
@@ -250,6 +251,18 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 	public exp(exp : number){
 		this.experience += exp;
+	}
+
+	public spendExp(value : number) : boolean
+	{
+
+		if(this.experience < value){
+			return false;
+		}
+
+		this.experience -= value;
+		return true;
+
 	}
 
 

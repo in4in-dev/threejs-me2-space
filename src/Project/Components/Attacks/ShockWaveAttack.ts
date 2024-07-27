@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import Hittable from "../../Contracts/Hittable";
 import Random from "../../../Three/Random";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
+import Healthy from "../../Contracts/Healthy";
 
 export default class ShockWaveAttack extends Attack
 {
@@ -19,11 +20,14 @@ export default class ShockWaveAttack extends Attack
 	protected hitEnemies : Hittable[] = [];
 	protected hitThrottler : AnimationThrottler;
 
+	protected healTarget : Healthy | null;
+
 	constructor(
 		from : Vector3,
 		force : number,
 		radius : number,
-		color : any
+		color : any,
+		healTarget : Healthy | null = null
 	) {
 		super(from, force);
 
@@ -32,6 +36,7 @@ export default class ShockWaveAttack extends Attack
 		this.startTime = Date.now();
 		this.mesh = this.createBody();
 		this.hitThrottler = Animation.createThrottler(600);
+		this.healTarget = healTarget;
 
 		this.add(this.mesh);
 
@@ -85,11 +90,28 @@ export default class ShockWaveAttack extends Attack
 
 			availableEnemies.forEach(enemy => {
 
-				if (this.hitEnemies.indexOf(enemy) < 0) {
-					this.hitEnemies.push(enemy);
+				let toDo = () => {
+
 					enemy.hit(this.force);
+
+					if(this.healTarget){
+						this.healTarget.heal(
+							Math.ceil(this.force)
+						);
+					}
+
+				}
+
+				if (this.hitEnemies.indexOf(enemy) < 0) {
+
+					this.hitEnemies.push(enemy);
+
+					toDo();
+
 				}else{
-					this.hitThrottler(() => enemy.hit(this.force));
+
+					this.hitThrottler(toDo);
+
 				}
 
 			});

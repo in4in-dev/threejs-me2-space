@@ -8,6 +8,7 @@ export default class Skill
 	public availableUses : number;
 	public maximumUses : number;
 	public cooldown : number;
+	public level : number = 1;
 
 	protected throttler : AnimationThrottler;
 
@@ -64,9 +65,22 @@ export default class Skill
 		return this;
 	}
 
+
+	public upLevel() : this
+	{
+		this.level++;
+		return this;
+	}
+
 	public setAvailableUses(x : number) : this
 	{
 		this.availableUses = Math.min(x, this.maximumUses);
+		return this;
+	}
+
+	public setMaxUses(x : number) : this
+	{
+		this.maximumUses = x;
 		return this;
 	}
 
