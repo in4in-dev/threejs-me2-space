@@ -110,9 +110,9 @@ export default class Game extends Engine
 
 		this.ship = new NormandyShip(this.friendsAttacks);
 
-		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
+		this.shipFireSkill      = new Skill('SPACE', 'Space', 100, true);
 		this.shipShockwaveSkill = new Skill('Q', 'KeyQ', 5000);
-		this.shipFriendSkill    = new Skill('F', 'KeyF', 5000, this.friendsMaxCount);
+		this.shipFriendSkill    = new Skill('F', 'KeyF', 5000, false, this.friendsMaxCount);
 		this.shipRocketSkill    = new Skill('E', 'KeyE', 20000);
 		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
 

@@ -14,14 +14,16 @@ export default class Skill
 
 	protected isEnabled : boolean = true;
 	protected isActive : boolean = false;
+	protected keyHoldAllow : boolean;
 
-	constructor(key : string, keyCode : string, cooldown : number, maximumUses : number = Infinity) {
+	constructor(key : string, keyCode : string, cooldown : number, keyHoldAllow : boolean = false, maximumUses : number = Infinity) {
 
 		this.key = key;
 		this.keyCode = keyCode;
 		this.cooldown = cooldown;
 		this.availableUses = maximumUses;
 		this.maximumUses = maximumUses;
+		this.keyHoldAllow = keyHoldAllow;
 
 		this.throttler = Animation.createThrottler(cooldown);
 
@@ -100,25 +102,55 @@ export default class Skill
 
 	public initListeners(){
 
-		window.addEventListener('keydown', (event) => {
+		if(this.keyHoldAllow) {
 
-			if (event.code === this.keyCode) {
+			window.addEventListener('keydown', (event) => {
 
-				event.preventDefault();
+				if (event.code === this.keyCode) {
 
-				this.isActive = true;
+					event.preventDefault();
 
-			}
+					this.isActive = true;
 
-		});
+				}
 
-		window.addEventListener('keyup', (event) => {
+			});
 
-			if(event.code === this.keyCode){
-				this.isActive = false;
-			}
+			window.addEventListener('keyup', (event) => {
 
-		});
+				if (event.code === this.keyCode) {
+					this.isActive = false;
+				}
+
+			});
+
+		}else{
+
+			let holdCounter = 0;
+
+			window.addEventListener('keypress', (event) => {
+
+				let localHoldCounter = ++holdCounter;
+
+				if (event.code === this.keyCode) {
+
+					event.preventDefault();
+
+					this.isActive = true;
+
+					setTimeout(() => {
+
+						if(localHoldCounter === holdCounter){
+							this.isActive = false;
+						}
+
+					}, 500);
+
+				}
+
+			});
+
+		}
 
 	}
 
