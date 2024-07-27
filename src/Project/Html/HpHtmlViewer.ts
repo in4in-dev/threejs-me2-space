@@ -37,5 +37,13 @@ export default class HpHtmlViewer extends HtmlComponent
 
 	}
 
+	public setMaxHealth(health : number){
+
+		this.maxHealth = health;
+
+		this.updateView();
+
+	}
+
 
 }

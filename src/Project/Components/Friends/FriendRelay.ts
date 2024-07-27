@@ -182,6 +182,12 @@ export default class FriendRelay extends Mob
 
 	}
 
+	protected explosion() {
+		super.explosion();
+
+		this.remove(this.letterMesh);
+	}
+
 	fire(to: Vector3): void {}
 
 }

@@ -5,8 +5,41 @@ interface AnimationThrottler{
 	getAfterCall() : number
 }
 
+interface AnimationMemoSaver{
+	fn : () => any,
+	lastArgs : any[],
+	lastResult : any
+}
+
 class Animation
 {
+
+	protected static memoContainer : AnimationMemoSaver[] = [];
+
+	public static memo(fn : () => any, args : any[]){
+
+		let search = this.memoContainer.find(item => item.fn === fn);
+
+		if(!search){
+
+			search = {
+				fn,
+				lastArgs : args.slice().map(() => {}),
+				lastResult : null
+			};
+
+			this.memoContainer.push(search);
+
+		}
+
+		if(!args.every((a, i) => a === search.lastArgs[i])){
+			search.lastResult = fn();
+			search.lastArgs = args.slice();
+		}
+
+		return search.lastResult;
+
+	}
 
 	public static loop(n : number, callback : (...args : any[]) => any)
 	{

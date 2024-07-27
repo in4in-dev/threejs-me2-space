@@ -6,6 +6,7 @@ export default class FpsHtmlViewer extends HtmlComponent
 	public element : HTMLElement;
 
 	protected fps : number = 0;
+	protected fpsRender : number = 0;
 
 	constructor() {
 
@@ -15,10 +16,24 @@ export default class FpsHtmlViewer extends HtmlComponent
 
 	}
 
-	public setValue(fps : number){
+	protected prepare(x : number, length : number) : string
+	{
+
+		let r = x.toString();
+
+		for(let i = 0; i < length - x.toString().length; i++){
+			r = '0' + r;
+		}
+
+		return r;
+
+	}
+
+	public setValue(fps : number, fpsRender : number){
 
 		this.fps = fps;
-		this.element.textContent = fps.toString();
+		this.fpsRender = fpsRender;
+		this.element.textContent = `${this.prepare(fps, 5)} (Render: ${this.prepare(fpsRender, 5)})`;
 
 	}
 

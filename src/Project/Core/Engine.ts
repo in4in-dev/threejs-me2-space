@@ -19,7 +19,9 @@ export default abstract class Engine
 	public css2DRenderer : CSS2DRenderer;
 	public css3DRenderer : CSS3DRenderer;
 
+	protected ticks : number = 0;
 	protected fps : number = 0;
+	protected fpsRender : number = 0;
 
 	protected active : boolean = false;
 
@@ -71,6 +73,7 @@ export default abstract class Engine
 
 	}
 
+
 	public run(){
 
 		let animate = async () => {
@@ -83,15 +86,23 @@ export default abstract class Engine
 
 			this.tick();
 			this.slowTickThrottler(() => this.slowTick());
+			this.ticks++;
 			this.afterTick();
 
+
 			requestAnimationFrame(() => {
+
+				let renderStartTime = Date.now();
+
 				this.webGLRenderer.render(this.scene, this.camera);
 				this.css2DRenderer.render(this.scene, this.camera);
 				this.css3DRenderer.render(this.scene, this.camera);
+
+				this.fpsRender = Math.min(99999, Math.ceil(1 / ((Date.now() - renderStartTime) / 1000)));
+
 			})
 
-			this.fps = Math.ceil(1 / ((Date.now() - startTime) / 1000));
+			this.fps = Math.min(99999, Math.ceil(1 / ((Date.now() - startTime) / 1000)));
 
 			if(this.active) {
 				requestAnimationFrame(animate);

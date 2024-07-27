@@ -1,7 +1,8 @@
-import {AxesHelper, Vector3} from "three";
+import {AxesHelper, Object3D, Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
+import {Animation} from "../../../Three/Animation";
 
 export default class LaserBulletAttack extends Attack
 {
@@ -20,6 +21,8 @@ export default class LaserBulletAttack extends Attack
 	protected maxDistanceShow : number = 150;
 	protected maxDistanceDamage : number = 50;
 
+	protected lastPosition : Vector3;
+
 	constructor(
 		from : Vector3,
 		to : Vector3,
@@ -31,6 +34,7 @@ export default class LaserBulletAttack extends Attack
 		super(from.clone(), force);
 
 		this.to = to.clone();
+		this.lastPosition = from.clone();
 		this.color = color;
 		this.glowColor = glowColor;
 
@@ -87,11 +91,12 @@ export default class LaserBulletAttack extends Attack
 
 	}
 
+
 	public checkCollisionWith(object : THREE.Object3D) : boolean
 	{
 
-		let bulletBox = new THREE.Box3().setFromObject(this);
 		let objectBox = new THREE.Box3().setFromObject(object);
+		let bulletBox = new THREE.Box3().setFromObject(this);
 
 		return bulletBox.intersectsBox(objectBox)
 
@@ -163,6 +168,8 @@ export default class LaserBulletAttack extends Attack
 			this.length = this.from.distanceTo(this.position);
 
 		}
+
+		this.lastPosition = this.position.clone();
 
 	}
 

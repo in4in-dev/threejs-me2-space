@@ -27,6 +27,7 @@ import Experience from "../Components/Experience";
 import Experienced from "../Contracts/Experienced";
 import ExpHtmlViewer from "../Html/ExpHtmlViewer";
 import FpsHtmlViewer from "../Html/FpsHtmlViewer";
+import RelaysHtmlViewer from "../Html/RelaysHtmlViewer";
 
 export default class Game extends Engine
 {
@@ -76,6 +77,7 @@ export default class Game extends Engine
 	protected skillsIndicator : SkillsHtmlViewer;
 	protected expIndicator : ExpHtmlViewer;
 	protected fpsIndicator : FpsHtmlViewer;
+	protected relaysIndicator : RelaysHtmlViewer;
 
 	protected shipFriendLevel : number = 1;
 	protected shipHealthLevel : number = 1;
@@ -144,9 +146,17 @@ export default class Game extends Engine
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
 			});
 
+		this.addRelay('A', new Vector3(10, 10, 0))
+		this.addRelay('B', new Vector3(20, -20, 0))
+		this.addRelay('C', new Vector3(0, -60, 0))
+		this.addRelay('D', new Vector3(-60, 10, 0))
+		this.addRelay('E', new Vector3(50, 40, 0))
+		this.addRelay('F', new Vector3(50, -50, 0))
+
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
 		this.expIndicator = new ExpHtmlViewer(this.ship.experience);
 		this.fpsIndicator = new FpsHtmlViewer();
+		this.relaysIndicator = new RelaysHtmlViewer(this.relaysContainer);
 
 
 	}
@@ -210,6 +220,7 @@ export default class Game extends Engine
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
 		document.body.appendChild(this.expIndicator.element);
+		document.body.appendChild(this.relaysIndicator.element);
 
 		if(this.showFps){
 			document.body.appendChild(this.fpsIndicator.element);
@@ -243,13 +254,6 @@ export default class Game extends Engine
 		if(this.showAxis){
 			this.showAxisHelper();
 		}
-
-		this.addRelay('A', new Vector3(10, 10, 0))
-		this.addRelay('B', new Vector3(20, -20, 0))
-		this.addRelay('C', new Vector3(0, -60, 0))
-		this.addRelay('D', new Vector3(-60, 10, 0))
-		this.addRelay('E', new Vector3(50, 40, 0))
-		this.addRelay('F', new Vector3(50, -50, 0))
 
 	}
 
@@ -497,6 +501,7 @@ export default class Game extends Engine
 	protected animateShipHp(){
 
 		this.shipHpIndicator.setHealth(this.ship.health);
+		this.shipHpIndicator.setMaxHealth(this.ship.maxHealth);
 
 	}
 
@@ -679,12 +684,15 @@ export default class Game extends Engine
 
 			this.healsContainer.addDrop(heal);
 
-		})
+		});
+
+		//
+		this.relaysIndicator.updateView();
 
 	}
 
 	public afterTick(){
-		this.fpsIndicator.setValue(this.fps);
+		this.fpsIndicator.setValue(this.fps, this.fpsRender);
 	}
 
 }
