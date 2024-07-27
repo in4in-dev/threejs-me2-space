@@ -67,6 +67,8 @@ export default class Heal extends Component
 
 			if(direction.length() > 0.1){
 
+				console.log(direction.length());
+
 				direction.normalize();
 
 				this.position.add(

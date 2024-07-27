@@ -101,7 +101,10 @@ export default class ShockWaveAttack extends Attack
 				);
 			});
 
-			group.add(...lines);
+			if(lines.length){
+				group.add(...lines);
+
+			}
 
 			this.remove(this.mesh);
 			this.add(group);
