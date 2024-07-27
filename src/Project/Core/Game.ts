@@ -236,12 +236,12 @@ export default class Game extends Engine
 			this.showAxisHelper();
 		}
 
-		this.addRelay(new Vector3(10, 10, 0))
-		this.addRelay(new Vector3(20, -20, 0))
-		this.addRelay(new Vector3(0, -60, 0))
-		this.addRelay(new Vector3(-60, 10, 0))
-		this.addRelay(new Vector3(50, 40, 0))
-		this.addRelay(new Vector3(50, -50, 0))
+		this.addRelay('A', new Vector3(10, 10, 0))
+		this.addRelay('B', new Vector3(20, -20, 0))
+		this.addRelay('C', new Vector3(0, -60, 0))
+		this.addRelay('D', new Vector3(-60, 10, 0))
+		this.addRelay('E', new Vector3(50, 40, 0))
+		this.addRelay('F', new Vector3(50, -50, 0))
 
 	}
 
@@ -360,16 +360,16 @@ export default class Game extends Engine
 
 	}
 
-	protected addRelay(cords : Vector3){
+	protected addRelay(letters : string, cords : Vector3){
 
 		let relay = new FriendRelay(
+			letters,
 			1,
 			this.friendsAttacks
 		);
 
 		relay.position.copy(cords.setZ(0));
-
-		relay.rotation.z = Math.random() * Math.PI * 2;
+		relay.rotateRelay(Math.random() * Math.PI * 2);
 
 		this.relaysContainer.addMobs(
 			relay

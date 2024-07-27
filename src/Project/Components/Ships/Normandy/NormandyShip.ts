@@ -257,7 +257,8 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		let bullet = new RocketBulletAttack(
 			this.position,
 			to.position,
-			this.rocketLevel * 150
+			this.rocketLevel * 150,
+			Math.min(7 + this.rocketLevel * 3)
 		)
 
 		this.rocketAttackTarget = to;

@@ -257,3 +257,33 @@ body{
     font-size: 12px;
     background: #d32020;
 }
+
+.relay-letter{
+    line-height: 2.5em;
+    font-size: 20px;
+    border-radius: 100%;
+    text-align: center;
+    width: 50px;
+    height: 50px;
+    color: white;
+    background: rgba(255,255,255, 0.05);
+    border: 2px solid white;
+    margin: 10px;
+}
+
+.relay-letter:after{
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -1px;
+    width: 2px;
+    height: 50px;
+    background: rgba(255,255,255,0.4);
+    display: block;
+}
+
+.relay-letter--red{
+    border-color: #d52a0c;
+    color: #d52a0c;
+}

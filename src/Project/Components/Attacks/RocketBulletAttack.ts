@@ -17,7 +17,7 @@ export default class RocketBulletAttack extends Attack
 	protected explosionTime : number = 2000;
 	protected explosionStartTime : number = 0;
 	protected explosionRadius : number = 0;
-	protected explosionMaxRadius : number = 10;
+	protected explosionMaxRadius : number = 15;
 	protected explosionPoint : Vector3 | null = null;
 
 	protected damagedEnemies : Hittable[] = [];
@@ -25,12 +25,14 @@ export default class RocketBulletAttack extends Attack
 	constructor(
 		from : Vector3,
 		to : Vector3,
-		force : number
+		force : number,
+		radius : number
 	) {
 
 		super(from.clone(), force);
 
 		this.to = to.clone();
+		this.explosionMaxRadius = radius;
 
 		this.mesh = this.createMesh();
 		this.glow = this.createGlow();
@@ -107,7 +109,7 @@ export default class RocketBulletAttack extends Attack
 
 			let radius = explosionProgress * this.explosionMaxRadius;
 
-			this.mesh.scale.set(radius, radius, radius);
+			this.mesh.scale.set(radius , radius, radius);
 			this.glow.scale.set(radius * 0.5, radius * 0.5, radius * 0.5);
 
 			this.explosionRadius = radius;

@@ -5,6 +5,8 @@ import {CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import * as TWEEN from '@tweenjs/tween.js';
 import ModelLoader from "../../Three/ModelLoader";
 import {Animation, AnimationThrottler} from "../../Three/Animation";
+//@ts-ignore
+import {CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
 
 
 export default abstract class Engine
@@ -14,7 +16,8 @@ export default abstract class Engine
 	public scene : THREE.Scene;
 
 	public webGLRenderer : WebGLRenderer;
-	public cssRenderer : CSS2DRenderer;
+	public css2DRenderer : CSS2DRenderer;
+	public css3DRenderer : CSS3DRenderer;
 
 	protected active : boolean = false;
 
@@ -32,16 +35,23 @@ export default abstract class Engine
 		renderer.setPixelRatio(window.devicePixelRatio);
 		element.appendChild(renderer.domElement);
 
-		let labelRenderer = new CSS2DRenderer();
-		labelRenderer.setSize(window.innerWidth, window.innerHeight);
-		labelRenderer.domElement.style.position = 'absolute';
-		labelRenderer.domElement.style.top = '0px';
-		element.appendChild(labelRenderer.domElement);
+		let css2DRenderer = new CSS2DRenderer();
+		css2DRenderer.setSize(window.innerWidth, window.innerHeight);
+		css2DRenderer.domElement.style.position = 'absolute';
+		css2DRenderer.domElement.style.top = '0px';
+		element.appendChild(css2DRenderer.domElement);
+
+		let css3DRenderer = new CSS3DRenderer();
+		css3DRenderer.setSize(window.innerWidth, window.innerHeight);
+		css3DRenderer.domElement.style.position = 'absolute';
+		css3DRenderer.domElement.style.top = '0px';
+		element.appendChild(css3DRenderer.domElement);
 
 		this.camera = camera;
 		this.scene = scene;
 		this.webGLRenderer = renderer;
-		this.cssRenderer = labelRenderer;
+		this.css3DRenderer = css3DRenderer;
+		this.css2DRenderer = css2DRenderer;
 
 	}
 
@@ -71,7 +81,8 @@ export default abstract class Engine
 			this.slowTickThrottler(() => this.slowTick());
 
 			this.webGLRenderer.render(this.scene, this.camera);
-			this.cssRenderer.render(this.scene, this.camera);
+			this.css2DRenderer.render(this.scene, this.camera);
+			this.css3DRenderer.render(this.scene, this.camera);
 
 			///
 			this.afterTick();
