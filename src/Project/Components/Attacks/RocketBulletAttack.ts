@@ -2,6 +2,7 @@ import {Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
+import Sparks from "../Sparks";
 
 export default class RocketBulletAttack extends Attack
 {
@@ -10,14 +11,13 @@ export default class RocketBulletAttack extends Attack
 
 	public to : Vector3;
 
-	protected outsideMesh : THREE.Mesh;
-	protected insideMesh : THREE.Mesh;
+	protected mesh : THREE.Group;
 	protected glow : THREE.Sprite;
 
 	protected explosionTime : number = 2000;
 	protected explosionStartTime : number = 0;
 	protected explosionRadius : number = 0;
-	protected explosionMaxRadius : number = 20;
+	protected explosionMaxRadius : number = 10;
 	protected explosionPoint : Vector3 | null = null;
 
 	protected damagedEnemies : Hittable[] = [];
@@ -32,14 +32,12 @@ export default class RocketBulletAttack extends Attack
 
 		this.to = to.clone();
 
-		this.outsideMesh = this.createOutsideMesh();
-		this.insideMesh = this.createInsideMesh();
+		this.mesh = this.createMesh();
 		this.glow = this.createGlow();
 
 		//Добавляем на сцену
-		// this.mesh.add(this.glow);
-		this.add(this.insideMesh);
-		this.add(this.outsideMesh);
+		this.mesh.add(this.glow);
+		this.add(this.mesh);
 
 	}
 
@@ -51,41 +49,36 @@ export default class RocketBulletAttack extends Attack
 
 		let glowMaterial = new THREE.SpriteMaterial({
 			map: glowTexture,
-			color: 'white',
+			color: '#da5c18',
 			transparent: true,
 			blending: THREE.AdditiveBlending,
 			depthWrite:false
 		});
 
-		let glowSprite = new THREE.Sprite(glowMaterial);
-		glowSprite.scale.set(2, 2, 2);
-
-		return glowSprite;
+		return new THREE.Sprite(glowMaterial);
 
 	}
 
 
-	protected createOutsideMesh(): THREE.Mesh
+	protected createMesh(): THREE.Group
 	{
 
-		let mesh = new THREE.Mesh(
-			new THREE.SphereGeometry(0.4, 10, 10),
-			new THREE.MeshStandardMaterial({color : 'black', side : THREE.BackSide })
-		);
+		let group = new THREE.Group;
 
-		return mesh;
+		let sparks = new Sparks(1, 'white', 0.1);
 
-	}
+		group.add(sparks);
 
-	protected createInsideMesh(): THREE.Mesh
-	{
+		let sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(0.5, 10, 10),
+			new THREE.MeshBasicMaterial({color : 'black', transparent : true, opacity : 0.7})
+		)
 
-		let mesh = new THREE.Mesh(
-			new THREE.SphereGeometry(0.2, 10, 10),
-			new THREE.MeshBasicMaterial({color : '#000000' })
-		);
+		group.add(sphere);
 
-		return mesh;
+		group.scale.set(0.1, 0.1, 0.1);
+
+		return group;
 
 	}
 
@@ -113,11 +106,8 @@ export default class RocketBulletAttack extends Attack
 
 			let radius = explosionProgress * this.explosionMaxRadius;
 
-			let outSideSphere = new THREE.SphereGeometry(radius, 50, 50);
-			let inSideSphere = new THREE.SphereGeometry(radius * 0.8, 50, 50);
-
-			this.outsideMesh.geometry.copy(outSideSphere);
-			this.insideMesh.geometry.copy(inSideSphere);
+			this.mesh.scale.set(radius, radius, radius);
+			this.glow.scale.set(radius * 0.5, radius * 0.5, radius * 0.5);
 
 			this.explosionRadius = radius;
 

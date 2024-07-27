@@ -35,17 +35,17 @@ export default class FriendRelay extends Mob
 	protected generateShieldGeometry(radius : number){
 
 		// Установить необходимые параметры
-		// const outerRadius = radius;
-		// const thickness = 1;
-		// const innerRadius = outerRadius - thickness;
+		// let outerRadius = radius;
+		// let thickness = 1;
+		// let innerRadius = outerRadius - thickness;
 
-		const points = [];
+		let points = [];
 		for (let i = 0; i < 3000; i++) {
-			const phi = Math.acos(2 * Math.random() - 1);
-			const theta = 2 * Math.PI * Math.random();
-			const x = radius * Math.sin(phi) * Math.cos(theta);
-			const y = radius * Math.sin(phi) * Math.sin(theta);
-			const z = radius * Math.cos(phi);
+			let phi = Math.acos(2 * Math.random() - 1);
+			let theta = 2 * Math.PI * Math.random();
+			let x = radius * Math.sin(phi) * Math.cos(theta);
+			let y = radius * Math.sin(phi) * Math.sin(theta);
+			let z = radius * Math.cos(phi);
 			points.push(new THREE.Vector3(x, y, z));
 		}
 

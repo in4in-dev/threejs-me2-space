@@ -37,7 +37,7 @@ export default class Game extends Engine
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
-	protected enemyMaxCount : number = 3;
+	protected enemyMaxCount : number = 7;
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
 	protected friendsMaxCount : number = 3;
@@ -90,7 +90,7 @@ export default class Game extends Engine
 
 
 		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
-		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 2000);
+		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 5000);
 		this.shipFriendSkill    = new Skill('H', 'KeyH', 5000, this.friendsMaxCount);
 		this.shipRocketSkill    = new Skill('K', 'KeyK', 20000);
 		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
@@ -316,7 +316,12 @@ export default class Game extends Engine
 
 	protected addRelay(){
 
-		let relay = new FriendRelay(7000, Random.int(-40, 40), Random.int(-40, 40), this.friendsAttacks);
+		let relay = new FriendRelay(
+			7000,
+			Random.arr([-1, 1]) * Random.int(10, 60),
+			Random.arr([-1, 1]) * Random.int(10, 60),
+			this.friendsAttacks
+		);
 
 		relay.rotation.z = Math.random() * Math.PI * 2;
 
@@ -443,7 +448,13 @@ export default class Game extends Engine
 		this.shipFireSkill.useIfNeed(() => this.ship.fire());
 
 		//Шоковая волна
-		this.shipShockwaveSkill.useIfNeed(() => this.ship.shockwaveFire());
+		let shockWaveTargets = this.enemiesContainer.getAliveMobs().filter(enemy => {
+			return enemy.position.distanceTo(this.ship.position) <= 20;
+		});
+
+		this.shipShockwaveSkill
+			.toggle(shockWaveTargets.length > 0)
+			.useIfNeed(() => this.ship.shockwaveFire());
 
 		//Ракета
 		let enemies = this.enemiesContainer.getAliveMobs();

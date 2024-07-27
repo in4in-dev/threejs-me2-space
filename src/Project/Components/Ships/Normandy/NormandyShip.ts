@@ -29,6 +29,8 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 	protected rocketAttackTarget : THREE.Object3D | null = null;
 	protected rocketAttackBullet : RocketBulletAttack | null = null;
 
+	protected shockwaveAttackBullet : ShockWaveAttack | null = null;
+
 	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
 
 		super(x, y, speed, bulletGroup);
@@ -123,15 +125,25 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		this.engines.l1.animate();
 		this.engines.l2.animate();
 
-		if(this.rocketAttackBullet){
+		if(this.rocketAttackBullet && this.rocketAttackTarget){
 
 			if(this.rocketAttackBullet.isVisible){
 				this.rocketAttackBullet.updateTo(
-					this.rocketAttackTarget!.position
+					this.rocketAttackTarget.position
 				)
 			}else{
 				this.rocketAttackBullet = null;
 				this.rocketAttackTarget = null;
+			}
+
+		}
+
+		if(this.shockwaveAttackBullet){
+
+			if(this.shockwaveAttackBullet.isVisible){
+				this.shockwaveAttackBullet.updateFrom(this.position);
+			}else{
+				this.shockwaveAttackBullet = null;
 			}
 
 		}
@@ -172,7 +184,6 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 			this.position,
 			50,
 			20,
-			'white',
 			'white'
 		);
 
@@ -180,6 +191,8 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		bullet.position.z = -1;
 
 		this.attacksContainer.addAttacks(bullet);
+
+		this.shockwaveAttackBullet = bullet;
 
 	}
 

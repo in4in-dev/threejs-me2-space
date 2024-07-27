@@ -8,17 +8,19 @@ export default class Sparks extends Component
 	public color : any;
 	public minRadius : number;
 	public maxRadius : number;
+	public size : number;
 
 	protected points : THREE.Points;
 	protected positions : number[];
 
-	constructor(radius : number, color : any) {
+	constructor(radius : number, color : any, size : number = 0.5) {
 
 		super();
 
 		this.minRadius = radius;
 		this.maxRadius = radius + 0.5;
 		this.color = color;
+		this.size = size;
 
 		this.positions = this.generateRandomPositions();
 
@@ -61,10 +63,11 @@ export default class Sparks extends Component
 
 		let material = new THREE.PointsMaterial({
 			map: particleTexture,
-			size: 0.5,
+			size: this.size,
 			blending: THREE.AdditiveBlending,
 			depthTest: false,
-			transparent: true
+			transparent: true,
+			color : this.color
 		});
 
 

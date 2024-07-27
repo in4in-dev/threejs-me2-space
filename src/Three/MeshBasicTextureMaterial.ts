@@ -4,7 +4,7 @@ export default class MeshBasicTextureMaterial extends THREE.ShaderMaterial
 {
 	constructor(texture : THREE.Texture, brightness : number = 1, options : THREE.ShaderMaterialParameters = {}) {
 
-		const vShader = `
+		let vShader = `
 			varying vec2 vUv;
 			
 			void main() {
@@ -13,7 +13,7 @@ export default class MeshBasicTextureMaterial extends THREE.ShaderMaterial
 			}
 		`;
 
-		const fShader = `
+		let fShader = `
 			uniform sampler2D uTexture;
 			uniform float uBrightness;
 			varying vec2 vUv;
@@ -41,7 +41,7 @@ export default class MeshBasicTextureMaterial extends THREE.ShaderMaterial
 // export default function MeshBasicTextureMaterial(texture : THREE.Texture, brightness : number = 1)
 // {
 //
-// 	const vShader = `
+// 	let vShader = `
 // 		varying vec2 vUv;
 //
 // 		void main() {
@@ -50,7 +50,7 @@ export default class MeshBasicTextureMaterial extends THREE.ShaderMaterial
 // 		}
 //     `;
 //
-// 	const fShader = `
+// 	let fShader = `
 // 		uniform sampler2D uTexture;
 // 		uniform float uBrightness;
 // 		varying vec2 vUv;

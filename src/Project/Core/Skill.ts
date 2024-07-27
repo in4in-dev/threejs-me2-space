@@ -46,6 +46,12 @@ export default class Skill
 		return this.isEnabled && this.availableUses > 0;
 	}
 
+	public toggle(b : boolean) : this
+	{
+		this.isEnabled = b;
+		return this;
+	}
+
 	public on() : this
 	{
 		this.isEnabled = true;

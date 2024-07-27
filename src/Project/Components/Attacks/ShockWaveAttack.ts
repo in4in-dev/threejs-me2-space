@@ -3,81 +3,72 @@ import {Object3D, Vector3} from "three";
 import * as THREE from 'three';
 import Hittable from "../../Contracts/Hittable";
 import Random from "../../../Three/Random";
+import {Animation, AnimationThrottler} from "../../../Three/Animation";
 
 export default class ShockWaveAttack extends Attack
 {
 
 	protected color : any;
-	protected glowColor : any;
 	protected startTime : number;
-	protected maxRadius : number;
+	protected radius : number;
 
-	protected speed : number = 500;
+	protected duration : number = 2000;
 
-	protected mesh : THREE.Points;
+	protected mesh : THREE.Group;
 
 	protected hitEnemies : Hittable[] = [];
+	protected hitThrottler : AnimationThrottler;
 
 	constructor(
 		from : Vector3,
 		force : number,
-		maxRadius : number,
-		color : any,
-		glowColor : any
+		radius : number,
+		color : any
 	) {
 		super(from, force);
 
 		this.color = color;
-		this.glowColor = glowColor;
-		this.maxRadius = maxRadius;
+		this.radius = radius;
 		this.startTime = Date.now();
-		this.mesh = this.createBody(0.01);
+		this.mesh = this.createBody();
+		this.hitThrottler = Animation.createThrottler(600);
 
 		this.add(this.mesh);
 
 	}
 
-	protected generatePositions(radius : number) : number[]
+	protected createBody() : THREE.Group
+	{
+		return new THREE.Group;
+	}
+
+	protected createLighting(from : Vector3, to : Vector3) : THREE.Line
 	{
 
-		let positions = [];
+		let material = new THREE.LineBasicMaterial({ color: this.color });
+		let points = [];
+		let segments = 10;
 
-		for (let i = 0; i < radius * 2000; i++) {
+		let deltaX = (to.x - from.x) / segments;
+		let deltaY = (to.y - from.y) / segments;
+		let deltaZ = (to.z - from.z) / segments;
 
-			let theta = 2 * Math.PI * Math.random();
-
-			let x = Random.float(0.9, 1.1) * radius *  Math.cos(theta);
-			let y = Random.float(0.9, 1.1) * radius *  Math.sin(theta);
-			let z = -2;
-
-			positions.push(x, y, z);
-
+		for (let i = 0; i <= segments; i++) {
+			let x = from.x + deltaX * i + (Math.random() - 0.5) * 0.5;
+			let y = from.y + deltaY * i + (Math.random() - 0.5) * 0.5;
+			let z = from.z + deltaZ * i + (Math.random() - 0.5) * 0.5;
+			points.push(new THREE.Vector3(x, y, z));
 		}
 
-		return positions;
+		let geometry = new THREE.BufferGeometry().setFromPoints(points);
+		let line = new THREE.Line(geometry, material);
+
+		return line;
 
 	}
 
-	protected createBody(radius : number) : THREE.Points
-	{
-
-		// let geometry = new THREE.CircleGeometry(radius, 64);
-
-		let positions = this.generatePositions(radius);
-
-		let geometry = new THREE.BufferGeometry();
-		geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-		let material = new THREE.PointsMaterial({
-			// map: particleTexture,
-			size: 0.1,
-			color : 'white',
-			opacity : 0.4,
-			transparent: true
-		});
-
-		return new THREE.Points(geometry, material);
-
+	public updateFrom(from : Vector3){
+		this.from = from.clone();
 	}
 
 	public animate(
@@ -85,34 +76,42 @@ export default class ShockWaveAttack extends Attack
 		enemies: Hittable[]
 	){
 
-		let progress =  Math.min(1, (Date.now() - this.startTime) / this.speed),
-			radius = progress * this.maxRadius;
+		if(Date.now() < this.startTime + this.duration) {
 
-		if(progress === 1){
-			this.hide();
-		}else{
+			let group = this.createBody();
 
-			enemies.forEach(enemy => {
+			let availableEnemies = enemies
+				.filter(enemy => enemy.position.distanceTo(this.from) <= this.radius);
 
-				if(this.hitEnemies.indexOf(enemy) < 0 && enemy.position.distanceTo(this.from) <= radius){
+			availableEnemies.forEach(enemy => {
 
-					let damage = Math.ceil(
-						Math.max(0.5, 1 - progress / 2) * this.force
-					);
-
-					enemy.hit(damage);
-
+				if (this.hitEnemies.indexOf(enemy) < 0) {
 					this.hitEnemies.push(enemy);
-
+					enemy.hit(this.force);
+				}else{
+					this.hitThrottler(() => enemy.hit(this.force));
 				}
 
 			});
 
+			let lines = availableEnemies.map(enemy => {
+				return this.createLighting(
+					new Vector3(0, 0, 0),
+					new Vector3().subVectors(enemy.position, this.from).setZ(-1)
+				);
+			});
 
-			let body = this.createBody(radius);
+			group.add(...lines);
 
-			this.mesh.geometry.copy(body.geometry);
+			this.remove(this.mesh);
+			this.add(group);
 
+			this.position.copy(this.from);
+
+			this.mesh = group;
+
+		}else{
+			this.hide();
 		}
 
 	}
