@@ -30,7 +30,7 @@ export default class MobsContainer<M extends Mob = Mob> extends Component
 	{
 		this.mobs = this.mobs.filter(mob => {
 
-			if(mob.health > 0){
+			if(mob.isVisible){
 				return true;
 			}
 
