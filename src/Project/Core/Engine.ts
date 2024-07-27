@@ -84,9 +84,11 @@ export default abstract class Engine
 			this.tick();
 			this.slowTickThrottler(() => this.slowTick());
 
-			this.webGLRenderer.render(this.scene, this.camera);
-			this.css2DRenderer.render(this.scene, this.camera);
-			this.css3DRenderer.render(this.scene, this.camera);
+			requestAnimationFrame(() => {
+				this.webGLRenderer.render(this.scene, this.camera);
+				this.css2DRenderer.render(this.scene, this.camera);
+				this.css3DRenderer.render(this.scene, this.camera);
+			})
 
 			///
 			this.afterTick();
