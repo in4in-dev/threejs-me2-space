@@ -63,9 +63,7 @@ export default abstract class Engine
 
 		let animate = async () => {
 
-			if(this.active) {
-				requestAnimationFrame(animate);
-				TWEEN.update();
+			if(this.active){
 				ModelLoader.runBackgroundTasks();
 			}
 
@@ -77,6 +75,11 @@ export default abstract class Engine
 
 			///
 			this.afterTick();
+
+			if(this.active) {
+				requestAnimationFrame(animate);
+				TWEEN.update();
+			}
 
 		}
 

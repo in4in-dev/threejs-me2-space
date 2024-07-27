@@ -24,14 +24,14 @@ export default class AttacksContainer extends Component
 
 		this.attacks = this.attacks.filter(bullet => {
 
-			bullet.animate(peaceObjects, enemiesObjects);
-
 			if(!bullet.isVisible){
 				this.remove(bullet);
 				return false;
+			}else{
+				bullet.animate(peaceObjects, enemiesObjects);
+				return true;
 			}
 
-			return true;
 
 		});
 

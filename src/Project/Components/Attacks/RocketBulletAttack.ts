@@ -132,7 +132,9 @@ export default class RocketBulletAttack extends Attack
 			if(direction.length() > 0.2) {
 
 				//Летим до цели
-				direction.normalize();
+				if(direction.length() >= 2){
+					direction.normalize();
+				}
 
 				this.position.add(
 					direction.multiplyScalar(0.2)

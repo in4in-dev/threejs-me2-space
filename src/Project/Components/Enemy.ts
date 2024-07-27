@@ -110,7 +110,7 @@ export default abstract class Enemy extends Mob
 			);
 
 			this.dropExperience(
-				Random.int(this.maxHealth * 0.1, this.maxHealth * 0.3),
+				Random.int(this.maxHealth * 0.3, this.maxHealth * 1.5),
 				Random.int(5, 50)
 			);
 

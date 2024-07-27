@@ -51,6 +51,7 @@ export default class Game extends Engine
 	protected friendsMaxCount : number = 3;
 
 	protected showAxis : boolean = false;
+	protected showTimeCodes : boolean = false;
 
 	protected background : Background;
 	protected ship : NormandyShip;
@@ -105,9 +106,9 @@ export default class Game extends Engine
 		this.ship = new NormandyShip(this.friendsAttacks);
 
 		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
-		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 5000);
-		this.shipFriendSkill    = new Skill('H', 'KeyH', 5000, this.friendsMaxCount);
-		this.shipRocketSkill    = new Skill('K', 'KeyK', 20000);
+		this.shipShockwaveSkill = new Skill('Q', 'KeyQ', 5000);
+		this.shipFriendSkill    = new Skill('F', 'KeyF', 5000, this.friendsMaxCount);
+		this.shipRocketSkill    = new Skill('E', 'KeyE', 20000);
 		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
 
 		let costCounter = (level : () => number, costs : number[]) => {
@@ -124,10 +125,10 @@ export default class Game extends Engine
 			.addSkill('fire', this.shipFireSkill, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
 				this.ship.fireLevel++;
 			})
-			.addSkill('wave', this.shipShockwaveSkill, costCounter(() => this.ship.shockWaveLevel, [5000, 10000, 20000, 50000, 100000]), () => {
+			.addSkill('wave', this.shipShockwaveSkill, costCounter(() => this.ship.shockWaveLevel, [2000, 5000, 10000, 20000, 50000, 100000]), () => {
 				this.ship.shockWaveLevel++;
 			})
-			.addSkill('rocket', this.shipRocketSkill, costCounter(() => this.ship.rocketLevel, [10000, 20000, 50000, 100000, 200000]), () => {
+			.addSkill('rocket', this.shipRocketSkill, costCounter(() => this.ship.rocketLevel, [5000, 10000, 20000, 50000, 100000, 200000]), () => {
 				this.ship.rocketLevel++;
 			})
 			.addSkill('friend', this.shipFriendSkill, costCounter(() => this.shipFriendLevel, [10000, 20000, 50000, 100000, 200000]), () => {
@@ -549,10 +550,15 @@ export default class Game extends Engine
 		this.expIndicator.setValue(this.ship.experience);
 
 		//Обновляем отображение здоровья корабля
+		this.showTimeCodes && console.time('TICK_SHIP_HP');
 		this.animateShipHp();
+		this.showTimeCodes && console.timeEnd('TICK_SHIP_HP');
 
 		//Анимируем скиллы
+		this.showTimeCodes && console.time('TICK_SHIP_SKILLS');
 		this.animateSkills();
+		this.showTimeCodes && console.timeEnd('TICK_SHIP_SKILLS');
+
 
 		//Добавляем врагов
 		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
@@ -589,6 +595,7 @@ export default class Game extends Engine
 	protected tick(){
 
 		//Обновление позиции для движения корабля
+		this.showTimeCodes && console.time('TICK_SHIP_MOVING');
 		if (this.shipMovingAllow) {
 
 			if(this.shipMovingActive) {
@@ -597,8 +604,11 @@ export default class Game extends Engine
 			}
 
 		}
+		this.showTimeCodes && console.time('TICK_SHIP_MOVING');
+
 
 		//Отображаем название активной планеты
+		this.showTimeCodes && console.time('TICK_PLANETS');
 		this.planets.forEach((planet : PlanetWithOrbit) => {
 
 			planet.orbit.setActive(
@@ -610,31 +620,48 @@ export default class Game extends Engine
 			);
 
 		});
+		this.showTimeCodes && console.timeEnd('TICK_PLANETS')
 
 		//Анимируем солнце
+		this.showTimeCodes && console.time('TICK_SUN');
 		this.sun.animate();
+		this.showTimeCodes && console.timeEnd('TICK_SUN');
 
 		//Анимируем двигатели корабля
+		this.showTimeCodes && console.time('TICK_SHIP_ENGINES');
 		this.ship.animate();
+		this.showTimeCodes && console.timeEnd('TICK_SHIP_ENGINES');
 
 		//Анимируем наши пули
+		this.showTimeCodes && console.time('TICK_FRIENDS_ATTACKS');
 		this.animateFriendsAttacks();
+		this.showTimeCodes && console.timeEnd('TICK_FRIENDS_ATTACKS');
 
 		//Анимируем вражеские пули
+		this.showTimeCodes && console.time('TICK_ENEMIES_ATTACKS');
 		this.animateEnemiesAttacks();
+		this.showTimeCodes && console.timeEnd('TICK_ENEMIES_ATTACKS');
 
 		//Анимируем действия врагов
+		this.showTimeCodes && console.time('TICK_ENEMIES_MOVE');
 		this.animateEnemies();
+		this.showTimeCodes && console.timeEnd('TICK_ENEMIES_MOVE');
 
 		//Анимируем действия друзей
+		this.showTimeCodes && console.time('TICK_FRIENDS_MOVE');
 		this.animateFriends();
+		this.showTimeCodes && console.timeEnd('TICK_FRIENDS_MOVE');
 
 		//Анимация ретрансляторов
+		this.showTimeCodes && console.time('TICK_RELAYS');
 		this.animateRelays();
+		this.showTimeCodes && console.timeEnd('TICK_RELAYS');
 
 		//Анимация хилок
+		this.showTimeCodes && console.time('TICK_DROPS');
 		this.healsContainer.animate([this.ship]);
 		this.expContainer.animate([this.ship]);
+		this.showTimeCodes && console.timeEnd('TICK_DROPS');
 
 		this.healSpawnThrottler(() => {
 
@@ -645,7 +672,6 @@ export default class Game extends Engine
 			this.healsContainer.addDrop(heal);
 
 		})
-
 
 	}
 

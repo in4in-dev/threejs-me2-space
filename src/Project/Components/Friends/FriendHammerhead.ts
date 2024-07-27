@@ -93,9 +93,11 @@ export default class FriendHammerhead extends Mob
 
 	public fire(to : Vector3){
 
+		let direction = new Vector3().subVectors(to, this.position).multiplyScalar(9999);
+
 		let bullet1 = new LaserBulletAttack(
 			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
-			to,
+			direction,
 			Random.int(this.level, this.level * 5),
 			'white',
 			'#66bd4e'
@@ -103,7 +105,7 @@ export default class FriendHammerhead extends Mob
 
 		let bullet2 = new LaserBulletAttack(
 			new Vector3(this.position.x - 0.3, this.position.y - 0.3, 0),
-			to,
+			direction,
 			Random.int(this.level, this.level * 5),
 			'white',
 			'#66bd4e'
