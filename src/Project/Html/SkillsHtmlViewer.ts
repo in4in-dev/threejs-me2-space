@@ -7,12 +7,13 @@ class SkillsHtmlRow
 
 	public element : HTMLElement;
 
+	protected ship : Experienced;
 	protected code : string;
 	protected skill : Skill;
 	protected cost : () => number;
 	protected onUpgrade : () => void;
 
-	constructor(code : string, cost : () => number, skill : Skill, onUpgrade : () => void) {
+	constructor(ship : Experienced, code : string, cost : () => number, skill : Skill, onUpgrade : () => void) {
 
 		let row = document.createElement('div');
 		row.className = `skills__row skills__row--${code}`;
@@ -25,6 +26,7 @@ class SkillsHtmlRow
 			<button type="button" class="skills__row-upgrade">${cost()}</button>
 		`;
 
+		this.ship = ship;
 		this.element = row;
 		this.onUpgrade = onUpgrade;
 		this.skill = skill;
@@ -58,6 +60,7 @@ class SkillsHtmlRow
 		}
 
 		this.element.querySelector('.skills__row-upgrade')!.textContent = this.cost().toString();
+		this.element.querySelector('.skills__row-upgrade')!.classList.toggle('skills__row-upgrade--disabled', this.ship.experience < this.cost());
 		this.element.querySelector('.skills__row-level-value')!.textContent = this.skill.level.toString();
 
 
@@ -85,7 +88,7 @@ export default class SkillsHtmlViewer extends HtmlComponent
 	public addSkill(code : string, skill : Skill, cost : () => number, onUpgrade : () => void) : this
 	{
 
-		let skillRow = new SkillsHtmlRow(code, cost, skill, () => {
+		let skillRow = new SkillsHtmlRow(this.ship, code, cost, skill, () => {
 
 			if(this.ship.spendExp(cost())){
 				skill.upLevel();

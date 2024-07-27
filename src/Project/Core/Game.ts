@@ -108,16 +108,32 @@ export default class Game extends Engine
 		this.shipRocketSkill    = new Skill('K', 'KeyK', 20000);
 		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
 
+		let costCounter = (level : () => number, costs : number[]) => {
+			return () => {
+
+				let l = level();
+
+				return l > costs.length ? costs[costs.length - 1] : costs[l - 1];
+
+			}
+		}
+
 		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
-			.addSkill('fire', this.shipFireSkill, () => this.ship.fireLevel * 5000, () => this.ship.fireLevel++)
-			.addSkill('wave', this.shipShockwaveSkill, () => this.ship.shockWaveLevel * 10000, () => this.ship.shockWaveLevel++)
-			.addSkill('rocket', this.shipRocketSkill, () => this.ship.rocketLevel * 20000, () => this.ship.rocketLevel++)
-			.addSkill('friend', this.shipFriendSkill, () => this.shipFriendLevel * 10000, () => {
+			.addSkill('fire', this.shipFireSkill, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
+				this.ship.fireLevel++;
+			})
+			.addSkill('wave', this.shipShockwaveSkill, costCounter(() => this.ship.shockWaveLevel, [5000, 10000, 20000, 50000, 100000]), () => {
+				this.ship.shockWaveLevel++;
+			})
+			.addSkill('rocket', this.shipRocketSkill, costCounter(() => this.ship.rocketLevel, [10000, 20000, 50000, 100000, 200000]), () => {
+				this.ship.rocketLevel++;
+			})
+			.addSkill('friend', this.shipFriendSkill, costCounter(() => this.shipFriendLevel, [10000, 20000, 50000, 100000, 200000]), () => {
 				this.shipFriendLevel++
 				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
 				this.shipFriendSkill.setMaxUses(this.friendsMaxCount);
 			})
-			.addSkill('shield', this.relayShieldSkill, () => this.relaysLevel * 40000, () => {
+			.addSkill('shield', this.relayShieldSkill, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
 				this.relaysLevel++;
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
 			});

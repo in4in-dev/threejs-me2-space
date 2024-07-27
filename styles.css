@@ -227,6 +227,10 @@ body{
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
+.skills__row-upgrade--disabled{
+    background: #c2c2c2;
+}
+
 .skills__row-upgrade:active{
     transform: scale(0.8);
 }
