@@ -14,19 +14,19 @@ export default class Experience extends Drop<Experienced>
 
 	protected mesh : THREE.Mesh;
 
-	constructor(value : number) {
+	constructor(value : number, radius : number = 0.1) {
 		super();
 		this.value = value;
-		this.mesh = this.createMesh();
+		this.mesh = this.createMesh(radius);
 
 		this.add(this.mesh);
 	}
 
-	protected createMesh() : THREE.Mesh
+	protected createMesh(radius : number) : THREE.Mesh
 	{
 
 		let sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(Random.float(0.07, 0.11), 2, 2),
+			new THREE.SphereGeometry(radius, 2, 2),
 			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.7})
 		);
 

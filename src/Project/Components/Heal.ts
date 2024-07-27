@@ -12,19 +12,19 @@ export default class Heal extends Drop<Healthy>
 
 	protected mesh : THREE.Mesh;
 
-	constructor(healths : number) {
+	constructor(healths : number, radius : number = 0.1) {
 		super();
 		this.healths = healths;
-		this.mesh = this.createMesh();
+		this.mesh = this.createMesh(radius);
 
 		this.add(this.mesh);
 	}
 
-	protected createMesh() : THREE.Mesh
+	protected createMesh(radius : number) : THREE.Mesh
 	{
 
 		let sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(Random.float(0.07, 0.11), 10, 10),
+			new THREE.SphereGeometry(radius, 10, 10),
 			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.7})
 		);
 
@@ -38,7 +38,7 @@ export default class Heal extends Drop<Healthy>
 			})
 		);
 
-		sprite.scale.set(1, 1, 1);
+		sprite.scale.set(radius * 10, radius * 10, radius * 10);
 
 		sphere.add(sprite);
 

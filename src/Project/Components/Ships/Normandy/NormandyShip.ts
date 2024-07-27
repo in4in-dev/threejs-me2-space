@@ -191,24 +191,46 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 		let to = new THREE.Vector3(0, -1, 0).applyQuaternion(this.quaternion).multiplyScalar(999);
 
-		let bullet1 = new LaserBulletAttack(
-			new Vector3(this.position.x + 0.3, this.position.y - 0.3, -1),
-			to,
-			Random.int(this.fireLevel, this.fireLevel * 5),
-			this.bulletColor,
-			this.bulletGlowColor
-		);
+		if(this.fireLevel > 1) {
 
-		let bullet2 = new LaserBulletAttack(
-			new Vector3(this.position.x - 0.3, this.position.y - 0.3, -1),
-			to,
-			Random.int(this.fireLevel, this.fireLevel * 5),
-			this.bulletColor,
-			this.bulletGlowColor
-		);
+			let bullet1 = new LaserBulletAttack(
+				new Vector3(this.position.x + 0.3, this.position.y - 0.3, -1),
+				to,
+				Random.int(this.fireLevel, this.fireLevel * 10),
+				this.bulletColor,
+				this.bulletGlowColor
+			);
 
-		this.attacksContainer.addAttacks(bullet1, bullet2);
+			let bullet2 = new LaserBulletAttack(
+				new Vector3(this.position.x - 0.3, this.position.y - 0.3, -1),
+				to,
+				Random.int(this.fireLevel, this.fireLevel * 5),
+				this.bulletColor,
+				this.bulletGlowColor
+			);
 
+			this.attacksContainer.addAttacks(bullet1, bullet2);
+
+		}else{
+
+
+			let bullet = new LaserBulletAttack(
+				new Vector3(this.position.x, this.position.y - 0.3, -1),
+				to,
+				Random.int(this.fireLevel, this.fireLevel * 5),
+				this.bulletColor,
+				this.bulletGlowColor
+			);
+
+			this.attacksContainer.addAttacks(bullet);
+
+		}
+
+	}
+
+	public getShockwaveRadius() : number
+	{
+		return Math.min(45, this.shockWaveLevel * 15);
 	}
 
 	public shockwaveFire() {
@@ -216,7 +238,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		let bullet = new ShockWaveAttack(
 			this.position,
 			this.shockWaveLevel * 10,
-			20,
+			this.getShockwaveRadius(),
 			'white',
 			this
 		);

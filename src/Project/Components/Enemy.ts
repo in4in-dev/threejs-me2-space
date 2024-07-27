@@ -36,7 +36,8 @@ export default abstract class Enemy extends Mob
 		for(let i = 0, c = healths; i < count; i++){
 
 			let heal = new Heal(
-				Math.min(c, step)
+				Math.min(c, step),
+				Random.float(0.07, 0.11)
 			);
 
 			heal.position.copy(this.position).setZ(0);
@@ -68,7 +69,8 @@ export default abstract class Enemy extends Mob
 		for(let i = 0, c = exp; i < count && c > 0; i++){
 
 			let experience = new Experience(
-				Math.min(c, step)
+				Math.min(c, step),
+				Random.float(0.07, 0.11)
 			);
 
 			experience.position.copy(this.position).setZ(0);
@@ -103,7 +105,7 @@ export default abstract class Enemy extends Mob
 		if(!this.health){
 
 			this.dropHeals(
-				Random.int(this.maxHealth * 0.1, this.maxHealth * 0.3),
+				Random.int(this.maxHealth * 0.2, this.maxHealth * 0.6),
 				Random.int(5, 50)
 			);
 

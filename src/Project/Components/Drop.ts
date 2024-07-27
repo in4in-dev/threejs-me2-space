@@ -12,6 +12,10 @@ export default abstract class Drop<T extends THREE.Object3D> extends Component
 	protected spawnMovingActive : boolean = false;
 	protected spawnMovingPoint : Vector3 | null = null;
 
+	public trash(){
+		this.isUsed = true;
+	}
+
 	public setMovingTarget(target : T){
 		this.movingTarget = target;
 	}
@@ -34,28 +38,13 @@ export default abstract class Drop<T extends THREE.Object3D> extends Component
 
 	public animate(){
 
-		if(this.spawnMovingActive && this.spawnMovingPoint) {
+		if(this.isUsed){
+			return;
+		}
 
-			let direction = new Vector3().subVectors(this.position, this.spawnMovingPoint),
-				distance = direction.length();
+		if(this.movingTarget) {
 
-			if(distance > 0.1){
-
-				direction.normalize();
-
-				this.position.add(
-					direction.multiplyScalar(-0.1)
-				);
-
-			}else{
-
-				this.cancelSpawnMoving();
-
-			}
-
-		} else if(this.movingTarget) {
-
-			let direction = new Vector3().subVectors(this.position, this.movingTarget.position),
+			let direction = new Vector3().subVectors(this.movingTarget.position, this.position),
 				distance = direction.length();
 
 			if(distance < 2) {
@@ -69,8 +58,27 @@ export default abstract class Drop<T extends THREE.Object3D> extends Component
 				direction.normalize();
 
 				this.position.add(
-					direction.multiplyScalar(-0.1)
+					direction.multiplyScalar(0.1)
 				);
+
+			}
+
+		}else if(this.spawnMovingActive && this.spawnMovingPoint) {
+
+			let direction = new Vector3().subVectors(this.spawnMovingPoint, this.position),
+				distance = direction.length();
+
+			if(distance > 0.3){
+
+				direction.normalize();
+
+				this.position.add(
+					direction.multiplyScalar(0.1)
+				);
+
+			}else{
+
+				this.cancelSpawnMoving();
 
 			}
 

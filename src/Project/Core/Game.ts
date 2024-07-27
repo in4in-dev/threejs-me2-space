@@ -46,6 +46,8 @@ export default class Game extends Engine
 	protected enemyCounter : number = 0;
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
+	protected healSpawnThrottler : AnimationThrottler = Animation.createThrottler(30000);
+
 	protected friendsMaxCount : number = 3;
 
 	protected showAxis : boolean = false;
@@ -233,9 +235,12 @@ export default class Game extends Engine
 			this.showAxisHelper();
 		}
 
-		for(let i = 0; i < 5; i++){
-			this.addRelay();
-		}
+		this.addRelay(new Vector3(10, 10, 0))
+		this.addRelay(new Vector3(20, -20, 0))
+		this.addRelay(new Vector3(0, -60, 0))
+		this.addRelay(new Vector3(-60, 10, 0))
+		this.addRelay(new Vector3(50, 40, 0))
+		this.addRelay(new Vector3(50, -50, 0))
 
 	}
 
@@ -354,18 +359,14 @@ export default class Game extends Engine
 
 	}
 
-	protected addRelay(){
+	protected addRelay(cords : Vector3){
 
 		let relay = new FriendRelay(
 			1,
 			this.friendsAttacks
 		);
 
-		relay.position.set(
-			Random.arr([-1, 1]) * Random.int(10, 60),
-			Random.arr([-1, 1]) * Random.int(10, 60),
-			0
-		)
+		relay.position.copy(cords.setZ(0));
 
 		relay.rotation.z = Math.random() * Math.PI * 2;
 
@@ -486,11 +487,6 @@ export default class Game extends Engine
 
 	protected animateShipHp(){
 
-		if(!this.ship.health){
-			//@TODO пока просто восстанавливаем здоровье
-			this.ship.heal(this.ship.maxHealth);
-		}
-
 		this.shipHpIndicator.setHealth(this.ship.health);
 
 	}
@@ -502,7 +498,7 @@ export default class Game extends Engine
 
 		//Шоковая волна
 		let shockWaveTargets = this.enemiesContainer.getAliveMobs().filter(enemy => {
-			return enemy.position.distanceTo(this.ship.position) <= 20;
+			return enemy.position.distanceTo(this.ship.position) <= this.ship.getShockwaveRadius();
 		});
 
 		this.shipShockwaveSkill
@@ -573,6 +569,18 @@ export default class Game extends Engine
 			});
 		}
 
+		if(!this.ship.health){
+			alert('Корабль уничтожен');
+			this.stop();
+			location.reload();
+		}
+
+		if(!this.relaysContainer.getAliveMobs().length){
+			alert('Ретрансляторы уничтожены');
+			this.stop();
+			location.reload();
+		}
+
 	}
 
 	/**
@@ -627,6 +635,16 @@ export default class Game extends Engine
 		//Анимация хилок
 		this.healsContainer.animate([this.ship]);
 		this.expContainer.animate([this.ship]);
+
+		this.healSpawnThrottler(() => {
+
+			let heal = new Heal(this.ship.maxHealth / 4, 0.4);
+			heal.position.x = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
+			heal.position.y = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
+
+			this.healsContainer.addDrop(heal);
+
+		})
 
 
 	}
