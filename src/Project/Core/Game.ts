@@ -26,6 +26,7 @@ import Healthy from "../Contracts/Healthy";
 import Experience from "../Components/Experience";
 import Experienced from "../Contracts/Experienced";
 import ExpHtmlViewer from "../Html/ExpHtmlViewer";
+import FpsHtmlViewer from "../Html/FpsHtmlViewer";
 
 export default class Game extends Engine
 {
@@ -52,6 +53,7 @@ export default class Game extends Engine
 
 	protected showAxis : boolean = false;
 	protected showTimeCodes : boolean = false;
+	protected showFps : boolean = true;
 
 	protected background : Background;
 	protected ship : NormandyShip;
@@ -73,6 +75,7 @@ export default class Game extends Engine
 	protected shipHpIndicator : HpHtmlViewer;
 	protected skillsIndicator : SkillsHtmlViewer;
 	protected expIndicator : ExpHtmlViewer;
+	protected fpsIndicator : FpsHtmlViewer;
 
 	protected shipFriendLevel : number = 1;
 	protected shipHealthLevel : number = 1;
@@ -143,6 +146,7 @@ export default class Game extends Engine
 
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
 		this.expIndicator = new ExpHtmlViewer(this.ship.experience);
+		this.fpsIndicator = new FpsHtmlViewer();
 
 
 	}
@@ -206,6 +210,10 @@ export default class Game extends Engine
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
 		document.body.appendChild(this.expIndicator.element);
+
+		if(this.showFps){
+			document.body.appendChild(this.fpsIndicator.element);
+		}
 	}
 
 	/**
@@ -676,6 +684,7 @@ export default class Game extends Engine
 	}
 
 	public afterTick(){
+		this.fpsIndicator.setValue(this.fps);
 	}
 
 }

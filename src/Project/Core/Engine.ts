@@ -19,6 +19,8 @@ export default abstract class Engine
 	public css2DRenderer : CSS2DRenderer;
 	public css3DRenderer : CSS3DRenderer;
 
+	protected fps : number = 0;
+
 	protected active : boolean = false;
 
 	protected slowTickThrottler : AnimationThrottler = Animation.createThrottler(50);
@@ -73,6 +75,8 @@ export default abstract class Engine
 
 		let animate = async () => {
 
+			let startTime = Date.now();
+
 			if(this.active){
 				ModelLoader.runBackgroundTasks();
 			}
@@ -86,6 +90,8 @@ export default abstract class Engine
 
 			///
 			this.afterTick();
+
+			this.fps = Math.ceil(1 / ((Date.now() - startTime) / 1000));
 
 			if(this.active) {
 				requestAnimationFrame(animate);
