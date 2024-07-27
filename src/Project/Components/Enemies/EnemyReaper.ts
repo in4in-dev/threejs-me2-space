@@ -4,11 +4,17 @@ import ModelLoader from "../../../Three/ModelLoader";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import RayBulletAttack from "../Attacks/RayBulletAttack";
 import Random from "../../../Three/Random";
-import HealsContainer from "../../Containers/HealsContainer";
+import DropContainer from "../../Containers/DropContainer";
 import Enemy from "../Enemy";
+import Healthy from "../../Contracts/Healthy";
+import Heal from "../Heal";
+import Experienced from "../../Contracts/Experienced";
+import Experience from "../Experience";
 
 export default class EnemyReaper extends Enemy
 {
+
+	public level : number = 1;
 
 	protected mesh : THREE.Group;
 	protected bullet : RayBulletAttack | null = null;
@@ -16,16 +22,15 @@ export default class EnemyReaper extends Enemy
 	protected autoFireMinDistance : number = 30;
 
 	constructor(
-		healths : number,
-		x : number,
-		y : number,
-		speed : number,
+		level : number,
 		attacksContainer : AttacksContainer,
-		healsContainer : HealsContainer
+		healsContainer : DropContainer<Healthy, Heal>,
+		expContainer : DropContainer<Experienced, Experience>
 	) {
 
-		super(healths, x, y, speed, attacksContainer, healsContainer);
+		super(100 * level, 0.05, attacksContainer, healsContainer, expContainer);
 
+		this.level = level;
 		this.mesh = this.createBody();
 
 		//Добавляем на сцену
@@ -116,7 +121,7 @@ export default class EnemyReaper extends Enemy
 		let bullet = new RayBulletAttack(
 			this.position.clone().setZ(-1.5).add(new Vector3(0, 1 , 0)),
 			to,
-			Random.int(10, 50),
+			20 * this.level,
 			'red'
 		);
 

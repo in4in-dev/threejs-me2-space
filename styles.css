@@ -177,3 +177,26 @@ body{
     position: relative;
     bottom: 0.2px;
 }
+
+.ship-exp{
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.ship-exp__value{
+    font-size: 25px;
+    color: #f7e734;
+}
+
+.ship-exp__icon{
+    display: inline-block;
+    width: 30px;
+    height: 20px;
+    background: url("assets/credits.png") no-repeat;
+    background-size: contain;
+    margin-right: 5px;
+}

@@ -29,13 +29,11 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	constructor(
 		health : number,
-		startX : number = 0,
-		startY : number = 0,
 		speed : number = 0.05,
 		bulletsContainer : AttacksContainer
 	) {
 
-		super(startX, startY, speed, bulletsContainer);
+		super(speed, bulletsContainer);
 
 		this.health = health;
 		this.maxHealth = health;

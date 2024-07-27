@@ -2,14 +2,13 @@ import Component from "../Core/Component";
 import * as THREE from 'three';
 import {Vector3} from "three";
 import Random from "../../Three/Random";
+import Drop from "./Drop";
+import Healthy from "../Contracts/Healthy";
 
-export default class Heal extends Component
+export default class Heal extends Drop<Healthy>
 {
 
 	public healths : number;
-	public isUsed : boolean = false;
-
-	public movingTarget : Vector3 | null = null;
 
 	protected mesh : THREE.Mesh;
 
@@ -47,38 +46,8 @@ export default class Heal extends Component
 
 	}
 
-	public setMovingTarget(target : Vector3){
-		this.movingTarget = target.clone();
-	}
-
-	public clearMovingTarget(){
-		this.movingTarget = null;
-	}
-
-	public used(){
-		this.isUsed = true;
-	}
-
-	public animate(){
-
-		if(this.movingTarget) {
-
-			let direction = new Vector3().subVectors(this.position, this.movingTarget);
-
-			if(direction.length() > 0.1){
-
-				console.log(direction.length());
-
-				direction.normalize();
-
-				this.position.add(
-					direction.multiplyScalar(-0.1)
-				);
-
-			}
-
-		}
-
+	public use(target : Healthy){
+		target.heal(this.healths);
 	}
 
 }

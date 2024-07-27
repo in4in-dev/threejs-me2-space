@@ -2,30 +2,34 @@ import Mob from "./Mob";
 import Random from "../../Three/Random";
 import Heal from "./Heal";
 import {Vector3} from "three";
-import HealsContainer from "./../Containers/HealsContainer";
+import DropContainer from "../Containers/DropContainer";
 import AttacksContainer from "./../Containers/AttacksContainer";
+import Healthy from "../Contracts/Healthy";
+import Experience from "./Experience";
+import Experienced from "../Contracts/Experienced";
 
 export default abstract class Enemy extends Mob
 {
 
-	protected healsContainer : HealsContainer;
+	protected healsContainer : DropContainer<Healthy, Heal>;
+	protected expContainer : DropContainer<Experienced, Experience>
 
 	constructor(
 		health : number,
-		startX : number = 0,
-		startY : number = 0,
 		speed : number,
 		bulletsContainer : AttacksContainer,
-		healsContainer : HealsContainer
+		healsContainer : DropContainer<Healthy, Heal>,
+		expContainer : DropContainer<Experienced, Experience>
 	) {
 
-		super(health, startX, startY, speed, bulletsContainer);
+		super(health, speed, bulletsContainer);
 
 		this.healsContainer = healsContainer;
+		this.expContainer = expContainer;
 
 	}
 
-	protected dropHealths(healths : number, count : number = 1){
+	protected dropHeals(healths : number, count : number = 1){
 
 		let step = healths / count, heals = [];
 
@@ -35,9 +39,7 @@ export default abstract class Enemy extends Mob
 				Math.min(c, step)
 			);
 
-			let position = this.position.clone().setZ(0);
-
-			heal.position.copy(position);
+			heal.position.copy(this.position).setZ(0);
 
 			let direction = new Vector3(
 				Random.float(-3, 3),
@@ -45,8 +47,8 @@ export default abstract class Enemy extends Mob
 				0
 			);
 
-			heal.setMovingTarget(
-				position.add(direction).setZ(0)
+			heal.startSpawnMoving(
+				new Vector3().addVectors(this.position, direction).setZ(0)
 			);
 
 			heals.push(heal);
@@ -55,9 +57,42 @@ export default abstract class Enemy extends Mob
 
 		}
 
-		this.healsContainer.dropHeals(...heals);
+		this.healsContainer.addDrop(...heals);
 
 	}
+
+	protected dropExperience(exp : number, count : number = 1){
+
+		let step = Math.ceil(exp / count), experiences = [];
+
+		for(let i = 0, c = exp; i < count && c > 0; i++){
+
+			let experience = new Experience(
+				Math.min(c, step)
+			);
+
+			experience.position.copy(this.position).setZ(0);
+
+			let direction = new Vector3(
+				Random.float(-3, 3),
+				Random.float(-3, 3),
+				0
+			);
+
+			experience.startSpawnMoving(
+				new Vector3().addVectors(this.position, direction).setZ(0)
+			);
+
+			experiences.push(experience);
+
+			c -= step;
+
+		}
+
+		this.expContainer.addDrop(...experiences);
+
+	}
+
 
 
 	public hit(damage : number) : boolean
@@ -67,8 +102,13 @@ export default abstract class Enemy extends Mob
 
 		if(!this.health){
 
-			this.dropHealths(
-				Random.int(50, 200),
+			this.dropHeals(
+				Random.int(this.maxHealth * 0.1, this.maxHealth * 0.3),
+				Random.int(5, 50)
+			);
+
+			this.dropExperience(
+				Random.int(this.maxHealth * 0.1, this.maxHealth * 0.3),
 				Random.int(5, 50)
 			);
 

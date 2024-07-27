@@ -12,12 +12,14 @@ import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
 import Healthy from "../../../Contracts/Healthy";
 import RocketBulletAttack from "../../Attacks/RocketBulletAttack";
 import Enemy from "../../Enemy";
+import Experienced from "../../../Contracts/Experienced";
 
-export class NormandyShip extends WarShip implements Hittable, Healthy
+export class NormandyShip extends WarShip implements Hittable, Healthy, Experienced
 {
 
 	public health : number;
 	public maxHealth : number;
+	public experience : number = 0;
 
 	protected mesh : THREE.Group;
 	protected light : THREE.Light;
@@ -31,12 +33,18 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 	protected shockwaveAttackBullet : ShockWaveAttack | null = null;
 
-	constructor(x : number = 10, y : number = 10, speed : number = 0.1, bulletGroup : AttacksContainer) {
+	protected fireLevel : number = 1;
+	protected shockWaveLevel : number = 1;
+	protected rocketLevel : number = 1;
+	protected healthLevel : number = 1;
 
-		super(x, y, speed, bulletGroup);
 
-		this.health = 5000;
-		this.maxHealth = 5000;
+	constructor(bulletGroup : AttacksContainer) {
+
+		super(0.3, bulletGroup);
+
+		this.maxHealth = 1200;
+		this.health = this.maxHealth;
 
 		this.light = this.createLight();
 		this.engines = this.createEngines();
@@ -48,6 +56,31 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		this.add(this.mesh, this.light);
 
 
+	}
+
+	public setFireLevel(level : number) : this
+	{
+		this.fireLevel = level;
+		return this;
+	}
+
+	public setShockwaveLevel(level : number) : this
+	{
+		this.shockWaveLevel = level;
+		return this;
+	}
+
+	public setRocketLevel(level : number) : this
+	{
+		this.rocketLevel = level;
+		return this;
+	}
+
+	public setHealthLevel(level : number) : this
+	{
+		this.healthLevel = level;
+		this.maxHealth = level * 1200;
+		return this;
 	}
 
 	protected createLight() : THREE.Light
@@ -161,7 +194,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		let bullet1 = new LaserBulletAttack(
 			new Vector3(this.position.x + 0.3, this.position.y - 0.3, -1),
 			to,
-			Random.int(1, 5),
+			Random.int(this.fireLevel, this.fireLevel * 5),
 			this.bulletColor,
 			this.bulletGlowColor
 		);
@@ -169,7 +202,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		let bullet2 = new LaserBulletAttack(
 			new Vector3(this.position.x - 0.3, this.position.y - 0.3, -1),
 			to,
-			Random.int(1, 5),
+			Random.int(this.fireLevel, this.fireLevel * 5),
 			this.bulletColor,
 			this.bulletGlowColor
 		);
@@ -182,7 +215,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 		let bullet = new ShockWaveAttack(
 			this.position,
-			50,
+			this.shockWaveLevel * 10,
 			20,
 			'white'
 		);
@@ -201,7 +234,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 		let bullet = new RocketBulletAttack(
 			this.position,
 			to.position,
-			Random.int(500, 1000)
+			this.rocketLevel * 150
 		)
 
 		this.rocketAttackTarget = to;
@@ -213,6 +246,10 @@ export class NormandyShip extends WarShip implements Hittable, Healthy
 
 	public heal(x : number){
 		this.health = Math.min(this.maxHealth, this.health + x);
+	}
+
+	public exp(exp : number){
+		this.experience += exp;
 	}
 
 

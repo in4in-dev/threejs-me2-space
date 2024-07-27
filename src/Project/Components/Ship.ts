@@ -11,13 +11,11 @@ export default class Ship extends Component
 
 	public speed : number;
 
-	constructor(x : number = 10, y : number = 10, speed : number = 0.1) {
+	constructor(speed : number = 0.1) {
 
 		super();
 
 		this.speed = speed;
-
-		this.position.set(x, y, 0);
 
 	}
 

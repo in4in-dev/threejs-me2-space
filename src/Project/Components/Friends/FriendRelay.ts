@@ -9,6 +9,8 @@ import BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js
 export default class FriendRelay extends Mob
 {
 
+	public level : number;
+
 	protected mesh : THREE.Group;
 	protected shield : THREE.Points;
 
@@ -18,13 +20,12 @@ export default class FriendRelay extends Mob
 	protected shieldMaxRadius : number = 8;
 
 	public constructor(
-		health : number,
-		startX : number = 0,
-		startY : number = 0,
+		level : number,
 		bulletsContainer : AttacksContainer
 	) {
-		super(health, startX, startY, 0.00001, bulletsContainer);
+		super(7000 * level,0.00001, bulletsContainer);
 
+		this.level = level;
 		this.mesh = this.createBody();
 		this.shield = this.createShield();
 

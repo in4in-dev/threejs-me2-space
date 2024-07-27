@@ -102,7 +102,8 @@ export default class RocketBulletAttack extends Attack
 
 			//Анимируем рост сферы
 			let progress = (Date.now() - this.explosionStartTime) / this.explosionTime,
-				explosionProgress = progress >= 0.5 ? (1 - progress) : progress;
+				explosionProgress = progress >= 0.5 ? (1 - progress) : progress,
+				damageMultiplier = (1 - progress);
 
 			let radius = explosionProgress * this.explosionMaxRadius;
 
@@ -118,7 +119,7 @@ export default class RocketBulletAttack extends Attack
 					this.damagedEnemies.indexOf(enemy) < 0 &&
 					enemy.position.distanceTo(this.explosionPoint!) <= this.explosionRadius
 				){
-					enemy.hit(this.force);
+					enemy.hit(Math.ceil(this.force * damageMultiplier));
 					this.damagedEnemies.push(enemy);
 				}
 

@@ -10,9 +10,9 @@ export default abstract class WarShip extends Ship
 
 	protected attacksContainer : AttacksContainer;
 
-	constructor(x : number = 10, y : number = 10, speed : number = 0.1, attacksContainer : AttacksContainer) {
+	constructor(speed : number = 0.1, attacksContainer : AttacksContainer) {
 
-		super(x, y, speed);
+		super(speed);
 
 		this.attacksContainer = attacksContainer;
 

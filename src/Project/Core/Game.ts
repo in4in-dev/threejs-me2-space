@@ -13,7 +13,7 @@ import AttacksContainer from "../Containers/AttacksContainer";
 import PlanetWithOrbit from "../Components/PlanetWithOrbit";
 import Random from "../../Three/Random";
 import {Animation, AnimationThrottler} from "../../Three/Animation";
-import HealsContainer from "../Containers/HealsContainer";
+import DropContainer from "../Containers/DropContainer";
 import Enemy from "../Components/Enemy";
 import FriendHammerhead from "../Components/Friends/FriendHammerhead";
 import MobsContainer from "../Containers/MobsContainer";
@@ -21,6 +21,11 @@ import SkillsHtmlViewer from "../Html/SkillsHtmlViewer";
 import HpHtmlViewer from "../Html/HpHtmlViewer";
 import Skill from "./Skill";
 import FriendRelay from "../Components/Friends/FriendRelay";
+import Heal from "../Components/Heal";
+import Healthy from "../Contracts/Healthy";
+import Experience from "../Components/Experience";
+import Experienced from "../Contracts/Experienced";
+import ExpHtmlViewer from "../Html/ExpHtmlViewer";
 
 export default class Game extends Engine
 {
@@ -38,6 +43,7 @@ export default class Game extends Engine
 	protected mousePositionY : number = 0;
 
 	protected enemyMaxCount : number = 7;
+	protected enemyCounter : number = 0;
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
 	protected friendsMaxCount : number = 3;
@@ -58,10 +64,19 @@ export default class Game extends Engine
 	protected enemiesAttacks : AttacksContainer;
 	protected friendsAttacks : AttacksContainer;
 
-	protected healsContainer : HealsContainer;
+	protected healsContainer : DropContainer<Healthy, Heal>;
+	protected expContainer : DropContainer<Experienced, Experience>;
 
 	protected shipHpIndicator : HpHtmlViewer;
 	protected skillsIndicator : SkillsHtmlViewer;
+	protected expIndicator : ExpHtmlViewer;
+
+	protected shipFireLevel : number = 1;
+	protected shipShockwaveLevel : number = 1;
+	protected shipRocketLevel : number = 1;
+	protected shipFriendLevel : number = 1;
+	protected shipHealthLevel : number = 1;
+	protected enemiesLevel : number = 1;
 
 	constructor(
 		background : Background,
@@ -80,14 +95,14 @@ export default class Game extends Engine
 
 		this.enemiesAttacks = new AttacksContainer;
 		this.friendsAttacks = new AttacksContainer;
-		this.healsContainer = new HealsContainer;
+		this.healsContainer = new DropContainer<Healthy, Heal>;
+		this.expContainer   = new DropContainer<Experienced, Experience>;
 
 		this.friendsContainer = new MobsContainer<Mob>;
 		this.enemiesContainer = new MobsContainer<Enemy>;
 		this.relaysContainer = new MobsContainer<FriendRelay>;
 
-		this.ship = new NormandyShip(10, 10, 0.3, this.friendsAttacks);
-
+		this.ship = new NormandyShip(this.friendsAttacks);
 
 		this.shipFireSkill      = new Skill('SPACE', 'Space', 100);
 		this.shipShockwaveSkill = new Skill('J', 'KeyJ', 5000);
@@ -103,6 +118,7 @@ export default class Game extends Engine
 			.addSkill('shield', this.relayShieldSkill);
 
 		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
+		this.expIndicator = new ExpHtmlViewer(this.ship.experience);
 
 
 	}
@@ -165,6 +181,7 @@ export default class Game extends Engine
 	protected initHtml(){
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
+		document.body.appendChild(this.expIndicator.element);
 	}
 
 	/**
@@ -181,12 +198,14 @@ export default class Game extends Engine
 			this.friendsAttacks,
 			this.enemiesAttacks,
 			this.healsContainer,
+			this.expContainer,
 			this.enemiesContainer,
 			this.friendsContainer,
 			this.relaysContainer,
 			...this.planets
 		)
 
+		this.ship.position.set(10, 10, 0);
 		this.moveCameraToShip();
 
 		if(this.showAxis){
@@ -317,11 +336,15 @@ export default class Game extends Engine
 	protected addRelay(){
 
 		let relay = new FriendRelay(
-			7000,
-			Random.arr([-1, 1]) * Random.int(10, 60),
-			Random.arr([-1, 1]) * Random.int(10, 60),
+			1,
 			this.friendsAttacks
 		);
+
+		relay.position.set(
+			Random.arr([-1, 1]) * Random.int(10, 60),
+			Random.arr([-1, 1]) * Random.int(10, 60),
+			0
+		)
 
 		relay.rotation.z = Math.random() * Math.PI * 2;
 
@@ -337,15 +360,21 @@ export default class Game extends Engine
 	protected addEnemy(){
 
 		let enemy = new EnemyReaper(
-			Random.int(100, 500),
-			Random.int(-this.border.radius, this.border.radius),
-			Random.int(-this.border.radius, this.border.radius),
-			0.05,
+			this.enemiesLevel,
 			this.enemiesAttacks,
-			this.healsContainer
+			this.healsContainer,
+			this.expContainer
 		);
 
+		enemy.position.set(
+			Random.int(-this.border.radius, this.border.radius),
+			Random.int(-this.border.radius, this.border.radius),
+			0
+		)
+
 		this.enemiesContainer.addMobs(enemy);
+
+		this.enemyCounter++;
 
 	}
 
@@ -355,12 +384,15 @@ export default class Game extends Engine
 	protected addFriend(){
 
 		let friend = new FriendHammerhead(
-			Random.int(500, 2000),
-			this.ship.position.x + Random.int(-2, 2),
-			this.ship.position.y + Random.int(-2, 2),
-			0.1,
+			this.shipFriendLevel,
 			this.friendsAttacks
 		);
+
+		friend.position.set(
+			this.ship.position.x + Random.int(-2, 2),
+			this.ship.position.y + Random.int(-2, 2),
+			0
+		)
 
 		this.friendsContainer.addMobs(friend);
 
@@ -494,6 +526,11 @@ export default class Game extends Engine
 	 */
 	protected slowTick(){
 
+		//Обновляем уровень здоровья
+		this.ship.setHealthLevel(this.shipHealthLevel);
+
+		this.expIndicator.setValue(this.ship.experience);
+
 		//Обновляем отображение здоровья корабля
 		this.animateShipHp();
 
@@ -502,7 +539,17 @@ export default class Game extends Engine
 
 		//Добавляем врагов
 		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
-			this.enemySpawnThrottler(() => this.addEnemy());
+
+			this.enemySpawnThrottler(() => {
+
+				if(this.enemyCounter && !(this.enemyCounter % 10)){
+					this.shipHealthLevel++;
+					this.enemiesLevel++;
+				}
+
+				this.addEnemy();
+
+			});
 		}
 
 	}
@@ -558,6 +605,8 @@ export default class Game extends Engine
 
 		//Анимация хилок
 		this.healsContainer.animate([this.ship]);
+		this.expContainer.animate([this.ship]);
+
 
 	}
 

@@ -10,22 +10,23 @@ import {Animation, AnimationThrottler} from "../../../Three/Animation";
 export default class FriendHammerhead extends Mob
 {
 
+	public level : number;
+
 	protected mesh : THREE.Group;
 
 	protected autoFireThrottler : AnimationThrottler = Animation.createThrottler(300);
 
 	protected autoFireMinDistance : number = 50;
 
+
 	constructor(
-		healths : number,
-		x : number,
-		y : number,
-		speed : number,
+		level : number,
 		attacksContainer : AttacksContainer
 	) {
 
-		super(healths, x, y, speed, attacksContainer);
+		super(level * 300 * level, 0.1, attacksContainer);
 
+		this.level = level;
 		this.mesh = this.createBody();
 
 		//Добавляем на сцену
@@ -95,7 +96,7 @@ export default class FriendHammerhead extends Mob
 		let bullet1 = new LaserBulletAttack(
 			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
 			to,
-			Random.int(1, 5),
+			Random.int(this.level, this.level * 5),
 			'white',
 			'#66bd4e'
 		);
@@ -103,7 +104,7 @@ export default class FriendHammerhead extends Mob
 		let bullet2 = new LaserBulletAttack(
 			new Vector3(this.position.x - 0.3, this.position.y - 0.3, 0),
 			to,
-			Random.int(1, 5),
+			Random.int(this.level, this.level * 5),
 			'white',
 			'#66bd4e'
 		);
@@ -112,8 +113,5 @@ export default class FriendHammerhead extends Mob
 
 	}
 
-	public altFire(to: Vector3) {
-
-	}
 
 }
