@@ -1,12 +1,9 @@
-import {AxesHelper, Object3D, Vector3} from "three";
+import {AxesHelper, Box3, Euler, Object3D, Vector3} from "three";
 import * as THREE from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import {Animation} from "../../../Three/Animation";
-
-interface CachedTarget{
-
-}
+import HitBox from "../../Core/HitBox";
 
 export default class LaserBulletAttack extends Attack
 {
@@ -26,8 +23,6 @@ export default class LaserBulletAttack extends Attack
 	protected maxDistanceDamage : number = 50;
 
 	protected lastPosition : Vector3;
-
-	protected cachedTargets : CachedTarget[] = [];
 
 	constructor(
 		from : Vector3,
@@ -101,7 +96,9 @@ export default class LaserBulletAttack extends Attack
 	public checkCollisionWith(object : THREE.Object3D) : boolean
 	{
 
-		let objectBox = new THREE.Box3().setFromObject(object);
+		// let objectBox = new THREE.Box3().setFromObject(object);
+		let objectBox = HitBox.getFor(object, true);
+
 		// let bulletBox = new THREE.Box3().setFromObject(this);
 		// return bulletBox.intersectsBox(objectBox)
 
