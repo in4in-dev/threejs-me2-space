@@ -238,6 +238,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		let bullet = new ShockWaveAttack(
 			this.position,
 			this.shockWaveLevel * 25,
+			2000 + (this.shockWaveLevel * 500),
 			this.getShockwaveRadius(),
 			'white',
 			this

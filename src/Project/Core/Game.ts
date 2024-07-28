@@ -511,13 +511,7 @@ export default class Game extends Engine
 		this.shipFireSkill.useIfNeed(() => this.ship.fire());
 
 		//Шоковая волна
-		let shockWaveTargets = this.enemiesContainer.getAliveMobs().filter(enemy => {
-			return enemy.position.distanceTo(this.ship.position) <= this.ship.getShockwaveRadius();
-		});
-
-		this.shipShockwaveSkill
-			.toggle(shockWaveTargets.length > 0)
-			.useIfNeed(() => this.ship.shockwaveFire());
+		this.shipShockwaveSkill.useIfNeed(() => this.ship.shockwaveFire());
 
 		//Ракета
 		let enemies = this.enemiesContainer.getAliveMobs();

@@ -2,6 +2,7 @@ import Component from "../Core/Component";
 import * as THREE from 'three';
 import Mob from "../Components/Mob";
 
+
 export default class MobsContainer<M extends Mob = Mob> extends Component
 {
 

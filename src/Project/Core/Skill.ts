@@ -13,17 +13,19 @@ export default class Skill
 	protected throttler : AnimationThrottler;
 
 	protected isEnabled : boolean = true;
-	protected isActive : boolean = false;
-	protected keyHoldAllow : boolean;
+	protected isKeyHold : boolean = false;
+	protected isKeyPressed : boolean = false;
 
-	constructor(key : string, keyCode : string, cooldown : number, keyHoldAllow : boolean = false, maximumUses : number = Infinity) {
+	protected canBeHold : boolean = true;
+
+	constructor(key : string, keyCode : string, cooldown : number, canBeHold : boolean = false, maximumUses : number = Infinity) {
 
 		this.key = key;
 		this.keyCode = keyCode;
 		this.cooldown = cooldown;
 		this.availableUses = maximumUses;
 		this.maximumUses = maximumUses;
-		this.keyHoldAllow = keyHoldAllow;
+		this.canBeHold = canBeHold;
 
 		this.throttler = Animation.createThrottler(cooldown);
 
@@ -88,7 +90,7 @@ export default class Skill
 
 	public useIfNeed(fn : () => void){
 
-		this.isActive && this.isEnabled && (this.availableUses > 0) && this.throttler(() => {
+		(this.isKeyHold || this.isKeyPressed) && this.isAvailable() && this.throttler(() => {
 
 			if(this.availableUses !== Infinity){
 				this.availableUses--;
@@ -98,11 +100,13 @@ export default class Skill
 
 		});
 
+		this.isKeyPressed = false;
+
 	}
 
 	public initListeners(){
 
-		if(this.keyHoldAllow) {
+		if(this.canBeHold) {
 
 			window.addEventListener('keydown', (event) => {
 
@@ -110,7 +114,7 @@ export default class Skill
 
 					event.preventDefault();
 
-					this.isActive = true;
+					this.isKeyHold = this.isAvailable();
 
 				}
 
@@ -119,32 +123,20 @@ export default class Skill
 			window.addEventListener('keyup', (event) => {
 
 				if (event.code === this.keyCode) {
-					this.isActive = false;
+					this.isKeyHold = false;
 				}
 
 			});
 
 		}else{
 
-			let holdCounter = 0;
-
 			window.addEventListener('keypress', (event) => {
-
-				let localHoldCounter = ++holdCounter;
 
 				if (event.code === this.keyCode) {
 
 					event.preventDefault();
 
-					this.isActive = true;
-
-					setTimeout(() => {
-
-						if(localHoldCounter === holdCounter){
-							this.isActive = false;
-						}
-
-					}, 1000);
+					this.isKeyPressed = this.isAvailable();
 
 				}
 

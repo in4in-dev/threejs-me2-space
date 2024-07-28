@@ -12,8 +12,7 @@ export default class ShockWaveAttack extends Attack
 	protected color : any;
 	protected startTime : number;
 	protected radius : number;
-
-	protected duration : number = 2000;
+	protected duration : number;
 
 	protected mesh : THREE.Group;
 
@@ -25,6 +24,7 @@ export default class ShockWaveAttack extends Attack
 	constructor(
 		from : Vector3,
 		force : number,
+		duration : number,
 		radius : number,
 		color : any,
 		healTarget : Healthy | null = null
@@ -33,6 +33,7 @@ export default class ShockWaveAttack extends Attack
 
 		this.color = color;
 		this.radius = radius;
+		this.duration = duration;
 		this.startTime = Date.now();
 		this.mesh = this.createBody();
 		this.hitThrottler = Animation.createThrottler(600);
@@ -123,9 +124,24 @@ export default class ShockWaveAttack extends Attack
 				);
 			});
 
+			for(let i = 0; i < 5; i++){
+
+				let randomDirection = new Vector3(
+					Random.float(-2.5, 2.5),
+					Random.float(-2.5, 2.5),
+					-1
+				)
+
+				lines.push(
+					this.createLighting(
+						new Vector3(0, 0, 0),
+						randomDirection
+					)
+				)
+			}
+
 			if(lines.length){
 				group.add(...lines);
-
 			}
 
 			this.remove(this.mesh);
