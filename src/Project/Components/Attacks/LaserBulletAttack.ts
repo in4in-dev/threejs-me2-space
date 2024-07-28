@@ -78,7 +78,12 @@ export default class LaserBulletAttack extends Attack
 			new THREE.MeshBasicMaterial({color : this.color})
 		);
 
-		mesh.scale.set(0.3, 1, 1);
+		let direction = new Vector3().subVectors(this.to, this.from);
+		let angle = Math.atan2(direction.y, direction.x);
+
+		this.rotation.z = angle + Math.PI / 2;
+
+		mesh.scale.set(0.5, 3, 0.3);
 
 		return mesh;
 
@@ -90,53 +95,6 @@ export default class LaserBulletAttack extends Attack
 
 		this.position.set(this.position.x, this.position.y, 0);
 
-	}
-
-	protected createBox3Helper(box: THREE.Box3, color: number = 0xff0000): THREE.LineSegments {
-		const vertices = new Float32Array([
-			box.min.x, box.min.y, box.min.z,
-			box.max.x, box.min.y, box.min.z,
-
-			box.min.x, box.min.y, box.min.z,
-			box.min.x, box.max.y, box.min.z,
-
-			box.min.x, box.min.y, box.min.z,
-			box.min.x, box.min.y, box.max.z,
-
-			box.max.x, box.max.y, box.max.z,
-			box.min.x, box.max.y, box.max.z,
-
-			box.max.x, box.max.y, box.max.z,
-			box.max.x, box.min.y, box.max.z,
-
-			box.max.x, box.max.y, box.max.z,
-			box.max.x, box.max.y, box.min.z,
-
-			box.min.x, box.max.y, box.max.z,
-			box.min.x, box.max.y, box.min.z,
-
-			box.min.x, box.max.y, box.max.z,
-			box.min.x, box.min.y, box.max.z,
-
-			box.max.x, box.min.y, box.max.z,
-			box.max.x, box.min.y, box.min.z,
-
-			box.max.x, box.max.y, box.min.z,
-			box.max.x, box.min.y, box.min.z,
-
-			box.min.x, box.max.y, box.min.z,
-			box.min.x, box.min.y, box.min.z,
-
-			box.min.x, box.min.y, box.max.z,
-			box.min.x, box.max.y, box.max.z,
-		]);
-
-		const geometry = new THREE.BufferGeometry();
-		geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-
-		const material = new THREE.LineBasicMaterial({ color: color });
-
-		return new THREE.LineSegments(geometry, material);
 	}
 
 
