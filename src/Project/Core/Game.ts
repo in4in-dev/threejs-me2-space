@@ -35,23 +35,32 @@ export default class Game extends Engine
 	protected shipMovingAllow : boolean = true;
 	protected shipMovingActive : boolean = false;
 
-	protected shipFireSkill : Skill;
-	protected shipShockwaveSkill : Skill;
-	protected shipRocketSkill : Skill;
-	protected shipFriendSkill : Skill;
-	protected relayShieldSkill : Skill;
+	//Скиллы корабля
+	protected skillFire : Skill;
+	protected skillShockwave : Skill;
+	protected skillRocket : Skill;
+	protected skillSpawnFriend : Skill;
+	protected skillRelayShield : Skill;
 
+	//Позиция мыши
 	protected mousePositionX : number = 0;
 	protected mousePositionY : number = 0;
 
-	protected enemyMaxCount : number = 7;
+	//Настройки врагов
+	protected enemyLevel : number = 1;
 	protected enemyCounter : number = 0;
+	protected enemyMaxCount : number = 7;
+	protected enemyKilledUpdateLevel : number = 15;
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
-	protected healSpawnThrottler : AnimationThrottler = Animation.createThrottler(30000);
+	//Настройки друзей
+	protected relaysLevel = 1;
+	protected friendsLevel = 1;
+	protected friendsMaxCount = 3;
 
-	protected friendsMaxCount : number = 3;
+	protected healSpawnThrottler : AnimationThrottler = Animation.createThrottler(10000);
 
+	//Настройки для отладки
 	protected showAxis : boolean = false;
 	protected showTimeCodes : boolean = false;
 	protected showFps : boolean = true;
@@ -63,26 +72,25 @@ export default class Game extends Engine
 	protected asteroidBelt : AsteroidBelt;
 	protected planets : PlanetWithOrbit[] = [];
 
+	//Контейнеры с мобами
 	protected enemiesContainer : MobsContainer<Enemy>;
 	protected friendsContainer : MobsContainer<Mob>;
 	protected relaysContainer : MobsContainer<FriendRelay>;
 
+	//Контейры с атаками
 	protected enemiesAttacks : AttacksContainer;
 	protected friendsAttacks : AttacksContainer;
 
+	//Контейнеры с дропом
 	protected healsContainer : DropContainer<Healthy, Heal>;
 	protected expContainer : DropContainer<Experienced, Experience>;
 
+	//HTML-интерфейс
 	protected shipHpIndicator : HpHtmlViewer;
 	protected skillsIndicator : SkillsHtmlViewer;
 	protected expIndicator : ExpHtmlViewer;
 	protected fpsIndicator : FpsHtmlViewer;
 	protected relaysIndicator : RelaysHtmlViewer;
-
-	protected shipFriendLevel : number = 1;
-	protected shipHealthLevel : number = 1;
-	protected relaysLevel : number = 1;
-	protected enemiesLevel : number = 1;
 
 	constructor(
 		background : Background,
@@ -99,22 +107,36 @@ export default class Game extends Engine
 		this.planets = planets;
 		this.border = border;
 
-		this.enemiesAttacks = new AttacksContainer;
-		this.friendsAttacks = new AttacksContainer;
-		this.healsContainer = new DropContainer<Healthy, Heal>;
-		this.expContainer   = new DropContainer<Experienced, Experience>;
-
+		//Контейнеры с мобами
 		this.friendsContainer = new MobsContainer<Mob>;
 		this.enemiesContainer = new MobsContainer<Enemy>;
 		this.relaysContainer = new MobsContainer<FriendRelay>;
 
+		//Контейнеры с атаками
+		this.enemiesAttacks = new AttacksContainer;
+		this.friendsAttacks = new AttacksContainer;
+
+		//Создаем корабль
 		this.ship = new NormandyShip(this.friendsAttacks);
 
-		this.shipFireSkill      = new Skill('SPACE', 'Space', 100, true);
-		this.shipShockwaveSkill = new Skill('Q', 'KeyQ', 5000);
-		this.shipFriendSkill    = new Skill('F', 'KeyF', 5000, false, this.friendsMaxCount);
-		this.shipRocketSkill    = new Skill('E', 'KeyE', 20000);
-		this.relayShieldSkill   = new Skill('G', 'KeyG', 90000);
+		//Контейнеры с дропом
+		this.healsContainer = new DropContainer<Healthy, Heal>([this.ship]);
+		this.expContainer   = new DropContainer<Experienced, Experience>([this.ship]);
+
+		//HTML-интерфейс
+		this.shipHpIndicator = new HpHtmlViewer(this.ship);
+		this.expIndicator = new ExpHtmlViewer(this.ship);
+		this.fpsIndicator = new FpsHtmlViewer(this);
+		this.relaysIndicator = new RelaysHtmlViewer(this.relaysContainer);
+
+
+		//Создаем скиллы
+		//@TODO убрать отсюда
+		this.skillFire           = new Skill('SPACE', 'Space', 100, true);
+		this.skillShockwave      = new Skill('Q', 'KeyQ', 5000);
+		this.skillSpawnFriend    = new Skill('F', 'KeyF', 5000, false, this.friendsMaxCount);
+		this.skillRocket         = new Skill('E', 'KeyE', 20000);
+		this.skillRelayShield    = new Skill('G', 'KeyG', 90000);
 
 		let costCounter = (level : () => number, costs : number[]) => {
 			return () => {
@@ -127,36 +149,24 @@ export default class Game extends Engine
 		}
 
 		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
-			.addSkill('fire', this.shipFireSkill, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
+			.addSkill('fire', this.skillFire, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
 				this.ship.fireLevel++;
 			})
-			.addSkill('wave', this.shipShockwaveSkill, costCounter(() => this.ship.shockWaveLevel, [2000, 5000, 10000, 20000, 50000, 100000]), () => {
+			.addSkill('wave', this.skillShockwave, costCounter(() => this.ship.shockWaveLevel, [2000, 5000, 10000, 20000, 50000, 100000]), () => {
 				this.ship.shockWaveLevel++;
 			})
-			.addSkill('rocket', this.shipRocketSkill, costCounter(() => this.ship.rocketLevel, [5000, 10000, 20000, 50000, 100000, 200000]), () => {
+			.addSkill('rocket', this.skillRocket, costCounter(() => this.ship.rocketLevel, [5000, 10000, 20000, 50000, 100000, 200000]), () => {
 				this.ship.rocketLevel++;
 			})
-			.addSkill('friend', this.shipFriendSkill, costCounter(() => this.shipFriendLevel, [10000, 20000, 50000, 100000, 200000]), () => {
-				this.shipFriendLevel++
+			.addSkill('friend', this.skillSpawnFriend, costCounter(() => this.friendsLevel, [10000, 20000, 50000, 100000, 200000]), () => {
+				this.friendsLevel++
 				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
-				this.shipFriendSkill.setMaxUses(this.friendsMaxCount);
+				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
 			})
-			.addSkill('shield', this.relayShieldSkill, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
+			.addSkill('shield', this.skillRelayShield, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
 				this.relaysLevel++;
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
 			});
-
-		this.addRelay('A', new Vector3(10, 10, 0))
-		this.addRelay('B', new Vector3(20, -20, 0))
-		this.addRelay('C', new Vector3(0, -60, 0))
-		this.addRelay('D', new Vector3(-60, 10, 0))
-		this.addRelay('E', new Vector3(50, 40, 0))
-		this.addRelay('F', new Vector3(50, -50, 0))
-
-		this.shipHpIndicator = new HpHtmlViewer(this.ship.health, this.ship.maxHealth);
-		this.expIndicator = new ExpHtmlViewer(this.ship.experience);
-		this.fpsIndicator = new FpsHtmlViewer();
-		this.relaysIndicator = new RelaysHtmlViewer(this.relaysContainer);
 
 
 	}
@@ -208,15 +218,18 @@ export default class Game extends Engine
 
 		});
 
-		this.shipFireSkill.initListeners();
-		this.shipShockwaveSkill.initListeners();
-		this.shipRocketSkill.initListeners();
-		this.shipFriendSkill.initListeners();
-		this.relayShieldSkill.initListeners();
+		[
+			this.skillSpawnFriend,
+			this.skillRocket,
+			this.skillFire,
+			this.skillShockwave,
+			this.skillRelayShield
+		].forEach(skill => skill.initListeners());
 
 	}
 
 	protected initHtml(){
+		//@TODO не круто
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
 		document.body.appendChild(this.expIndicator.element);
@@ -254,6 +267,13 @@ export default class Game extends Engine
 		if(this.showAxis){
 			this.showAxisHelper();
 		}
+
+		this.addRelay('A', new Vector3(10, 10, 0))
+		this.addRelay('B', new Vector3(20, -20, 0))
+		this.addRelay('C', new Vector3(0, -60, 0))
+		this.addRelay('D', new Vector3(-60, 10, 0))
+		this.addRelay('E', new Vector3(50, 40, 0))
+		this.addRelay('F', new Vector3(50, -50, 0))
 
 	}
 
@@ -345,7 +365,7 @@ export default class Game extends Engine
 		this.friendsAttacks.animate(
 			[
 				...this.planets.map(planet => planet.planet.getPlanetMesh()),
-				...this.relaysContainer.getAliveMobs(),
+				// ...this.relaysContainer.getAliveMobs(),
 				this.sun.getSunMesh()
 			],
 			this.enemiesContainer.getAliveMobs()
@@ -383,9 +403,7 @@ export default class Game extends Engine
 		relay.position.copy(cords.setZ(0));
 		relay.rotateRelay(Math.random() * Math.PI * 2);
 
-		this.relaysContainer.addMobs(
-			relay
-		);
+		this.relaysContainer.addMobs(relay);
 
 	}
 
@@ -395,7 +413,7 @@ export default class Game extends Engine
 	protected addEnemy(){
 
 		let enemy = new EnemyReaper(
-			this.enemiesLevel,
+			this.enemyLevel,
 			this.enemiesAttacks,
 			this.healsContainer,
 			this.expContainer
@@ -419,7 +437,7 @@ export default class Game extends Engine
 	protected addFriend(){
 
 		let friend = new FriendHammerhead(
-			this.shipFriendLevel,
+			this.friendsLevel,
 			this.friendsAttacks
 		);
 
@@ -459,8 +477,6 @@ export default class Game extends Engine
 
 			}
 
-			enemy.animate();
-
 		});
 
 		this.enemiesContainer.animate();
@@ -478,14 +494,12 @@ export default class Game extends Engine
 			);
 
 			if(!friend.hasAttackTarget()){
+				//Чтобы двигались за нашим кораблем
 				friend.setAttackTarget(this.ship);
 				friend.stopAutoFire();
 			}else{
 				friend.startAutoFire();
 			}
-
-			//Анимируем поведение
-			friend.animate();
 
 		});
 
@@ -495,23 +509,17 @@ export default class Game extends Engine
 
 	protected animateRelays(){
 		this.relaysContainer.animate();
-		this.relaysContainer.getAliveMobs().forEach(relay => relay.animate());
-	}
-
-	protected animateShipHp(){
-
-		this.shipHpIndicator.setHealth(this.ship.health);
-		this.shipHpIndicator.setMaxHealth(this.ship.maxHealth);
-
 	}
 
 	protected animateSkills(){
 
+		//@TODO не красиво
+
 		//Стрельба из корабля
-		this.shipFireSkill.useIfNeed(() => this.ship.fire());
+		this.skillFire.useIfNeed(() => this.ship.fire());
 
 		//Шоковая волна
-		this.shipShockwaveSkill.useIfNeed(() => this.ship.shockwaveFire());
+		this.skillShockwave.useIfNeed(() => this.ship.shockwaveFire());
 
 		//Ракета
 		let enemies = this.enemiesContainer.getAliveMobs();
@@ -521,23 +529,23 @@ export default class Game extends Engine
 			let target = this.ship.whoNearest(enemies);
 
 			if(target){
-				this.shipRocketSkill.on().useIfNeed(() => this.ship.rocketFire(target));
+				this.skillRocket.on().useIfNeed(() => this.ship.rocketFire(target));
 			}
 
 		}else{
 
-			this.shipRocketSkill.off();
+			this.skillRocket.off();
 
 		}
 
 		//Spawn союзников
-		this.shipFriendSkill
+		this.skillSpawnFriend
 			.setAvailableUses(this.friendsMaxCount - this.friendsContainer.getAliveMobs().length)
 			.useIfNeed(() => this.addFriend());
 
 
 		//Щит ретранслятора
-		this.relayShieldSkill.useIfNeed(() => {
+		this.skillRelayShield.useIfNeed(() => {
 			this.relaysContainer.getAliveMobs().forEach(relay => relay.activateShield(10000))
 		});
 
@@ -546,35 +554,73 @@ export default class Game extends Engine
 
 	}
 
+	protected animateDrops(){
+		this.healsContainer.animate();
+		this.expContainer.animate();
+	}
+
+	protected analyzeWrap(code : string, fn : () => void, max : number = 10){
+
+		let start = Date.now();
+
+		fn();
+
+		let end = Date.now(),
+			time = (end - start);
+
+		if(this.showTimeCodes){
+			console.log('Время выполнения '  + code + ': ' + time + ' мс');
+		}
+
+		if(time > max){
+			console.log('%c Долгое выполнение ' + code + ': ' + time + ' мс', 'color: orange');
+		}
+
+	}
+
+	protected spawnRandomHeal(){
+
+		let heal = new Heal(this.ship.maxHealth / 4, 0.4);
+
+		heal.position.x = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
+		heal.position.y = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
+
+		this.healsContainer.addDrop(heal);
+
+	}
+
 	/**
 	 * То, что нужно обновлять по реже
 	 */
 	protected slowTick(){
 
-		//Обновляем уровень здоровья
-		this.ship.setHealthLevel(this.shipHealthLevel);
+		//Состояние ретрансляторов
+		this.analyzeWrap('HTML_RELAYS_INFO', () => this.relaysIndicator.updateView());
 
-		this.expIndicator.setValue(this.ship.experience);
+		//Обновляем баланс
+		this.analyzeWrap('HTML_SHIP_EXP', () => this.expIndicator.updateView());
 
-		//Обновляем отображение здоровья корабля
-		this.showTimeCodes && console.time('TICK_SHIP_HP');
-		this.animateShipHp();
-		this.showTimeCodes && console.timeEnd('TICK_SHIP_HP');
+		//Обновляем отображение здоровья
+		this.analyzeWrap('HTML_SHIP_HP', () => this.shipHpIndicator.updateView());
 
 		//Анимируем скиллы
-		this.showTimeCodes && console.time('TICK_SHIP_SKILLS');
-		this.animateSkills();
-		this.showTimeCodes && console.timeEnd('TICK_SHIP_SKILLS');
+		this.analyzeWrap('HTML_SHIP_SKILLS', () => this.animateSkills());
 
+		//Спавн случайных аптечек
+		this.healSpawnThrottler(() => this.spawnRandomHeal());
 
 		//Добавляем врагов
+
 		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
 
 			this.enemySpawnThrottler(() => {
 
-				if(this.enemyCounter && !(this.enemyCounter % 10)){
-					this.shipHealthLevel++;
-					this.enemiesLevel++;
+				if(this.enemyCounter > 0 && !(this.enemyCounter % this.enemyKilledUpdateLevel)){
+					this.ship.setHealthLevel(this.ship.healthLevel + 1);
+					this.enemyLevel++;
+					this.relaysLevel++;
+
+					//@TODO увеличить здоровье ретрансляторам
 				}
 
 				this.addEnemy();
@@ -582,12 +628,14 @@ export default class Game extends Engine
 			});
 		}
 
+		//Конец игры если нас убили
 		if(!this.ship.health){
 			alert('Корабль уничтожен');
 			this.stop();
 			location.reload();
 		}
 
+		//Конец игры если ретрансляторы снесли
 		if(!this.relaysContainer.getAliveMobs().length){
 			alert('Ретрансляторы уничтожены');
 			this.stop();
@@ -602,91 +650,62 @@ export default class Game extends Engine
 	protected tick(){
 
 		//Обновление позиции для движения корабля
-		this.showTimeCodes && console.time('TICK_SHIP_MOVING');
-		if (this.shipMovingAllow) {
+		this.analyzeWrap('SHIP_MOVING', () => {
 
-			if(this.shipMovingActive) {
+			if (this.shipMovingAllow && this.shipMovingActive) {
 				this.updateShipPosition();
 				this.moveCameraToShip();
 			}
 
-		}
-		this.showTimeCodes && console.time('TICK_SHIP_MOVING');
-
+		});
 
 		//Отображаем название активной планеты
-		this.showTimeCodes && console.time('TICK_PLANETS');
-		this.planets.forEach((planet : PlanetWithOrbit) => {
+		this.analyzeWrap('PLANETS_ACTIVITY', () => {
 
-			planet.orbit.setActive(
-				this.checkProximityToOrbit(planet.orbit!,  1.2)
-			);
+			this.planets.forEach((planet : PlanetWithOrbit) => {
 
-			planet.planet.setActive(
-				this.checkProximityToPlanet(planet, 1.5)
-			);
+				planet.orbit.setActive(
+					this.checkProximityToOrbit(planet.orbit!,  1.2)
+				);
+
+				planet.planet.setActive(
+					this.checkProximityToPlanet(planet, 1.5)
+				);
+
+			});
 
 		});
-		this.showTimeCodes && console.timeEnd('TICK_PLANETS')
 
 		//Анимируем солнце
-		this.showTimeCodes && console.time('TICK_SUN');
-		this.sun.animate();
-		this.showTimeCodes && console.timeEnd('TICK_SUN');
+		this.analyzeWrap('SUN_ANIMATION', () => this.sun.animate());
 
 		//Анимируем двигатели корабля
-		this.showTimeCodes && console.time('TICK_SHIP_ENGINES');
-		this.ship.animate();
-		this.showTimeCodes && console.timeEnd('TICK_SHIP_ENGINES');
+		this.analyzeWrap('SHIP_ANIMATION', () => this.ship.animate());
 
 		//Анимируем наши пули
-		this.showTimeCodes && console.time('TICK_FRIENDS_ATTACKS');
-		this.animateFriendsAttacks();
-		this.showTimeCodes && console.timeEnd('TICK_FRIENDS_ATTACKS');
+		this.analyzeWrap('FRIENDS_ATTACKS_ANIMATION', () => this.animateFriendsAttacks());
 
 		//Анимируем вражеские пули
-		this.showTimeCodes && console.time('TICK_ENEMIES_ATTACKS');
-		this.animateEnemiesAttacks();
-		this.showTimeCodes && console.timeEnd('TICK_ENEMIES_ATTACKS');
+		this.analyzeWrap('ENEMIES_ATTACKS_ANIMATION', () => this.animateEnemiesAttacks());
 
 		//Анимируем действия врагов
-		this.showTimeCodes && console.time('TICK_ENEMIES_MOVE');
-		this.animateEnemies();
-		this.showTimeCodes && console.timeEnd('TICK_ENEMIES_MOVE');
+		this.analyzeWrap('ENEMIES_MOVE_ANIMATION', () => this.animateEnemies());
 
 		//Анимируем действия друзей
-		this.showTimeCodes && console.time('TICK_FRIENDS_MOVE');
-		this.animateFriends();
-		this.showTimeCodes && console.timeEnd('TICK_FRIENDS_MOVE');
+		this.analyzeWrap('FRIENDS_MOVE_ANIMATION', () => this.animateFriends());
 
 		//Анимация ретрансляторов
-		this.showTimeCodes && console.time('TICK_RELAYS');
-		this.animateRelays();
-		this.showTimeCodes && console.timeEnd('TICK_RELAYS');
+		this.analyzeWrap('RELAYS_ANIMATION', () => this.animateRelays());
+
+		//Вывод фпс
+		this.analyzeWrap('HTML_FPS', () => this.fpsIndicator.updateView());
 
 		//Анимация хилок
-		this.showTimeCodes && console.time('TICK_DROPS');
-		this.healsContainer.animate([this.ship]);
-		this.expContainer.animate([this.ship]);
-		this.showTimeCodes && console.timeEnd('TICK_DROPS');
-
-		this.healSpawnThrottler(() => {
-
-			let heal = new Heal(this.ship.maxHealth / 4, 0.4);
-			heal.position.x = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
-			heal.position.y = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
-
-			this.healsContainer.addDrop(heal);
-
-		});
-
-		//
-		this.relaysIndicator.updateView();
+		this.analyzeWrap('DROP_ANIMATIONS', () => this.animateDrops());
 
 	}
 
 	public afterTick(){
-		this.fpsIndicator.setValue(this.fps, this.fpsRender);
 	}
 
 }

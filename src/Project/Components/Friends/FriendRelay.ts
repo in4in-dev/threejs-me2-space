@@ -8,6 +8,9 @@ import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 //@ts-ignore
 import {CSS3DObject} from "three/examples/jsm/renderers/CSS3DRenderer";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
+import Sparks from "../Sparks";
+import RelayDestoyAttack from "../Attacks/RelayDestoyAttack";
+import Random from "../../../Three/Random";
 
 export default class FriendRelay extends Mob
 {
@@ -15,9 +18,12 @@ export default class FriendRelay extends Mob
 	public level : number;
 	public letter : string;
 
+	protected relayGroup : THREE.Group;
 	protected mesh : THREE.Group;
 	protected letterMesh : CSS3DObject;
 	protected shield : THREE.Points;
+	protected sparks : Sparks;
+	protected glow : THREE.Sprite;
 
 	protected shieldEnabled : boolean = false;
 	protected shieldStartTime : number = 0;
@@ -35,13 +41,56 @@ export default class FriendRelay extends Mob
 
 		this.level = level;
 		this.letter = letter;
+		this.relayGroup = new THREE.Group;
+
 		this.mesh = this.createBody();
 		this.shield = this.createShield();
 		this.letterMesh = this.createLetter(letter);
+		this.sparks = this.createSparks();
+		this.glow = this.createGlow();
 
-		this.add(this.shield);
-		this.add(this.letterMesh);
-		this.add(this.mesh);
+		this.relayGroup.add(this.shield, this.mesh, this.sparks, this.glow);
+
+		this.add(this.letterMesh, this.relayGroup);
+
+	}
+
+	protected createGlow() : THREE.Sprite
+	{
+
+		let textures = [
+			'../../../../assets/light.png',
+			'../../../../assets/glow.png'
+		];
+
+		let glowTexture = new THREE.TextureLoader().load(Random.arr(textures));
+
+		let glowMaterial = new THREE.SpriteMaterial({
+			map: glowTexture,
+			color: '#2289c4', // Цвет свечения
+			transparent: true,
+			blending: THREE.AdditiveBlending,
+			depthWrite:false,
+			opacity: Random.float(0.4, 0.8)
+		});
+
+		let glowSprite = new THREE.Sprite(glowMaterial);
+		glowSprite.scale.set(12, Random.int(6, 12), 12);
+
+		// glowSprite.position.y = -2;
+		glowSprite.position.x = 0;
+
+		return glowSprite;
+	}
+
+	protected createSparks() : Sparks
+	{
+		let sparks = new Sparks(0.2, '#04334f', 0.4);
+
+		sparks.position.y = -0.5;
+		// sparks.position.x = -2;
+
+		return sparks;
 	}
 
 	protected createLetter(letter : string) : CSS3DObject
@@ -52,7 +101,7 @@ export default class FriendRelay extends Mob
 		wrap.textContent = letter;
 
 		let label = new CSS3DObject(wrap);
-		label.position.set(-10, -9, 5);
+		label.position.set(-10, -9, 7);
 
 		label.scale.set(0.05, 0.05, 0.05);
 		label.rotation.x = Math.PI * 1.5;
@@ -64,11 +113,12 @@ export default class FriendRelay extends Mob
 	}
 
 	public rotateRelay(angle : number){
-		this.mesh.rotation.y = angle;
-		this.letterMesh.rotation.y = angle + Math.PI;
+		this.relayGroup.rotation.z= angle;
+		this.letterMesh.rotation.y = -angle;
 	}
 
-	protected generateShieldGeometry(radius : number){
+	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
+	{
 
 		// Установить необходимые параметры
 		// let outerRadius = radius;
@@ -160,6 +210,8 @@ export default class FriendRelay extends Mob
 
 		}
 
+		this.sparks.rotation.x += 0.1; //Math.random() * Math.PI * 3;
+
 	}
 
 	public hit(damage : number) : boolean
@@ -185,7 +237,16 @@ export default class FriendRelay extends Mob
 	protected explosion() {
 		super.explosion();
 
+		this.relayGroup.remove(this.sparks);
 		this.remove(this.letterMesh);
+
+		let attack = new RelayDestoyAttack(
+			this.position,
+			200000
+		);
+
+		this.attacksContainer.addAttacks(attack);
+
 	}
 
 	fire(to: Vector3): void {}

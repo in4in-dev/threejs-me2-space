@@ -1,37 +1,28 @@
 import HtmlComponent from "../Core/HtmlComponent";
+import Experienced from "../Contracts/Experienced";
 
 export default class ExpHtmlViewer extends HtmlComponent
 {
 
 	public element : HTMLElement;
 
-	protected experience : number;
+	protected ship : Experienced;
 
-	constructor(initExperience : number) {
+	constructor(ship : Experienced) {
 
 		super();
 
-		this.experience = initExperience;
+		this.ship = ship;
 
 		this.element = this.createElement(`
 			<div class="ship-exp"><i class="ship-exp__icon"></i><span class="ship-exp__value"></span></div>
 		`)
 
-		this.updateView();
-
 	}
 
-	protected updateView(){
+	public updateView(){
 
-		(<HTMLElement>this.element.querySelector('.ship-exp__value')).textContent = this.experience.toString();
-
-	}
-
-	public setValue(experience : number){
-
-		this.experience = experience;
-
-		this.updateView();
+		(<HTMLElement>this.element.querySelector('.ship-exp__value')).textContent = this.ship.experience.toString();
 
 	}
 

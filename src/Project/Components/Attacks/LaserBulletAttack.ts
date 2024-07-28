@@ -92,6 +92,53 @@ export default class LaserBulletAttack extends Attack
 
 	}
 
+	protected createBox3Helper(box: THREE.Box3, color: number = 0xff0000): THREE.LineSegments {
+		const vertices = new Float32Array([
+			box.min.x, box.min.y, box.min.z,
+			box.max.x, box.min.y, box.min.z,
+
+			box.min.x, box.min.y, box.min.z,
+			box.min.x, box.max.y, box.min.z,
+
+			box.min.x, box.min.y, box.min.z,
+			box.min.x, box.min.y, box.max.z,
+
+			box.max.x, box.max.y, box.max.z,
+			box.min.x, box.max.y, box.max.z,
+
+			box.max.x, box.max.y, box.max.z,
+			box.max.x, box.min.y, box.max.z,
+
+			box.max.x, box.max.y, box.max.z,
+			box.max.x, box.max.y, box.min.z,
+
+			box.min.x, box.max.y, box.max.z,
+			box.min.x, box.max.y, box.min.z,
+
+			box.min.x, box.max.y, box.max.z,
+			box.min.x, box.min.y, box.max.z,
+
+			box.max.x, box.min.y, box.max.z,
+			box.max.x, box.min.y, box.min.z,
+
+			box.max.x, box.max.y, box.min.z,
+			box.max.x, box.min.y, box.min.z,
+
+			box.min.x, box.max.y, box.min.z,
+			box.min.x, box.min.y, box.min.z,
+
+			box.min.x, box.min.y, box.max.z,
+			box.min.x, box.max.y, box.max.z,
+		]);
+
+		const geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+		const material = new THREE.LineBasicMaterial({ color: color });
+
+		return new THREE.LineSegments(geometry, material);
+	}
+
 
 	public checkCollisionWith(object : THREE.Object3D) : boolean
 	{

@@ -9,6 +9,13 @@ export default class DropContainer<T extends THREE.Object3D, D extends Drop<T>> 
 
 	protected drops : D[] = [];
 
+	protected whoCanUse : T[];
+
+	constructor(whoCanUse : T[] = []) {
+		super();
+		this.whoCanUse = whoCanUse;
+	}
+
 	public addDrop(...drops : D[]){
 
 		this.add(...drops);
@@ -16,11 +23,15 @@ export default class DropContainer<T extends THREE.Object3D, D extends Drop<T>> 
 
 	}
 
-	public animate(canBeHealed : T[] = []){
+	public updateWhoCanUse(whoCanUse : T[]){
+		this.whoCanUse = whoCanUse;
+	}
+
+	public animate(){
 
 		this.drops.forEach(heal => {
 
-			canBeHealed.some(obj => {
+			this.whoCanUse.some(obj => {
 
 				let distance = heal.position.distanceTo(obj.position);
 

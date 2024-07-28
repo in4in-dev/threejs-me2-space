@@ -1,49 +1,29 @@
 import HtmlComponent from "../Core/HtmlComponent";
+import Healthy from "../Contracts/Healthy";
 
 export default class HpHtmlViewer extends HtmlComponent
 {
 
 	public element : HTMLElement;
 
-	protected health : number;
-	protected maxHealth : number;
+	protected ship : Healthy;
 
-	constructor(initHealth : number, maxHealth : number) {
+	constructor(ship : Healthy) {
 
 		super();
 
-		this.health = initHealth;
-		this.maxHealth = maxHealth;
+		this.ship = ship;
 
 		this.element = this.createElement(`
 			<div class="ship-hp"><div class="ship-hp__bar"></div></div>
 		`)
 
-		this.updateView();
-
 	}
 
-	protected updateView(){
+	public updateView(){
 
-		(<HTMLElement>this.element.querySelector('.ship-hp__bar')).style.width = (this.health / this.maxHealth * 100).toFixed(2) + '%';
-
-	}
-
-	public setHealth(health : number){
-
-		this.health = health;
-
-		this.updateView();
+		(<HTMLElement>this.element.querySelector('.ship-hp__bar')).style.width = (this.ship.health / this.ship.maxHealth * 100).toFixed(2) + '%';
 
 	}
-
-	public setMaxHealth(health : number){
-
-		this.maxHealth = health;
-
-		this.updateView();
-
-	}
-
 
 }

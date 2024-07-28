@@ -11,5 +11,7 @@ export default abstract class HtmlComponent
 
 	}
 
+	public abstract updateView() : void;
+
 
 }

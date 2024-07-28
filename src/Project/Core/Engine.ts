@@ -20,8 +20,10 @@ export default abstract class Engine
 	public css3DRenderer : CSS3DRenderer;
 
 	protected ticks : number = 0;
-	protected fps : number = 0;
-	protected fpsRender : number = 0;
+	protected ticksRender : number = 0;
+
+	public fps : number = 0;
+	public fpsRender : number = 0;
 
 	protected active : boolean = false;
 
@@ -78,7 +80,8 @@ export default abstract class Engine
 
 		let animate = async () => {
 
-			let startTime = Date.now();
+			let startTime = Date.now(),
+				tick =  ++this.ticks;
 
 			if(this.active){
 				ModelLoader.runBackgroundTasks();
@@ -86,11 +89,15 @@ export default abstract class Engine
 
 			this.tick();
 			this.slowTickThrottler(() => this.slowTick());
-			this.ticks++;
 			this.afterTick();
 
-
+			//@TODO fps
+			let renderTick = ++this.ticksRender;
 			requestAnimationFrame(() => {
+
+				if(this.ticksRender !== renderTick){
+					return;
+				}
 
 				let renderStartTime = Date.now();
 

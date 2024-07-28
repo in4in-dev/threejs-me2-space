@@ -194,7 +194,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		if(this.fireLevel > 1) {
 
 			let bullet1 = new LaserBulletAttack(
-				new Vector3(this.position.x + 0.3, this.position.y - 0.3, -1),
+				new Vector3(this.position.x + 0.3, this.position.y - 0.3, -0.5),
 				to,
 				Random.int(this.fireLevel, this.fireLevel * 10),
 				this.bulletColor,
@@ -202,7 +202,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 			);
 
 			let bullet2 = new LaserBulletAttack(
-				new Vector3(this.position.x - 0.3, this.position.y - 0.3, -1),
+				new Vector3(this.position.x - 0.3, this.position.y - 0.3, -0.5),
 				to,
 				Random.int(this.fireLevel, this.fireLevel * 5),
 				this.bulletColor,
@@ -215,7 +215,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 
 			let bullet = new LaserBulletAttack(
-				new Vector3(this.position.x, this.position.y - 0.3, -1),
+				new Vector3(this.position.x, this.position.y - 0.3, -0.5),
 				to,
 				Random.int(this.fireLevel, this.fireLevel * 5),
 				this.bulletColor,

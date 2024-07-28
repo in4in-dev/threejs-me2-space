@@ -46,6 +46,8 @@ export default class MobsContainer<M extends Mob = Mob> extends Component
 
 		this.clearDiedMobs();
 
+		this.getAliveMobs().forEach(mob => mob.animate());
+
 	}
 
 }

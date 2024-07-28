@@ -1,17 +1,18 @@
 import HtmlComponent from "../Core/HtmlComponent";
+import Engine from "../Core/Engine";
 
 export default class FpsHtmlViewer extends HtmlComponent
 {
 
 	public element : HTMLElement;
 
-	protected fps : number = 0;
-	protected fpsRender : number = 0;
+	protected engine : Engine;
 
-	constructor() {
+	constructor(engine : Engine) {
 
 		super();
 
+		this.engine = engine;
 		this.element = this.createElement('<div class="fps"></div>');
 
 	}
@@ -29,11 +30,9 @@ export default class FpsHtmlViewer extends HtmlComponent
 
 	}
 
-	public setValue(fps : number, fpsRender : number){
+	public updateView(){
 
-		this.fps = fps;
-		this.fpsRender = fpsRender;
-		this.element.textContent = `${this.prepare(fps, 5)} (Render: ${this.prepare(fpsRender, 5)})`;
+		this.element.textContent = `${this.prepare(this.engine.fps, 5)} (Render: ${this.prepare(this.engine.fpsRender, 5)})`;
 
 	}
 

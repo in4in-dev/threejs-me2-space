@@ -23,7 +23,12 @@ export default class HitBox extends Box3
 		let item = HitBox.cachedTargets.find(cache => cache.target === object);
 
 		if(item){
-			return new Box3().setFromCenterAndSize(object.position, item.size);
+
+			let position = new Vector3;
+
+			object.getWorldPosition(position)
+
+			return new Box3().setFromCenterAndSize(position, item.size);
 		}
 
 		let box = HitBox.getBox3(object);

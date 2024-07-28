@@ -106,43 +106,31 @@ export default class Skill
 
 	public initListeners(){
 
-		if(this.canBeHold) {
 
-			window.addEventListener('keydown', (event) => {
+		window.addEventListener('keydown', (event) => {
 
-				if (event.code === this.keyCode) {
+			if (event.code === this.keyCode) {
 
-					event.preventDefault();
+				event.preventDefault();
 
+				if(this.canBeHold) {
 					this.isKeyHold = this.isAvailable();
-
 				}
 
-			});
+				this.isKeyPressed = this.isAvailable();
 
-			window.addEventListener('keyup', (event) => {
+			}
 
-				if (event.code === this.keyCode) {
-					this.isKeyHold = false;
-				}
+		});
 
-			});
+		window.addEventListener('keyup', (event) => {
 
-		}else{
+			if (event.code === this.keyCode) {
+				this.isKeyHold = false;
+			}
 
-			window.addEventListener('keypress', (event) => {
+		});
 
-				if (event.code === this.keyCode) {
-
-					event.preventDefault();
-
-					this.isKeyPressed = this.isAvailable();
-
-				}
-
-			});
-
-		}
 
 	}
 
