@@ -144,7 +144,7 @@ export default class Skill
 							this.isActive = false;
 						}
 
-					}, 500);
+					}, 1000);
 
 				}
 

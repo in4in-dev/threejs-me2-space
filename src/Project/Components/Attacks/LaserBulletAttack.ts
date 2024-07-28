@@ -4,6 +4,10 @@ import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import {Animation} from "../../../Three/Animation";
 
+interface CachedTarget{
+
+}
+
 export default class LaserBulletAttack extends Attack
 {
 
@@ -22,6 +26,8 @@ export default class LaserBulletAttack extends Attack
 	protected maxDistanceDamage : number = 50;
 
 	protected lastPosition : Vector3;
+
+	protected cachedTargets : CachedTarget[] = [];
 
 	constructor(
 		from : Vector3,
@@ -96,9 +102,11 @@ export default class LaserBulletAttack extends Attack
 	{
 
 		let objectBox = new THREE.Box3().setFromObject(object);
-		let bulletBox = new THREE.Box3().setFromObject(this);
+		// let bulletBox = new THREE.Box3().setFromObject(this);
+		// return bulletBox.intersectsBox(objectBox)
 
-		return bulletBox.intersectsBox(objectBox)
+		return objectBox.containsPoint(this.position);
+
 
 	}
 
