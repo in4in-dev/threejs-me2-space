@@ -318,12 +318,12 @@ body{
 
 .relays__item-health{
     width: 70px;
-    height: 5px;
+    height: 7px;
     display: block;
     background: black;
     margin-left: 10px;
     overflow: hidden;
-    border: 2px solid black;
+    /*border: 2px solid black;*/
 }
 
 .relays__item-health-bar{
@@ -332,7 +332,7 @@ body{
 }
 
 .relays__item-health-bar--green{
-    background: #37b41b;
+    background: linear-gradient(to right, #37b41b, #1e770b);
 }
 
 .relays__item-health-bar--red{

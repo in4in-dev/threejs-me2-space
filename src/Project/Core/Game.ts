@@ -182,7 +182,7 @@ export default class Game extends Engine
 			this.mousePositionX = event.clientX;
 			this.mousePositionY = event.clientY;
 
-			if(this.shipMovingAllow){
+			if(this.shipMovingAllow && (<HTMLElement>event.target).tagName !== 'BUTTON'){
 				this.shipMovingActive = true;
 				this.ship.startEngines();
 			}
