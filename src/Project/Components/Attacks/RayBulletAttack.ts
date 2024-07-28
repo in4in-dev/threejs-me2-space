@@ -1,5 +1,5 @@
-import {Object3D, Vector3} from "three";
 import * as THREE from "three";
+import {Object3D, Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";

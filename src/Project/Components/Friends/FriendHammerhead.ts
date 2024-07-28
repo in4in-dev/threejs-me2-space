@@ -1,8 +1,8 @@
 import Mob from "../Mob";
 import * as THREE from "three";
+import {Vector3} from "three";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import ModelLoader from "../../../Three/ModelLoader";
-import {Vector3} from "three";
 import LaserBulletAttack from "../Attacks/LaserBulletAttack";
 import Random from "../../../Three/Random";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";

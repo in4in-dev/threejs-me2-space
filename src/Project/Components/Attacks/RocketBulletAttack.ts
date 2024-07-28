@@ -1,5 +1,5 @@
-import {Vector3} from "three";
 import * as THREE from "three";
+import {Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import Sparks from "../Sparks";
@@ -16,9 +16,11 @@ export default class RocketBulletAttack extends Attack
 
 	protected explosionTime : number = 2000;
 	protected explosionStartTime : number = 0;
-	protected explosionRadius : number = 0;
-	protected explosionMaxRadius : number = 15;
+	protected explosionRadius : number = 15;
 	protected explosionPoint : Vector3 | null = null;
+
+	protected addictiveSpeed : number = 0.06;
+	protected addictiveRadius : number = 25;
 
 	protected damagedEnemies : Hittable[] = [];
 
@@ -32,7 +34,7 @@ export default class RocketBulletAttack extends Attack
 		super(from.clone(), force);
 
 		this.to = to.clone();
-		this.explosionMaxRadius = radius;
+		this.explosionRadius = radius;
 
 		this.mesh = this.createMesh();
 		this.glow = this.createGlow();
@@ -107,23 +109,41 @@ export default class RocketBulletAttack extends Attack
 				explosionProgress = progress >= 0.5 ? (1 - progress) : progress,
 				damageMultiplier = (1 - progress);
 
-			let radius = explosionProgress * this.explosionMaxRadius;
+			let radius = explosionProgress * this.explosionRadius;
 
 			this.mesh.scale.set(radius , radius, radius);
 			this.glow.scale.set(radius * 0.5, radius * 0.5, radius * 0.5);
 
-			this.explosionRadius = radius;
-
 			//Раним врагов
 			enemiesObjects.forEach(enemy => {
 
+				let distance = enemy.position.distanceTo(this.explosionPoint!);
+
 				if(
 					this.damagedEnemies.indexOf(enemy) < 0 &&
-					enemy.position.distanceTo(this.explosionPoint!) <= this.explosionRadius
+					distance <= radius
 				){
 					enemy.hit(Math.ceil(this.force * damageMultiplier));
 					this.damagedEnemies.push(enemy);
 				}
+
+				//Затягиваем в центр
+				if(distance <= this.addictiveRadius){
+
+					let direction = new Vector3().subVectors(this.explosionPoint!, enemy.position);
+
+					if(direction.length() > 0.1){
+
+						direction.normalize();
+
+						enemy.position.add(
+							direction.multiplyScalar(this.addictiveSpeed)
+						);
+
+					}
+
+				}
+
 
 			});
 

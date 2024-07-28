@@ -1,7 +1,5 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
-import Heal from "./../Components/Heal";
-import Healthy from "../Contracts/Healthy";
 import Drop from "../Components/Drop";
 
 export default class DropContainer<T extends THREE.Object3D, D extends Drop<T>> extends Component

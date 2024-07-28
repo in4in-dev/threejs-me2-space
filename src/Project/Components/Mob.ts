@@ -1,16 +1,14 @@
-import * as THREE from 'three';
+import {Object3D} from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import WarShip from "./WarShip";
-import {Object3D, Vector3} from "three";
 import AttacksContainer from "./../Containers/AttacksContainer";
 import Random from "../../Three/Random";
 import Hittable from "./../Contracts/Hittable";
 import {Animation, AnimationThrottler} from "../../Three/Animation";
 import Healthy from "./../Contracts/Healthy";
-import FriendHammerhead from "./Friends/FriendHammerhead";
 
 export default abstract class Mob extends WarShip implements Hittable, Healthy
 {

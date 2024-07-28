@@ -1,17 +1,16 @@
 import WarShip from "../../WarShip";
 import * as THREE from "three";
+import {Vector3} from "three";
 import ModelLoader from "../../../../Three/ModelLoader";
 import NormandyEngine from "./NormandyEngine";
 import NormandyEngines from "./NormandyEngines";
 import AttacksContainer from "../../../Containers/AttacksContainer";
 import Hittable from "../../../Contracts/Hittable";
-import {Vector3} from "three";
 import Random from "../../../../Three/Random";
 import LaserBulletAttack from "../../Attacks/LaserBulletAttack";
 import ShockWaveAttack from "../../Attacks/ShockWaveAttack";
 import Healthy from "../../../Contracts/Healthy";
 import RocketBulletAttack from "../../Attacks/RocketBulletAttack";
-import Enemy from "../../Enemy";
 import Experienced from "../../../Contracts/Experienced";
 
 export class NormandyShip extends WarShip implements Hittable, Healthy, Experienced
@@ -23,6 +22,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 	protected mesh : THREE.Group;
 	protected light : THREE.Light;
+	protected shield : THREE.Points;
 	protected engines : NormandyEngines;
 
 	protected bulletColor : any = '#ffffff';
@@ -31,13 +31,17 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 	protected rocketAttackTarget : THREE.Object3D | null = null;
 	protected rocketAttackBullet : RocketBulletAttack | null = null;
 
+	protected shieldActive : boolean = false;
+	protected shieldStartTime : number = 0;
+	protected shieldEndTime : number = 0;
+
 	protected shockwaveAttackBullet : ShockWaveAttack | null = null;
 
 	public fireLevel : number = 1;
 	public shockWaveLevel : number = 1;
 	public rocketLevel : number = 1;
 	public healthLevel : number = 1;
-
+	public shieldLevel : number = 1;
 
 	constructor(bulletGroup : AttacksContainer) {
 
@@ -49,11 +53,12 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		this.light = this.createLight();
 		this.engines = this.createEngines();
 		this.mesh = this.createBody();
+		this.shield = this.createShield();
 
 		//Добавляем на сцену
 		this.mesh.add(this.engines.l1, this.engines.l2, this.engines.r1, this.engines.r2);
 
-		this.add(this.mesh, this.light);
+		this.add(this.mesh, this.light, this.shield);
 
 
 	}
@@ -181,10 +186,81 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 		}
 
+
+		if(this.shieldActive){
+
+			if(this.shieldEndTime <= Date.now()){
+				this.shieldActive = false;
+				(<THREE.PointsMaterial>this.shield.material).opacity = 0;
+			}else{
+
+				//Анимируем щит
+				let shieldDuration = (this.shieldEndTime - this.shieldStartTime),
+					progress = (Date.now() - this.shieldStartTime) / shieldDuration,
+					explosionDuration = 500 / shieldDuration,
+					explosionProgress = progress < explosionDuration
+						? (progress / explosionDuration)
+						: progress > (1 - explosionDuration)
+							? ((1 - progress) / explosionDuration)
+							: 1;
+
+				let radius = explosionProgress * 3;
+
+				let outSideSphere = this.generateShieldGeometry(radius);
+
+				this.shield.geometry.copy(outSideSphere);
+				(<THREE.PointsMaterial>this.shield.material).opacity = 1;
+
+			}
+
+		}
+
+	}
+
+	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
+	{
+
+		let points = [];
+		for (let i = 0; i < 5000; i++) {
+			let phi = Math.acos(2 * Math.random() - 1);
+			let theta = 2 * Math.PI * Math.random();
+			let x = radius * Math.sin(phi) * Math.cos(theta);
+			let y = radius * Math.sin(phi) * Math.sin(theta);
+			let z = radius * Math.cos(phi);
+			points.push(new THREE.Vector3(x, y, z));
+		}
+
+		return new THREE.BufferGeometry().setFromPoints(points);
+
+
+	}
+
+	protected createShield() : THREE.Points
+	{
+
+		let particleTexture = new THREE.TextureLoader().load('../../../../assets/sand.png');
+
+		return new THREE.Points(
+			this.generateShieldGeometry(0),
+			new THREE.PointsMaterial({
+				transparent : true,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				color : '#2289c4',
+				// opacity: 0.25,
+				size : 0.1 ,
+				map : particleTexture,
+				opacity : 0
+			})
+		);
 	}
 
 	public hit(x : number){
-		this.health = Math.max(0, this.health - x);
+
+		if(!this.shieldActive) {
+			this.health = Math.max(0, this.health - x);
+		}
+
 	}
 
 	public fire(){
@@ -266,6 +342,14 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		this.rocketAttackBullet = bullet;
 
 		this.attacksContainer.addAttacks(bullet);
+
+	}
+
+	public activateShield(time : number){
+
+		this.shieldActive = true;
+		this.shieldStartTime = Date.now();
+		this.shieldEndTime = this.shieldStartTime + time;
 
 	}
 

@@ -1,11 +1,11 @@
 import Engine from "./Engine";
 import * as THREE from "three";
+import {Vector3} from "three";
 import Sun from "../Components/Sun";
 import Background from "../Components/Background";
 import Orbit from "../Components/Orbit";
 import AsteroidBelt from "../Components/AsteroidBelt";
 import Border from "../Components/Border";
-import {AxesHelper, Vector3} from "three";
 import Mob from "../Components/Mob";
 import EnemyReaper from "../Components/Enemies/EnemyReaper";
 import {NormandyShip} from "../Components/Ships/Normandy/NormandyShip";
@@ -41,6 +41,7 @@ export default class Game extends Engine
 	protected skillRocket : Skill;
 	protected skillSpawnFriend : Skill;
 	protected skillRelayShield : Skill;
+	protected skillShield : Skill;
 
 	//Позиция мыши
 	protected mousePositionX : number = 0;
@@ -123,6 +124,14 @@ export default class Game extends Engine
 		this.healsContainer = new DropContainer<Healthy, Heal>([this.ship]);
 		this.expContainer   = new DropContainer<Experienced, Experience>([this.ship]);
 
+		//@TODO убрать отсюда
+		this.addRelay('A', new Vector3(10, 10, 0))
+		this.addRelay('B', new Vector3(20, -20, 0))
+		this.addRelay('C', new Vector3(0, -60, 0))
+		this.addRelay('D', new Vector3(-60, 10, 0))
+		this.addRelay('E', new Vector3(50, 40, 0))
+		this.addRelay('F', new Vector3(50, -50, 0))
+
 		//HTML-интерфейс
 		this.shipHpIndicator = new HpHtmlViewer(this.ship);
 		this.expIndicator = new ExpHtmlViewer(this.ship);
@@ -137,6 +146,7 @@ export default class Game extends Engine
 		this.skillSpawnFriend    = new Skill('F', 'KeyF', 5000, false, this.friendsMaxCount);
 		this.skillRocket         = new Skill('E', 'KeyE', 20000);
 		this.skillRelayShield    = new Skill('G', 'KeyG', 90000);
+		this.skillShield         = new Skill('Z', 'KeyZ', 30000);
 
 		let costCounter = (level : () => number, costs : number[]) => {
 			return () => {
@@ -166,6 +176,9 @@ export default class Game extends Engine
 			.addSkill('shield', this.skillRelayShield, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
 				this.relaysLevel++;
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
+			})
+			.addSkill('shield', this.skillShield, costCounter(() => this.ship.shieldLevel, [10000, 20000, 30000, 50000]), () => {
+				this.ship.shieldLevel++;
 			});
 
 
@@ -223,7 +236,8 @@ export default class Game extends Engine
 			this.skillRocket,
 			this.skillFire,
 			this.skillShockwave,
-			this.skillRelayShield
+			this.skillRelayShield,
+			this.skillShield
 		].forEach(skill => skill.initListeners());
 
 	}
@@ -267,13 +281,6 @@ export default class Game extends Engine
 		if(this.showAxis){
 			this.showAxisHelper();
 		}
-
-		this.addRelay('A', new Vector3(10, 10, 0))
-		this.addRelay('B', new Vector3(20, -20, 0))
-		this.addRelay('C', new Vector3(0, -60, 0))
-		this.addRelay('D', new Vector3(-60, 10, 0))
-		this.addRelay('E', new Vector3(50, 40, 0))
-		this.addRelay('F', new Vector3(50, -50, 0))
 
 	}
 
@@ -514,6 +521,9 @@ export default class Game extends Engine
 	protected animateSkills(){
 
 		//@TODO не красиво
+
+		//Щит
+		this.skillShield.useIfNeed(() => this.ship.activateShield(this.ship.shieldLevel * 4000))
 
 		//Стрельба из корабля
 		this.skillFire.useIfNeed(() => this.ship.fire());

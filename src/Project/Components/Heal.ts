@@ -1,7 +1,4 @@
-import Component from "../Core/Component";
 import * as THREE from 'three';
-import {Vector3} from "three";
-import Random from "../../Three/Random";
 import Drop from "./Drop";
 import Healthy from "../Contracts/Healthy";
 

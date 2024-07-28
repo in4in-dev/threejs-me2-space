@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import {Scene, Vector3} from "three";
+import {Vector3} from 'three';
 import ModelLoader from "../../../Three/ModelLoader";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import RayBulletAttack from "../Attacks/RayBulletAttack";
-import Random from "../../../Three/Random";
 import DropContainer from "../../Containers/DropContainer";
 import Enemy from "../Enemy";
 import Healthy from "../../Contracts/Healthy";

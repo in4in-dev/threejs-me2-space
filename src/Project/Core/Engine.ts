@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {WebGLRenderer} from "three";
+import {WebGLRenderer} from 'three';
 //@ts-ignore
 import {CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import * as TWEEN from '@tweenjs/tween.js';
@@ -91,15 +91,14 @@ export default abstract class Engine
 			this.slowTickThrottler(() => this.slowTick());
 			this.afterTick();
 
-			//@TODO fps
-			let renderTick = ++this.ticksRender;
+			let renderStartTime = Date.now(),
+				renderTick = ++this.ticksRender;
+
 			requestAnimationFrame(() => {
 
 				if(this.ticksRender !== renderTick){
 					return;
 				}
-
-				let renderStartTime = Date.now();
 
 				this.webGLRenderer.render(this.scene, this.camera);
 				this.css2DRenderer.render(this.scene, this.camera);

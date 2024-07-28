@@ -1,8 +1,7 @@
-import {Vector3} from "three";
 import * as THREE from "three";
+import {Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
-import Sparks from "../Sparks";
 
 export default class RelayDestoyAttack extends Attack
 {

@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import Asteroid from "./Asteroid";
 import Component from "../Core/Component";
 import Belt from "./Belt";

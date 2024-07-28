@@ -78,6 +78,7 @@ export default class RelaysHtmlViewer extends HtmlComponent
 
 	}
 
+
 	public updateView(){
 
 		this.childrens.forEach(child => child.updateView());

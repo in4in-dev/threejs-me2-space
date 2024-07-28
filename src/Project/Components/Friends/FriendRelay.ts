@@ -1,6 +1,6 @@
 import Mob from "../Mob";
-import {Vector3} from "three";
 import * as THREE from "three";
+import {Vector3} from "three";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import ModelLoader from "../../../Three/ModelLoader";
 //@ts-ignore
@@ -154,7 +154,8 @@ export default class FriendRelay extends Mob
 				color : '#2289c4',
 				// opacity: 0.25,
 				size : 0.3 ,
-				map : particleTexture
+				map : particleTexture,
+				opacity : 0
 			})
 		);
 	}
@@ -188,9 +189,12 @@ export default class FriendRelay extends Mob
 
 		if(now > this.shieldEndTime){
 			this.shieldEnabled = false;
+			(<THREE.PointsMaterial>this.shield.material).opacity = 0;
 		}
 
 		if(this.shieldEnabled){
+
+			(<THREE.PointsMaterial>this.shield.material).opacity = 1;
 
 			//Анимируем щит
 			let shieldDuration = (this.shieldEndTime - this.shieldStartTime),

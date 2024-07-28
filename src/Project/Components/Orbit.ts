@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {Curve, Vector3} from "three";
+import {Curve, Vector3} from 'three';
 import Component from "../Core/Component";
 
 export default class Orbit extends Component

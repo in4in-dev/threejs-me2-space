@@ -1,7 +1,6 @@
 import Component from "../Core/Component";
 import * as THREE from 'three';
-import {Vector3} from "three";
-import Random from "../../Three/Random";
+import {Vector3} from 'three';
 
 export default abstract class Drop<T extends THREE.Object3D> extends Component
 {

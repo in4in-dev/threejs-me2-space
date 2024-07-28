@@ -1,5 +1,4 @@
 import Component from "../Core/Component";
-import * as THREE from 'three';
 import Mob from "../Components/Mob";
 
 

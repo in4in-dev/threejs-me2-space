@@ -1,8 +1,7 @@
-import {AxesHelper, Box3, Euler, Object3D, Vector3} from "three";
 import * as THREE from "three";
+import {Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
-import {Animation} from "../../../Three/Animation";
 import HitBox from "../../Core/HitBox";
 
 export default class LaserBulletAttack extends Attack
@@ -117,7 +116,7 @@ export default class LaserBulletAttack extends Attack
 		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#757575');
 		this.glow.material.color.set('#888888');
 		this.glow.material.opacity = 0.2;
-		this.glow.scale.set(8, 4, 4);
+		this.glow.scale.set(8 / 0.5, 4 / 3, 4 / 0.3);
 
 		this.stopMoving();
 

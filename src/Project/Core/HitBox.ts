@@ -1,5 +1,5 @@
-import {Box3, Object3D, Vector3} from "three";
 import * as THREE from "three";
+import {Box3, Object3D, Vector3} from "three";
 
 interface HitBoxCacheItem{
 	target : Object3D,

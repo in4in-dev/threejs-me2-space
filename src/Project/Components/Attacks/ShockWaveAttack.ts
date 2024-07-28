@@ -1,6 +1,6 @@
 import Attack from "../Attack";
+import * as THREE from "three";
 import {Object3D, Vector3} from "three";
-import * as THREE from 'three';
 import Hittable from "../../Contracts/Hittable";
 import Random from "../../../Three/Random";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";

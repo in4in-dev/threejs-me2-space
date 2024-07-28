@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {Vector3} from "three";
+import {Vector3} from 'three';
 // @ts-ignore
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 // @ts-ignore

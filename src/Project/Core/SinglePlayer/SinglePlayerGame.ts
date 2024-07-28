@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import Sun from "../../Components/Sun";
 import Planet from "../../Components/Planet";
 import Background from "../../Components/Background";

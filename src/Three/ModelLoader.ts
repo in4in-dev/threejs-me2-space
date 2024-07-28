@@ -1,9 +1,9 @@
 import * as THREE from 'three';
+import {Object3D} from 'three';
 //@ts-ignore
 import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 //@ts-ignore
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import {Object3D} from "three";
 //@ts-ignore
 import {TGALoader} from "three/examples/jsm/loaders/TGALoader";
 //@ts-ignore
