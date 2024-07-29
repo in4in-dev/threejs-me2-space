@@ -10,10 +10,9 @@ class SkillsHtmlRow extends HtmlComponent
 	protected ship : Experienced;
 	protected code : string;
 	protected skill : Skill;
-	protected cost : () => number;
 	protected onUpgrade : () => void;
 
-	constructor(ship : Experienced, code : string, cost : () => number, skill : Skill, onUpgrade : () => void) {
+	constructor(ship : Experienced, code : string, skill : Skill, onUpgrade : () => void) {
 
 		super();
 
@@ -24,15 +23,14 @@ class SkillsHtmlRow extends HtmlComponent
 			<i class="skills__row-picture skills__row-picture--${code}"></i>
 			<span class="skills__row-key">${skill.key}</span>
 			<span class="skills__row-increment" style="display: ${(skill.maximumUses === Infinity) ? 'none' : 'block'}">(<span class="skills__row-increment-value"></span>/<span class="skills__row-increment-max"></span>)</span>
-			<span class="skills__row-level">Level <span class="skills__row-level-value">${skill.level}</span></span>
-			<button type="button" class="skills__row-upgrade">${cost()}</button>
+			<span class="skills__row-level">Level <span class="skills__row-level-value"></span></span>
+			<button type="button" class="skills__row-upgrade"></button>
 		`;
 
 		this.ship = ship;
 		this.element = row;
 		this.onUpgrade = onUpgrade;
 		this.skill = skill;
-		this.cost = cost;
 		this.code = code;
 
 		this.initListeners();
@@ -61,8 +59,8 @@ class SkillsHtmlRow extends HtmlComponent
 			this.element.querySelector('.skills__row-increment-max')!.textContent = this.skill.maximumUses.toString();
 		}
 
-		this.element.querySelector('.skills__row-upgrade')!.textContent = this.cost().toString();
-		this.element.querySelector('.skills__row-upgrade')!.classList.toggle('skills__row-upgrade--disabled', this.ship.experience < this.cost());
+		this.element.querySelector('.skills__row-upgrade')!.textContent = this.skill.getCostNextLevel().toString();
+		this.element.querySelector('.skills__row-upgrade')!.classList.toggle('skills__row-upgrade--disabled', this.ship.experience < this.skill.getCostNextLevel());
 		this.element.querySelector('.skills__row-level-value')!.textContent = this.skill.level.toString();
 
 
@@ -87,12 +85,12 @@ export default class SkillsHtmlViewer extends HtmlComponent
 
 	}
 
-	public addSkill(code : string, skill : Skill, cost : () => number, onUpgrade : () => void) : this
+	public addSkill(code : string, skill : Skill, onUpgrade : () => void) : this
 	{
 
-		let skillRow = new SkillsHtmlRow(this.ship, code, cost, skill, () => {
+		let skillRow = new SkillsHtmlRow(this.ship, code, skill, () => {
 
-			if(this.ship.spendExp(cost())){
+			if(this.ship.spendExp(skill.getCostNextLevel())){
 				skill.upLevel();
 				onUpgrade();
 			}

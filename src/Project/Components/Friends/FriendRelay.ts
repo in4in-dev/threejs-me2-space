@@ -60,8 +60,8 @@ export default class FriendRelay extends Mob
 	{
 
 		let mesh = new THREE.Mesh(
-			new THREE.CircleGeometry(0.2, 1, 1),
-			new THREE.MeshBasicMaterial({transparent : true, opacity : 0})
+			new THREE.BoxGeometry(0.1, 0.1),
+			new THREE.MeshBasicMaterial({transparent : true, opacity : 0, color : 'white'})
 		);
 
 		mesh.position.z = 6;

@@ -9,6 +9,7 @@ export default class Skill
 	public maximumUses : number;
 	public cooldown : number;
 	public level : number = 1;
+	public costs : number[];
 
 	protected throttler : AnimationThrottler;
 
@@ -18,16 +19,35 @@ export default class Skill
 
 	protected canBeHold : boolean = true;
 
-	constructor(key : string, keyCode : string, cooldown : number, canBeHold : boolean = false, maximumUses : number = Infinity) {
+	constructor(
+		key : string,
+		keyCode : string,
+		cooldown : number,
+		costs : number[],
+		canBeHold : boolean = false,
+		maximumUses : number = Infinity
+	) {
 
 		this.key = key;
 		this.keyCode = keyCode;
+		this.costs = costs;
 		this.cooldown = cooldown;
 		this.availableUses = maximumUses;
 		this.maximumUses = maximumUses;
 		this.canBeHold = canBeHold;
 
 		this.throttler = Animation.createThrottler(cooldown);
+
+	}
+
+	public getCostNextLevel() : number
+	{
+
+		if(this.costs.length >= this.level){
+			return this.costs[this.level - 1];
+		}
+
+		return this.costs[this.costs.length - 1];
 
 	}
 

@@ -58,23 +58,29 @@ export default class RelaysHtmlViewer extends HtmlComponent
 
 	public element : HTMLElement;
 
-	protected childrens : RelayHtmlViewer[];
+	protected childrens : RelayHtmlViewer[] = [];
 
-	constructor(relays : MobsContainer<FriendRelay>) {
+	constructor() {
 
 		super();
 
 		this.element = this.createElement('<div class="relays"></div>');
 
-		this.childrens = relays.getMobs().map(relay => {
+	}
 
-			let item = new RelayHtmlViewer(relay);
+	public addRelays(...relays : FriendRelay[]) : this
+	{
 
-			this.element.appendChild(item.element);
+		relays.forEach(relay => {
 
-			return item;
+			let view = new RelayHtmlViewer(relay);
+
+			this.element.appendChild(view.element);
+			this.childrens.push(view);
 
 		});
+
+		return this;
 
 	}
 

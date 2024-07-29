@@ -128,19 +128,11 @@ export default class Game extends Engine
 		this.healsContainer = new DropContainer<Healthy, Heal>([this.ship]);
 		this.expContainer   = new DropContainer<Experienced, Experience>([this.ship]);
 
-		//@TODO убрать отсюда
-		this.addRelay('A', new Vector3(10, 10, 0))
-		this.addRelay('B', new Vector3(20, -20, 0))
-		this.addRelay('C', new Vector3(0, -60, 0))
-		this.addRelay('D', new Vector3(-60, 10, 0))
-		this.addRelay('E', new Vector3(50, 40, 0))
-		this.addRelay('F', new Vector3(50, -50, 0))
-
 		//HTML-интерфейс
 		this.shipHpIndicator = new HpHtmlViewer(this.ship);
 		this.expIndicator = new ExpHtmlViewer(this.ship);
 		this.fpsIndicator = new FpsHtmlViewer(this);
-		this.relaysIndicator = new RelaysHtmlViewer(this.relaysContainer);
+		this.relaysIndicator = new RelaysHtmlViewer();
 		this.techInfoIndicator = new TechInfoHtmlViewer()
 			.addParam('Enemies Level', () => this.enemyLevel)
 			.addParam('Enemies Spawned', () => this.enemySpawned)
@@ -151,43 +143,33 @@ export default class Game extends Engine
 
 		//Создаем скиллы
 		//@TODO убрать отсюда
-		this.skillFire           = new Skill('SPACE', 'Space', 100, true);
-		this.skillShockwave      = new Skill('Q', 'KeyQ', 5000);
-		this.skillSpawnFriend    = new Skill('F', 'KeyF', 5000, false, this.friendsMaxCount);
-		this.skillRocket         = new Skill('E', 'KeyE', 20000);
-		this.skillRelayShield    = new Skill('G', 'KeyG', 90000);
-		this.skillShield         = new Skill('Z', 'KeyZ', 30000);
-
-		let costCounter = (level : () => number, costs : number[]) => {
-			return () => {
-
-				let l = level();
-
-				return l > costs.length ? costs[costs.length - 1] : costs[l - 1];
-
-			}
-		}
+		this.skillFire           = new Skill('SPACE', 'Space', 100, [100, 1000, 3000, 5000, 10000, 20000, 50000], true, Infinity);
+		this.skillShockwave      = new Skill('Q', 'KeyQ', 5000, [2000, 5000, 10000, 20000, 50000, 100000], false, Infinity);
+		this.skillSpawnFriend    = new Skill('F', 'KeyF', 5000, [10000, 20000, 50000, 100000, 200000], false, this.friendsMaxCount);
+		this.skillRocket         = new Skill('E', 'KeyE', 20000, [5000, 10000, 20000, 50000, 100000, 200000], false, Infinity);
+		this.skillRelayShield    = new Skill('G', 'KeyG', 90000, [50000, 100000, 200000, 500000], false, Infinity);
+		this.skillShield         = new Skill('Z', 'KeyZ', 30000, [10000, 20000, 30000, 50000], false, Infinity);
 
 		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
-			.addSkill('fire', this.skillFire, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
+			.addSkill('fire', this.skillFire, () => {
 				this.ship.setFireLevel(this.ship.fireLevel + 1);
 			})
-			.addSkill('wave', this.skillShockwave, costCounter(() => this.ship.shockWaveLevel, [2000, 5000, 10000, 20000, 50000, 100000]), () => {
+			.addSkill('wave', this.skillShockwave, () => {
 				this.ship.setShockwaveLevel(this.ship.shockWaveLevel + 1);
 			})
-			.addSkill('rocket', this.skillRocket, costCounter(() => this.ship.rocketLevel, [5000, 10000, 20000, 50000, 100000, 200000]), () => {
+			.addSkill('rocket', this.skillRocket, () => {
 				this.ship.setRocketLevel(this.ship.rocketLevel + 1);
 			})
-			.addSkill('friend', this.skillSpawnFriend, costCounter(() => this.friendsLevel, [10000, 20000, 50000, 100000, 200000]), () => {
+			.addSkill('friend', this.skillSpawnFriend, () => {
 				this.friendsLevel++
 				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
 				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
 			})
-			.addSkill('shield', this.skillRelayShield, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
+			.addSkill('shield', this.skillRelayShield, () => {
 				this.relaysLevel++;
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel())
 			})
-			.addSkill('shield', this.skillShield, costCounter(() => this.ship.shieldLevel, [10000, 20000, 30000, 50000]), () => {
+			.addSkill('shield', this.skillShield,() => {
 				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
 			});
 
@@ -296,6 +278,18 @@ export default class Game extends Engine
 		if(this.showAxis){
 			this.showAxisHelper();
 		}
+
+		//Spawn relays
+		this.addRelay('A', new Vector3(10, 10, 0))
+		this.addRelay('B', new Vector3(20, -20, 0))
+		this.addRelay('C', new Vector3(0, -60, 0))
+		this.addRelay('D', new Vector3(-60, 10, 0))
+		this.addRelay('E', new Vector3(50, 40, 0))
+		this.addRelay('F', new Vector3(50, -50, 0))
+
+		this.relaysIndicator.addRelays(
+			...this.relaysContainer.getMobs()
+		);
 
 	}
 

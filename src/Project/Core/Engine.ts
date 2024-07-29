@@ -19,13 +19,11 @@ export default abstract class Engine
 	public css2DRenderer : CSS2DRenderer;
 	public css3DRenderer : CSS3DRenderer;
 
-	protected ticks : number = 0;
-	protected ticksRender : number = 0;
+	protected active : boolean = false;
+	protected renderAsync : boolean = false;
 
 	public fps : number = 0;
 	public fpsRender : number = 0;
-
-	protected active : boolean = false;
 
 	protected slowTickThrottler : AnimationThrottler = Animation.createThrottler(50);
 
@@ -63,10 +61,6 @@ export default abstract class Engine
 
 	protected abstract tick() : void;
 
-	public stop(){
-		this.active = false;
-	}
-
 	protected afterTick(){
 
 	}
@@ -75,13 +69,23 @@ export default abstract class Engine
 
 	}
 
+	private render(){
+
+		this.webGLRenderer.render(this.scene, this.camera);
+		this.css2DRenderer.render(this.scene, this.camera);
+		this.css3DRenderer.render(this.scene, this.camera);
+
+	}
+
+	public stop(){
+		this.active = false;
+	}
 
 	public run(){
 
 		let animate = async () => {
 
-			let startTime = Date.now(),
-				tick =  ++this.ticks;
+			let startTime = Date.now();
 
 			if(this.active){
 				ModelLoader.runBackgroundTasks();
@@ -91,24 +95,23 @@ export default abstract class Engine
 			this.slowTickThrottler(() => this.slowTick());
 			this.afterTick();
 
-			let renderStartTime = Date.now(),
-				renderTick = ++this.ticksRender;
-
-			requestAnimationFrame(() => {
-
-				if(this.ticksRender !== renderTick){
-					return;
-				}
-
-				this.webGLRenderer.render(this.scene, this.camera);
-				this.css2DRenderer.render(this.scene, this.camera);
-				this.css3DRenderer.render(this.scene, this.camera);
-
-				this.fpsRender = Math.min(99999, Math.ceil(1 / ((Date.now() - renderStartTime) / 1000)));
-
-			})
-
 			this.fps = Math.min(99999, Math.ceil(1 / ((Date.now() - startTime) / 1000)));
+
+
+			let renderStartTime = Date.now();
+
+			if(this.renderAsync) {
+
+				requestAnimationFrame(() => {
+					this.render();
+					this.fpsRender = Math.min(99999, Math.ceil(1 / ((Date.now() - renderStartTime) / 1000)));
+				});
+
+			}else{
+				this.render();
+				this.fpsRender = Math.min(99999, Math.ceil(1 / ((Date.now() - renderStartTime) / 1000)));
+			}
+
 
 			if(this.active) {
 				requestAnimationFrame(animate);
@@ -118,6 +121,7 @@ export default abstract class Engine
 		}
 
 		this.active = true;
+
 		animate();
 
 	}
