@@ -280,8 +280,8 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 		let attack = new ShockWaveAttack(
 			this.position.clone().add(new Vector3(0, 7, 0)).setZ(-1),
-			this.shockWaveLevel * 25,
-			2000 + (this.shockWaveLevel * 500),
+			this.shockWaveLevel * 8,
+			2000,
 			Math.min(45, this.shockWaveLevel * 15),
 			'white',
 			this

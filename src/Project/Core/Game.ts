@@ -28,6 +28,7 @@ import Experienced from "../Contracts/Experienced";
 import ExpHtmlViewer from "../Html/ExpHtmlViewer";
 import FpsHtmlViewer from "../Html/FpsHtmlViewer";
 import RelaysHtmlViewer from "../Html/RelaysHtmlViewer";
+import TechInfoHtmlViewer from "../Html/TechInfoHtmlViewer";
 
 export default class Game extends Engine
 {
@@ -49,11 +50,11 @@ export default class Game extends Engine
 
 	//Настройки врагов
 	protected enemyLevel : number = 1;
-	protected enemyDiedCount : number = 0;
-	protected enemySpawnCount : number = 7;
-	protected enemySpawnMaxCount : number = 13;
+	protected enemySpawned : number = 0;
+	protected enemySpawnLimit : number = 10;
+	protected enemySpawnMaxCount : number = 30;
 	protected enemyKilledUpdateLevel : number = 15;
-	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
+	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(3000);
 
 	//Настройки друзей
 	protected relaysLevel = 1;
@@ -65,7 +66,8 @@ export default class Game extends Engine
 	//Настройки для отладки
 	protected showAxis : boolean = false;
 	protected showTimeCodes : boolean = false;
-	protected showFps : boolean = true;
+	protected showFps : boolean = false;
+	protected showTechInfo : boolean = false;
 
 	protected background : Background;
 	protected ship : NormandyShip;
@@ -93,6 +95,7 @@ export default class Game extends Engine
 	protected expIndicator : ExpHtmlViewer;
 	protected fpsIndicator : FpsHtmlViewer;
 	protected relaysIndicator : RelaysHtmlViewer;
+	protected techInfoIndicator : TechInfoHtmlViewer;
 
 	constructor(
 		background : Background,
@@ -138,6 +141,12 @@ export default class Game extends Engine
 		this.expIndicator = new ExpHtmlViewer(this.ship);
 		this.fpsIndicator = new FpsHtmlViewer(this);
 		this.relaysIndicator = new RelaysHtmlViewer(this.relaysContainer);
+		this.techInfoIndicator = new TechInfoHtmlViewer()
+			.addParam('Enemies Level', () => this.enemyLevel)
+			.addParam('Enemies Spawned', () => this.enemySpawned)
+			.addParam('Enemies Spawn Min', () => this.enemySpawnLimit)
+			.addParam('Enemies Alive', () => this.enemiesContainer.getAliveMobs().length)
+			.addParam('Relays level', () => this.relaysLevel);
 
 
 		//Создаем скиллы
@@ -254,6 +263,11 @@ export default class Game extends Engine
 		if(this.showFps){
 			document.body.appendChild(this.fpsIndicator.element);
 		}
+
+		if(this.showTechInfo){
+			document.body.appendChild(this.techInfoIndicator.element);
+		}
+
 	}
 
 	/**
@@ -436,7 +450,7 @@ export default class Game extends Engine
 
 		this.enemiesContainer.addMobs(enemy);
 
-		this.enemyDiedCount++;
+		this.enemySpawned++;
 
 	}
 
@@ -592,7 +606,7 @@ export default class Game extends Engine
 
 	protected spawnRandomHeal(){
 
-		let heal = new Heal(this.ship.maxHealth / 4, 0.4);
+		let heal = new Heal(Math.ceil(this.ship.maxHealth / 15), 0.4);
 
 		heal.position.x = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
 		heal.position.y = Random.int(0, 1) ? Random.int(-40, -10) : Random.int(10, 40);
@@ -605,6 +619,12 @@ export default class Game extends Engine
 	 * То, что нужно обновлять по реже
 	 */
 	protected slowTick(){
+
+		//Вывод фпс
+		this.analyzeWrap('HTML_FPS', () => this.fpsIndicator.updateView());
+
+		//Вывод тех информации
+		this.analyzeWrap('HTML_TECH_INFO', () => this.techInfoIndicator.updateView());
 
 		//Состояние ретрансляторов
 		this.analyzeWrap('HTML_RELAYS_INFO', () => this.relaysIndicator.updateView());
@@ -623,15 +643,15 @@ export default class Game extends Engine
 
 		//Добавляем врагов
 
-		if(this.enemiesContainer.getAliveMobs().length < this.enemySpawnCount){
+		if(this.enemiesContainer.getAliveMobs().length < this.enemySpawnLimit){
 
 			this.enemySpawnThrottler(() => {
 
-				if(this.enemyDiedCount > 0 && !(this.enemyDiedCount % this.enemyKilledUpdateLevel)){
+				if(this.enemySpawned > 0 && !(this.enemySpawned % this.enemyKilledUpdateLevel)){
 					this.ship.setHealthLevel(this.ship.healthLevel + 1);
 					this.enemyLevel++;
 					this.relaysLevel++;
-					this.enemySpawnCount = Math.min(this.enemySpawnCount + 1, this.enemySpawnMaxCount);
+					this.enemySpawnLimit = Math.min(this.enemySpawnLimit + 1, this.enemySpawnMaxCount);
 					this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel());
 				}
 
@@ -708,9 +728,6 @@ export default class Game extends Engine
 
 		//Анимация ретрансляторов
 		this.analyzeWrap('RELAYS_ANIMATION', () => this.animateRelays());
-
-		//Вывод фпс
-		this.analyzeWrap('HTML_FPS', () => this.fpsIndicator.updateView());
 
 		//Анимация хилок
 		this.analyzeWrap('DROP_ANIMATIONS', () => this.animateDrops());

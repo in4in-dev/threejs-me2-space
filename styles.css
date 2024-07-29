@@ -88,6 +88,13 @@ body{
     }
 }
 
+@keyframes danger {
+
+    to{
+        transform: scale(1.1);
+    }
+}
+
 .top{
     position: fixed;
     top: 20px;
@@ -102,6 +109,13 @@ body{
     border-radius: 5px;
     overflow: hidden;
     display: block;
+    transform-origin: top center;
+}
+
+.ship-hp--danger{
+    animation: danger;
+    animation-duration: 0.5s;
+    animation-iteration-count: infinite;
 }
 
 .ship-hp__level{
@@ -123,6 +137,10 @@ body{
     bottom: 0;
     display: block;
     background: #37b41b;
+}
+
+.ship-hp--danger .ship-hp__bar{
+    background: #a11616;
 }
 
 .skills{
@@ -353,4 +371,16 @@ body{
 
 .relays__item-health-bar--red{
     background: #963d00;
+}
+
+.tech-info{
+    position: fixed;
+    top: 50px;
+    text-align: right;
+    right: 10px;
+    color: rgba(255,255,255,0.5);
+}
+
+.tech-info__row{
+    margin-bottom: 3px;
 }

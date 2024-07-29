@@ -14,7 +14,7 @@ export default class RocketBulletAttack extends Attack
 
 	protected isExploded : boolean = false;
 
-	protected explosionTime : number = 2000;
+	protected explosionTime : number = 4000;
 	protected explosionStartTime : number = 0;
 	protected explosionRadius : number = 15;
 	protected explosionPoint : Vector3 | null = null;
