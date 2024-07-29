@@ -7,12 +7,12 @@ import Sparks from "../Sparks";
 export default class RocketBulletAttack extends Attack
 {
 
-	public isExploded : boolean = false;
-
-	public to : Vector3;
+	protected to : Vector3;
 
 	protected mesh : THREE.Group;
 	protected glow : THREE.Sprite;
+
+	protected isExploded : boolean = false;
 
 	protected explosionTime : number = 2000;
 	protected explosionStartTime : number = 0;
@@ -31,7 +31,7 @@ export default class RocketBulletAttack extends Attack
 		radius : number
 	) {
 
-		super(from.clone(), force);
+		super(from, force);
 
 		this.to = to.clone();
 		this.explosionRadius = radius;
@@ -41,6 +41,7 @@ export default class RocketBulletAttack extends Attack
 
 		//Добавляем на сцену
 		this.mesh.add(this.glow);
+
 		this.add(this.mesh);
 
 	}
@@ -49,17 +50,13 @@ export default class RocketBulletAttack extends Attack
 	protected createGlow() : THREE.Sprite
 	{
 
-		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
-
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
+		return new THREE.Sprite(new THREE.SpriteMaterial({
+			map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
 			color: '#da5c18',
 			transparent: true,
 			blending: THREE.AdditiveBlending,
 			depthWrite:false
-		});
-
-		return new THREE.Sprite(glowMaterial);
+		}));
 
 	}
 
@@ -71,14 +68,12 @@ export default class RocketBulletAttack extends Attack
 
 		let sparks = new Sparks(1, 'white', 0.1);
 
-		group.add(sparks);
-
 		let sphere = new THREE.Mesh(
 			new THREE.SphereGeometry(0.5, 10, 10),
 			new THREE.MeshBasicMaterial({color : 'black', transparent : true, opacity : 0.7})
 		)
 
-		group.add(sphere);
+		group.add(sphere, sparks);
 
 		group.scale.set(0.1, 0.1, 0.1);
 
@@ -86,7 +81,8 @@ export default class RocketBulletAttack extends Attack
 
 	}
 
-	public boom(){
+	public boom() : void
+	{
 
 		this.isExploded = true;
 		this.explosionStartTime = Date.now();
@@ -96,6 +92,10 @@ export default class RocketBulletAttack extends Attack
 
 	}
 
+	public updateTarget(x : Vector3) : void
+	{
+		this.to = x.clone();
+	}
 
 	public animate(
 		peaceObjects : THREE.Object3D[] = [],
@@ -104,7 +104,6 @@ export default class RocketBulletAttack extends Attack
 
 		if(this.isExploded) {
 
-			//Анимируем рост сферы
 			let progress = (Date.now() - this.explosionStartTime) / this.explosionTime,
 				explosionProgress = progress >= 0.5 ? (1 - progress) : progress,
 				damageMultiplier = (1 - progress);
@@ -119,12 +118,12 @@ export default class RocketBulletAttack extends Attack
 
 				let distance = enemy.position.distanceTo(this.explosionPoint!);
 
-				if(
-					this.damagedEnemies.indexOf(enemy) < 0 &&
-					distance <= radius
-				){
+				if(this.damagedEnemies.indexOf(enemy) < 0 && distance <= radius){
+
 					enemy.hit(Math.ceil(this.force * damageMultiplier));
+
 					this.damagedEnemies.push(enemy);
+
 				}
 
 				//Затягиваем в центр
@@ -172,10 +171,7 @@ export default class RocketBulletAttack extends Attack
 
 	}
 
-	public updateTo(x : Vector3)
-	{
-		this.to = x.clone();
-	}
+
 
 
 

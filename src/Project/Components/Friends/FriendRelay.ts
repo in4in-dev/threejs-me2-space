@@ -1,16 +1,14 @@
 import Mob from "../Mob";
 import * as THREE from "three";
-import {Vector3} from "three";
 import AttacksContainer from "../../Containers/AttacksContainer";
 import ModelLoader from "../../../Three/ModelLoader";
-//@ts-ignore
-import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 //@ts-ignore
 import {CSS3DObject} from "three/examples/jsm/renderers/CSS3DRenderer";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
 import Sparks from "../Sparks";
 import RelayDestoyAttack from "../Attacks/RelayDestoyAttack";
 import Random from "../../../Three/Random";
+import GeometryGenerator from "../../../Three/GeometryGenerator";
 
 export default class FriendRelay extends Mob
 {
@@ -18,9 +16,9 @@ export default class FriendRelay extends Mob
 	public level : number;
 	public letter : string;
 
-	protected relayGroup : THREE.Group;
+	protected group : THREE.Group;
 	protected mesh : THREE.Group;
-	protected letterMesh : CSS3DObject;
+	protected icon : CSS3DObject;
 	protected shield : THREE.Points;
 	protected sparks : Sparks;
 	protected glow : THREE.Sprite;
@@ -41,17 +39,18 @@ export default class FriendRelay extends Mob
 
 		this.level = level;
 		this.letter = letter;
-		this.relayGroup = new THREE.Group;
+
+		this.group = new THREE.Group;
 
 		this.mesh = this.createBody();
 		this.shield = this.createShield();
-		this.letterMesh = this.createLetter(letter);
+		this.icon = this.createLetter();
 		this.sparks = this.createSparks();
 		this.glow = this.createGlow();
 
-		this.relayGroup.add(this.shield, this.mesh, this.sparks, this.glow);
+		this.group.add(this.shield, this.mesh, this.sparks, this.glow);
 
-		this.add(this.letterMesh, this.relayGroup);
+		this.add(this.icon, this.group);
 
 	}
 
@@ -63,22 +62,18 @@ export default class FriendRelay extends Mob
 			'../../../../assets/glow.png'
 		];
 
-		let glowTexture = new THREE.TextureLoader().load(Random.arr(textures));
+		let glowSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load(Random.arr(textures)),
+				color: '#2289c4',
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false,
+				opacity: Random.float(0.4, 0.8)
+			})
+		);
 
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			color: '#2289c4', // Цвет свечения
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false,
-			opacity: Random.float(0.4, 0.8)
-		});
-
-		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(12, Random.int(6, 12), 12);
-
-		// glowSprite.position.y = -2;
-		glowSprite.position.x = 0;
 
 		return glowSprite;
 	}
@@ -88,56 +83,36 @@ export default class FriendRelay extends Mob
 		let sparks = new Sparks(0.2, '#04334f', 0.4);
 
 		sparks.position.y = -0.5;
-		// sparks.position.x = -2;
 
 		return sparks;
 	}
 
-	protected createLetter(letter : string) : CSS3DObject
+	protected createLetter() : CSS3DObject
 	{
 
 		let wrap = document.createElement('div');
 		wrap.className = 'relay-letter';
-		wrap.textContent = letter;
+		wrap.textContent = this.letter;
 
 		let label = new CSS3DObject(wrap);
 		label.position.set(-10, -9, 7);
 
 		label.scale.set(0.05, 0.05, 0.05);
-		label.rotation.x = Math.PI * 1.5;
-		label.rotation.y = Math.PI * 4.5;
-		label.rotation.x = Math.PI * 4.5;
+		label.rotation.set(Math.PI * 4.5, Math.PI * 4.5, 0);
 
 		return label;
 
 	}
 
-	public rotateRelay(angle : number){
-		this.relayGroup.rotation.z= angle;
-		this.letterMesh.rotation.y = -angle;
+	public rotateRelay(angle : number) : void
+	{
+		this.group.rotation.z= angle;
+		this.icon.rotation.y = -angle;
 	}
 
 	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
 	{
-
-		// Установить необходимые параметры
-		// let outerRadius = radius;
-		// let thickness = 1;
-		// let innerRadius = outerRadius - thickness;
-
-		let points = [];
-		for (let i = 0; i < 3000; i++) {
-			let phi = Math.acos(2 * Math.random() - 1);
-			let theta = 2 * Math.PI * Math.random();
-			let x = radius * Math.sin(phi) * Math.cos(theta);
-			let y = radius * Math.sin(phi) * Math.sin(theta);
-			let z = radius * Math.cos(phi);
-			points.push(new THREE.Vector3(x, y, z));
-		}
-
-		return new THREE.BufferGeometry().setFromPoints(points);
-
-
+		return GeometryGenerator.emptySphere(radius, 3000);
 	}
 
 	protected createShield() : THREE.Points
@@ -175,6 +150,18 @@ export default class FriendRelay extends Mob
 
 	}
 
+	protected indicateHit(){
+
+		this.relayHelpThrottler(() => {
+
+			this.icon.element.classList.add('relay-letter--red');
+
+			setTimeout(() => this.icon.element.classList.remove('relay-letter--red'), 100);
+
+		});
+
+	}
+
 	public activateShield(time : number){
 
 		this.shieldEnabled = true;
@@ -183,13 +170,16 @@ export default class FriendRelay extends Mob
 
 	}
 
+	public deactivateShield(){
+		this.shieldEnabled = false;
+	}
+
 	public animate(){
 
 		let now = Date.now();
 
 		if(now > this.shieldEndTime){
 			this.shieldEnabled = false;
-			(<THREE.PointsMaterial>this.shield.material).opacity = 0;
 		}
 
 		if(this.shieldEnabled){
@@ -198,7 +188,7 @@ export default class FriendRelay extends Mob
 
 			//Анимируем щит
 			let shieldDuration = (this.shieldEndTime - this.shieldStartTime),
-				progress = (Date.now() - this.shieldStartTime) / shieldDuration,
+				progress = (now - this.shieldStartTime) / shieldDuration,
 				explosionDuration = 500 / shieldDuration,
 				explosionProgress = progress < explosionDuration
 					? (progress / explosionDuration)
@@ -206,15 +196,15 @@ export default class FriendRelay extends Mob
 						? ((1 - progress) / explosionDuration)
 						: 1;
 
-			let radius = explosionProgress * this.shieldMaxRadius;
+			this.shield.geometry.copy(
+				this.generateShieldGeometry(explosionProgress * this.shieldMaxRadius)
+			);
 
-			let outSideSphere = this.generateShieldGeometry(radius);
-
-			this.shield.geometry.copy(outSideSphere);
-
+		}else{
+			(<THREE.PointsMaterial>this.shield.material).opacity = 0;
 		}
 
-		this.sparks.rotation.x += 0.1; //Math.random() * Math.PI * 3;
+		this.sparks.rotation.x += 0.1;
 
 	}
 
@@ -223,15 +213,10 @@ export default class FriendRelay extends Mob
 
 		if(!this.shieldEnabled){
 
-			this.relayHelpThrottler(() => {
-
-				this.letterMesh.element.classList.add('relay-letter--red');
-
-				setTimeout(() => this.letterMesh.element.classList.remove('relay-letter--red'), 100);
-
-			})
+			this.indicateHit();
 
 			return super.hit(damage);
+
 		}
 
 		return false;
@@ -239,20 +224,25 @@ export default class FriendRelay extends Mob
 	}
 
 	protected explosion() {
+
 		super.explosion();
 
-		this.relayGroup.remove(this.sparks);
-		this.remove(this.letterMesh);
+		this.group.remove(this.sparks);
 
-		let attack = new RelayDestoyAttack(
-			this.position,
-			200000
+		this.remove(this.icon);
+
+		this.attacksContainer.addAttacks(
+			new RelayDestoyAttack(
+				this.position,
+				200000
+			)
 		);
-
-		this.attacksContainer.addAttacks(attack);
 
 	}
 
-	fire(to: Vector3): void {}
+	public fire(): void
+	{
+
+	}
 
 }

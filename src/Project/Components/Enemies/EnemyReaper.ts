@@ -16,7 +16,7 @@ export default class EnemyReaper extends Enemy
 	public level : number = 1;
 
 	protected mesh : THREE.Group;
-	protected bullet : RayBulletAttack | null = null;
+	protected rayAttack : RayBulletAttack | null = null;
 
 	protected autoFireMinDistance : number = 30;
 
@@ -30,6 +30,7 @@ export default class EnemyReaper extends Enemy
 		super(100 * level, 0.05, attacksContainer, healsContainer, expContainer);
 
 		this.level = level;
+
 		this.mesh = this.createBody();
 
 		//Добавляем на сцену
@@ -37,17 +38,77 @@ export default class EnemyReaper extends Enemy
 
 	}
 
+	protected createBody() : THREE.Group
+	{
+
+		let ship = new ModelLoader(
+			'../../../assets/mobs/reaper/reaper.obj',
+			'../../../assets/mobs/reaper/reaper.mtl'
+		).loadInBackground((obj : any) => {
+			return obj.children[0].material.color.set('black'), obj;
+		});
+
+		ship.scale.set(0.05, 0.05, 0.05);
+		ship.rotation.set(0.3, 4.7, 0);
+		ship.position.set(0, -3, -1);
+
+
+		let glow = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				color: 'red', // Цвет свечения
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false,
+				opacity : 0.2
+			})
+		)
+
+		glow.scale.set(2, 2, 2);
+		glow.position.set(0, 0, -1);
+
+		let group = new THREE.Group;
+
+		group.add(ship, glow);
+
+		return group;
+
+	}
+
+	public fire(to : Vector3) : void
+	{
+
+		let attack = new RayBulletAttack(
+			this.position.clone().setZ(-1.5).add(new Vector3(0, 1 , 0)),
+			to,
+			20 * this.level,
+			'red'
+		);
+
+		this.attacksContainer.addAttacks(attack);
+
+		this.rayAttack = attack;
+
+	}
+
 	public animate()
 	{
 
-		//Движение до цели
 		if(this.attackTarget){
 
-			if(this.bullet && this.bullet.isVisible){
-				this.bullet.updateStartPoint(this.position);
-				this.bullet.updateTarget(this.attackTarget.position);
+			//Обновляем луч
+			if(this.rayAttack){
+
+				if(!this.rayAttack.visible){
+					this.rayAttack = null;
+				}else{
+					this.rayAttack.updateStartPoint(this.position);
+					this.rayAttack.updateTarget(this.attackTarget.position);
+				}
+
 			}
 
+			//Движение до цели
 			let distance = this.position.distanceTo(this.attackTarget.position);
 
 			if(distance > 10){
@@ -73,65 +134,5 @@ export default class EnemyReaper extends Enemy
 
 	}
 
-	protected createBody() : THREE.Group
-	{
-
-		let group = new THREE.Group;
-
-		let ship = new ModelLoader(
-			'../../../assets/mobs/reaper/reaper.obj',
-			'../../../assets/mobs/reaper/reaper.mtl'
-		).loadInBackground((obj : any) => {
-			return obj.children[0].material.color.set('black'), obj;
-		});
-
-		ship.scale.set(0.05, 0.05, 0.05);
-
-		ship.rotation.y = 4.7;
-		ship.rotation.x = 0.3;
-
-		ship.position.z = -1;
-		ship.position.y = -3;
-
-
-		let glow = new THREE.Sprite(
-			new THREE.SpriteMaterial({
-				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
-				color: 'red', // Цвет свечения
-				transparent: true,
-				blending: THREE.AdditiveBlending,
-				depthWrite:false,
-				opacity : 0.2
-			})
-		)
-
-		glow.scale.set(2, 2, 2);
-		glow.position.set(0, 0, -1);
-
-		group.add(ship);
-		group.add(glow);
-
-		return group;
-
-	}
-
-	public fire(to : Vector3){
-
-		let bullet = new RayBulletAttack(
-			this.position.clone().setZ(-1.5).add(new Vector3(0, 1 , 0)),
-			to,
-			20 * this.level,
-			'red'
-		);
-
-		this.attacksContainer.addAttacks(bullet);
-
-		this.bullet = bullet;
-
-	}
-
-	public altFire(to: Vector3) {
-
-	}
 
 }

@@ -17,7 +17,7 @@ export default class ShockWaveAttack extends Attack
 	protected mesh : THREE.Group;
 
 	protected hitEnemies : Hittable[] = [];
-	protected hitThrottler : AnimationThrottler;
+	protected hitThrottler : AnimationThrottler = Animation.createThrottler(600);
 
 	protected healTarget : Healthy | null;
 
@@ -35,23 +35,17 @@ export default class ShockWaveAttack extends Attack
 		this.radius = radius;
 		this.duration = duration;
 		this.startTime = Date.now();
-		this.mesh = this.createBody();
-		this.hitThrottler = Animation.createThrottler(600);
 		this.healTarget = healTarget;
+
+		this.mesh = this.createLightnings([]);
 
 		this.add(this.mesh);
 
 	}
 
-	protected createBody() : THREE.Group
-	{
-		return new THREE.Group;
-	}
-
-	protected createLighting(from : Vector3, to : Vector3) : THREE.Line
+	protected createLightning(from : Vector3, to : Vector3) : THREE.Line
 	{
 
-		let material = new THREE.LineBasicMaterial({ color: this.color });
 		let points = [];
 		let segments = 10;
 
@@ -60,20 +54,84 @@ export default class ShockWaveAttack extends Attack
 		let deltaZ = (to.z - from.z) / segments;
 
 		for (let i = 0; i <= segments; i++) {
+
 			let x = from.x + deltaX * i + (Math.random() - 0.5) * 0.5;
 			let y = from.y + deltaY * i + (Math.random() - 0.5) * 0.5;
 			let z = from.z + deltaZ * i + (Math.random() - 0.5) * 0.5;
+
 			points.push(new THREE.Vector3(x, y, z));
+
 		}
 
-		let geometry = new THREE.BufferGeometry().setFromPoints(points);
-		let line = new THREE.Line(geometry, material);
-
-		return line;
+		return new THREE.Line(
+			new THREE.BufferGeometry().setFromPoints(points),
+			new THREE.LineBasicMaterial({ color: this.color })
+		);
 
 	}
 
-	public updateFrom(from : Vector3){
+	protected hitEnemy(enemy : Hittable) : void
+	{
+
+		enemy.hit(this.force);
+
+		if(this.healTarget){
+
+			this.healTarget.heal(
+				Math.ceil(this.force)
+			);
+
+		}
+
+	}
+
+	protected createLightnings(enemies : Hittable[], randomLightnings : number = 5) : THREE.Group
+	{
+
+		let group = new THREE.Group;
+
+		let lines = enemies.map(enemy => {
+			return this.createLightning(
+				new Vector3(0, 0, 0),
+				new Vector3().subVectors(enemy.position, this.from).setZ(-1)
+			);
+		});
+
+
+		for(let i = 0; i < randomLightnings; i++){
+
+			let randomDirection = new Vector3(
+				Random.float(-2.5, 2.5),
+				Random.float(-2.5, 2.5),
+				-1
+			)
+
+			lines.push(
+				this.createLightning(
+					new Vector3(0, 0, 0),
+					randomDirection
+				)
+			)
+		}
+
+
+		if(lines.length){
+			group.add(...lines);
+		}
+
+		return group;
+
+	}
+
+	protected replaceMesh(mesh : THREE.Group) : void
+	{
+		this.remove(this.mesh);
+		this.mesh = mesh;
+		this.add(this.mesh);
+	}
+
+	public updateFrom(from : Vector3) : void
+	{
 		this.from = from.clone();
 	}
 
@@ -84,72 +142,29 @@ export default class ShockWaveAttack extends Attack
 
 		if(Date.now() < this.startTime + this.duration) {
 
-			let group = this.createBody();
-
 			let availableEnemies = enemies
 				.filter(enemy => enemy.position.distanceTo(this.from) <= this.radius);
 
 			availableEnemies.forEach(enemy => {
 
-				let toDo = () => {
-
-					enemy.hit(this.force);
-
-					if(this.healTarget){
-						this.healTarget.heal(
-							Math.ceil(this.force)
-						);
-					}
-
-				}
-
 				if (this.hitEnemies.indexOf(enemy) < 0) {
 
 					this.hitEnemies.push(enemy);
-
-					toDo();
+					this.hitEnemy(enemy);
 
 				}else{
 
-					this.hitThrottler(toDo);
+					this.hitThrottler(() => this.hitEnemy(enemy));
 
 				}
 
 			});
 
-			let lines = availableEnemies.map(enemy => {
-				return this.createLighting(
-					new Vector3(0, 0, 0),
-					new Vector3().subVectors(enemy.position, this.from).setZ(-1)
-				);
-			});
-
-			for(let i = 0; i < 5; i++){
-
-				let randomDirection = new Vector3(
-					Random.float(-2.5, 2.5),
-					Random.float(-2.5, 2.5),
-					-1
-				)
-
-				lines.push(
-					this.createLighting(
-						new Vector3(0, 0, 0),
-						randomDirection
-					)
-				)
-			}
-
-			if(lines.length){
-				group.add(...lines);
-			}
-
-			this.remove(this.mesh);
-			this.add(group);
+			this.replaceMesh(
+				this.createLightnings(availableEnemies)
+			)
 
 			this.position.copy(this.from);
-
-			this.mesh = group;
 
 		}else{
 			this.hide();

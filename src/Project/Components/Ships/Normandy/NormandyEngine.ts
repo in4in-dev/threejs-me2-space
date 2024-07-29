@@ -5,27 +5,29 @@ import Random from "../../../../Three/Random";
 export default class NormandyEngine extends Component
 {
 
-	public color : any;
-	public glowColor : any;
-	public length : number;
-	public speed : number;
+	protected length : number;
+	protected speed : number;
 
 	protected mesh : THREE.Points;
 	protected glow : THREE.Sprite;
 
-	protected positions : Float32Array;
+	protected positions : number[];
 
-
-	constructor(color : any = 'white', glowColor : any = '#fed36a', speed : number = 1, length : number = 10) {
+	constructor(
+		color : any = 'white',
+		glowColor : any = '#fed36a',
+		speed : number = 1,
+		length : number = 10
+	) {
 		super();
-		this.color = color;
-		this.glowColor = glowColor;
+
 		this.speed = speed;
 		this.length = length;
+
 		this.positions = this.generatePositions();
 
-		this.mesh = this.createBody();
-		this.glow = this.createGlow();
+		this.mesh = this.createBody(color);
+		this.glow = this.createGlow(glowColor);
 
 		//Добавляем на сцену
 		this.mesh.add(this.glow);
@@ -45,14 +47,12 @@ export default class NormandyEngine extends Component
 		return this;
 	}
 
-	protected generatePositions() : Float32Array
+	protected generatePositions() : number[]
 	{
 
-		let numPoints = this.length * 30;
+		let positions = [];
 
-		// Генерируем позиции для точек внутри круга
-		let positions = new Float32Array(numPoints * 3);
-		for (let i = 0; i < numPoints; i++) {
+		for (let i = 0; i < this.length * 30; i++) {
 
 			let radius = 1;
 
@@ -72,43 +72,51 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected createGlow() : THREE.Sprite
+	protected getGeometry() : THREE.BufferGeometry
 	{
 
-		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
+		let pointsGeometry = new THREE.BufferGeometry();
 
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			color: this.glowColor, // Цвет свечения
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false
-		});
+		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		let glowSprite = new THREE.Sprite(glowMaterial);
+		return pointsGeometry;
+
+	}
+
+	protected createGlow(color : any) : THREE.Sprite
+	{
+
+		let glowSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				color: color,
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false
+			})
+		);
+
 		glowSprite.scale.set(20, 10, 10);
 
 		return glowSprite;
 
 	}
 
-	protected createBody() : THREE.Points
+	protected createBody(color : any) : THREE.Points
 	{
 
-		let pointsGeometry = new THREE.BufferGeometry();
-		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-
-		let particleTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
-
-		let points = new THREE.Points(pointsGeometry, new THREE.PointsMaterial({
-			// color: this.color,
-			map : particleTexture,
-			size: 0.1, // Размер частиц
-			blending: THREE.AdditiveBlending,
-			depthTest: false,
-			transparent: true,
-			opacity: 0.7
-		}));
+		let points = new THREE.Points(
+			this.getGeometry(),
+			new THREE.PointsMaterial({
+				// color: color,
+				map : new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				size: 0.1,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				transparent: true,
+				opacity: 0.7
+			})
+		);
 
 		points.rotation.x = Math.PI / 2;
 		points.position.y = -2;
@@ -122,9 +130,9 @@ export default class NormandyEngine extends Component
 	public animate()
 	{
 
-		let positions = new Float32Array(this.positions.length);
+		let positions = [];
 
-		for(let i = 0; i<this.positions.length;i+=3){
+		for(let i = 0; i < this.positions.length;i+=3){
 
 			let max = Random.float(0.8, 1);
 
@@ -141,11 +149,9 @@ export default class NormandyEngine extends Component
 
 		this.positions = positions;
 
-		let pointsGeometry = new THREE.BufferGeometry();
-		pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-
-
-		this.mesh.geometry.copy(pointsGeometry);
+		this.mesh.geometry.copy(
+			this.getGeometry()
+		);
 
 
 	}

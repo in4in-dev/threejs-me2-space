@@ -7,21 +7,15 @@ import HitBox from "../../Core/HitBox";
 export default class LaserBulletAttack extends Attack
 {
 
-	public isMoving : boolean = true;
-
-	public to : Vector3;
-
-	public color : any;
-	public glowColor : any;
-	public length : number = 0;
-
 	protected mesh : THREE.Mesh;
 	protected glow : THREE.Sprite;
 
+	protected to : Vector3;
+
+	protected isMoving : boolean = true;
+
 	protected maxDistanceShow : number = 150;
 	protected maxDistanceDamage : number = 50;
-
-	protected lastPosition : Vector3;
 
 	constructor(
 		from : Vector3,
@@ -31,56 +25,51 @@ export default class LaserBulletAttack extends Attack
 		glowColor : any
 	) {
 
-		super(from.clone(), force);
+		super(from, force);
 
 		this.to = to.clone();
-		this.lastPosition = from.clone();
-		this.color = color;
-		this.glowColor = glowColor;
 
-		this.mesh = this.createMesh();
-		this.glow = this.createGlow();
+		this.mesh = this.createMesh(color);
+		this.glow = this.createGlow(glowColor);
 
-		//Добавляем на сцену
 		this.mesh.add(this.glow);
+
 		this.add(this.mesh);
 
 	}
 
 
-	protected createGlow() : THREE.Sprite
+	protected createGlow(color : any) : THREE.Sprite
 	{
 
-		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
+		let glowSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				color: color,
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false
+			})
+		);
 
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			color: this.glowColor, // Цвет свечения
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false
-		});
-
-		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(2, 0.5, 0.5);
 
 		return glowSprite;
 
 	}
 
-
-	protected createMesh(): THREE.Mesh
+	protected createMesh(color : any): THREE.Mesh
 	{
 
 		let mesh = new THREE.Mesh(
 			new THREE.SphereGeometry(0.1, 10, 10),
-			new THREE.MeshBasicMaterial({color : this.color})
+			new THREE.MeshBasicMaterial({color : color})
 		);
 
 		let direction = new Vector3().subVectors(this.to, this.from);
 		let angle = Math.atan2(direction.y, direction.x);
 
-		this.rotation.z = angle + Math.PI / 2;
+		mesh.rotation.z = angle + Math.PI / 2;
 
 		mesh.scale.set(0.5, 3, 0.3);
 
@@ -88,50 +77,36 @@ export default class LaserBulletAttack extends Attack
 
 	}
 
-	public stopMoving(){
-
-		this.isMoving = false;
-
-		this.position.set(this.position.x, this.position.y, 0);
-
+	protected checkCollisionWith(object : THREE.Object3D) : boolean
+	{
+		return HitBox.getFor(object, true).containsPoint(this.position);
 	}
 
-
-	public checkCollisionWith(object : THREE.Object3D) : boolean
+	protected boof() : void
 	{
 
-		// let objectBox = new THREE.Box3().setFromObject(object);
-		let objectBox = HitBox.getFor(object, true);
-
-		// let bulletBox = new THREE.Box3().setFromObject(this);
-		// return bulletBox.intersectsBox(objectBox)
-
-		return objectBox.containsPoint(this.position);
-
-
-	}
-
-	public boof(){
-
 		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#757575');
-		this.glow.material.color.set('#888888');
-		this.glow.material.opacity = 0.2;
+		(<THREE.SpriteMaterial>this.glow.material).color.set('#888888');
+		(<THREE.SpriteMaterial>this.glow.material).opacity = 0.2;
+
 		this.glow.scale.set(8 / 0.5, 4 / 3, 4 / 0.3);
 
-		this.stopMoving();
+		this.isMoving = false;
 
 		setTimeout(() => this.hide(), 500);
 
 	}
 
-	public boom(){
+	protected boom() : void
+	{
 
-		(<THREE.MeshBasicMaterial>this.mesh.material).color.set('#ffac70');
-		this.glow.material.color.set('#ff8b33');
-		this.glow.material.opacity = 0.2;
+		(<THREE.MeshBasicMaterial>this.mesh.material).opacity = 0;
+		(<THREE.SpriteMaterial>this.glow.material).color.set('#ff8b33');
+		(<THREE.SpriteMaterial>this.glow.material).opacity = 0.2;
+
 		this.glow.scale.set(4, 2, 2);
 
-		this.stopMoving();
+		this.isMoving = false;
 
 		setTimeout(() => this.hide(), 500);
 
@@ -143,28 +118,31 @@ export default class LaserBulletAttack extends Attack
 		enemiesObjects : Hittable[] = []
 	){
 
-		if(this.length > this.maxDistanceShow){
+		let length = this.from.distanceTo(this.position);
+
+		if(length > this.maxDistanceShow){
 			this.hide();
-		}else if(this.isMoving && this.length <= this.maxDistanceDamage){
+		}else if(this.isMoving && length <= this.maxDistanceDamage){
 
 			if(peaceObjects.some(object => this.checkCollisionWith(object))){
 				this.boof();
+			}else {
+
+				enemiesObjects.some(enemy => {
+
+					if (this.checkCollisionWith(enemy)) {
+
+						this.boom();
+						enemy.hit(this.force);
+
+						return true;
+					}
+
+					return false;
+
+				});
+
 			}
-
-			//Столкновение с вражескими кораблями
-			enemiesObjects.some(enemy => {
-
-				if(this.checkCollisionWith(enemy)){
-
-					this.boom();
-					enemy.hit(this.force);
-
-					return true;
-				}
-
-				return false;
-
-			});
 
 		}
 
@@ -174,11 +152,7 @@ export default class LaserBulletAttack extends Attack
 				new Vector3().subVectors(this.to, this.position).normalize()
 			);
 
-			this.length = this.from.distanceTo(this.position);
-
 		}
-
-		this.lastPosition = this.position.clone();
 
 	}
 

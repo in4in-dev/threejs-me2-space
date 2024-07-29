@@ -160,13 +160,13 @@ export default class Game extends Engine
 
 		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
 			.addSkill('fire', this.skillFire, costCounter(() => this.ship.fireLevel, [100, 1000, 3000, 5000, 10000, 20000, 50000]), () => {
-				this.ship.fireLevel++;
+				this.ship.setFireLevel(this.ship.fireLevel + 1);
 			})
 			.addSkill('wave', this.skillShockwave, costCounter(() => this.ship.shockWaveLevel, [2000, 5000, 10000, 20000, 50000, 100000]), () => {
-				this.ship.shockWaveLevel++;
+				this.ship.setShockwaveLevel(this.ship.shockWaveLevel + 1);
 			})
 			.addSkill('rocket', this.skillRocket, costCounter(() => this.ship.rocketLevel, [5000, 10000, 20000, 50000, 100000, 200000]), () => {
-				this.ship.rocketLevel++;
+				this.ship.setRocketLevel(this.ship.rocketLevel + 1);
 			})
 			.addSkill('friend', this.skillSpawnFriend, costCounter(() => this.friendsLevel, [10000, 20000, 50000, 100000, 200000]), () => {
 				this.friendsLevel++
@@ -178,7 +178,7 @@ export default class Game extends Engine
 				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
 			})
 			.addSkill('shield', this.skillShield, costCounter(() => this.ship.shieldLevel, [10000, 20000, 30000, 50000]), () => {
-				this.ship.shieldLevel++;
+				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
 			});
 
 

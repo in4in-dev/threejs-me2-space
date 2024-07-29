@@ -14,10 +14,8 @@ export default class FriendHammerhead extends Mob
 
 	protected mesh : THREE.Group;
 
-	protected autoFireThrottler : AnimationThrottler = Animation.createThrottler(300);
-
 	protected autoFireMinDistance : number = 50;
-
+	protected autoFireThrottler : AnimationThrottler = Animation.createThrottler(300);
 
 	constructor(
 		level : number,
@@ -31,6 +29,51 @@ export default class FriendHammerhead extends Mob
 
 		//Добавляем на сцену
 		this.add(this.mesh!);
+
+	}
+
+
+	protected createBody() : THREE.Group
+	{
+
+		let ship = new ModelLoader(
+			'../../../../assets/mobs/hammerhead/hammerhead.obj',
+			'../../../../assets/mobs/hammerhead/hammerhead.mtl'
+		).loadInBackground();
+
+		ship.scale.set(0.005, 0.005, 0.005);
+		ship.rotation.set(1.7, Math.PI, 0);
+
+		let light = new THREE.PointLight('white', 2, 5);
+		light.position.set(0, 2, 0);
+
+		let group = new THREE.Group;
+
+		group.add(light, ship);
+
+		return group;
+
+	}
+
+	protected createAttack(x : number, to : Vector3) : LaserBulletAttack
+	{
+
+		return new LaserBulletAttack(
+			new Vector3(this.position.x + x, this.position.y - 0.3, 0),
+			new Vector3().subVectors(to, this.position).multiplyScalar(9999),
+			Random.int(this.level, this.level * 5),
+			'white',
+			'#66bd4e'
+		);
+
+	}
+
+	public fire(to : Vector3){
+
+		this.attacksContainer.addAttacks(
+			this.createAttack(0.3, to),
+			this.createAttack(-0.3, to)
+		);
 
 	}
 
@@ -62,56 +105,6 @@ export default class FriendHammerhead extends Mob
 
 		//Автоматический огонь
 		super.animate();
-
-	}
-
-	protected createBody() : THREE.Group
-	{
-
-		let group = new THREE.Group;
-
-		let ship = new ModelLoader(
-			'../../../../assets/mobs/hammerhead/hammerhead.obj',
-			'../../../../assets/mobs/hammerhead/hammerhead.mtl'
-		).loadInBackground();
-
-		ship.scale.set(0.005, 0.005, 0.005);
-
-		ship.rotation.x = 1.7;
-		ship.rotation.y = Math.PI;
-
-		let light = new THREE.PointLight('white', 2, 5);
-		light.position.z = 2;
-		light.position.y = 0;
-
-		group.add(light);
-		group.add(ship);
-
-		return group;
-
-	}
-
-	public fire(to : Vector3){
-
-		let direction = new Vector3().subVectors(to, this.position).multiplyScalar(9999);
-
-		let bullet1 = new LaserBulletAttack(
-			new Vector3(this.position.x + 0.3, this.position.y - 0.3, 0),
-			direction,
-			Random.int(this.level, this.level * 5),
-			'white',
-			'#66bd4e'
-		);
-
-		let bullet2 = new LaserBulletAttack(
-			new Vector3(this.position.x - 0.3, this.position.y - 0.3, 0),
-			direction,
-			Random.int(this.level, this.level * 5),
-			'white',
-			'#66bd4e'
-		);
-
-		this.attacksContainer.addAttacks(bullet1, bullet2)
 
 	}
 

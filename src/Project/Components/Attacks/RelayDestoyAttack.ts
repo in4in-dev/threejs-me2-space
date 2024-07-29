@@ -2,14 +2,15 @@ import * as THREE from "three";
 import {Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
+import GeometryGenerator from "../../../Three/GeometryGenerator";
 
 export default class RelayDestoyAttack extends Attack
 {
 
 	protected mesh : THREE.Points;
 
-	protected explosionDuration : number = 5000;
 	protected explosionStartTime : number = 0;
+	protected explosionDuration : number = 5000;
 	protected explosionMaxRadius : number = 200;
 
 	protected damagedEnemies : Hittable[] = [];
@@ -19,7 +20,7 @@ export default class RelayDestoyAttack extends Attack
 		force : number
 	) {
 
-		super(from.clone(), force);
+		super(from, force);
 
 		this.explosionStartTime = Date.now();
 
@@ -31,36 +32,21 @@ export default class RelayDestoyAttack extends Attack
 
 	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
 	{
-
-		let points = [];
-		for (let i = 0; i < 50000; i++) {
-			let phi = Math.acos(2 * Math.random() - 1);
-			let theta = 2 * Math.PI * Math.random();
-			let x = radius * Math.sin(phi) * Math.cos(theta);
-			let y = radius * Math.sin(phi) * Math.sin(theta);
-			let z = radius * Math.cos(phi);
-			points.push(new THREE.Vector3(x, y, z));
-		}
-
-		return new THREE.BufferGeometry().setFromPoints(points);
-
+		return GeometryGenerator.emptySphere(radius, 50000);
 	}
 
 	protected createMesh(): THREE.Points
 	{
 
-		let particleTexture = new THREE.TextureLoader().load('../../../../assets/sand.png');
-
 		return new THREE.Points(
 			this.generateShieldGeometry(0),
 			new THREE.PointsMaterial({
+				map : new THREE.TextureLoader().load('../../../../assets/sand.png'),
 				transparent : true,
 				blending: THREE.AdditiveBlending,
 				depthTest: false,
 				color : '#2289c4',
-				// opacity: 0.25,
-				size : 0.3 ,
-				map : particleTexture
+				size : 0.3
 			})
 		);
 
@@ -72,33 +58,32 @@ export default class RelayDestoyAttack extends Attack
 		enemiesObjects : Hittable[] = []
 	){
 
+		if(this.isVisible){
 
-		//Анимируем щит
-		let progress = (Date.now() - this.explosionStartTime) / this.explosionDuration;
-		let radius = progress * this.explosionMaxRadius;
+			let progress = (Date.now() - this.explosionStartTime) / this.explosionDuration;
+			let radius = progress * this.explosionMaxRadius;
 
-		if(progress >= 1) {
+			if(progress >= 1) {
+				this.hide();
+			}else{
 
-			this.hide();
+				let outSideSphere = this.generateShieldGeometry(radius);
 
-		}else{
+				this.mesh.geometry.copy(outSideSphere);
 
-			let outSideSphere = this.generateShieldGeometry(radius);
+				enemiesObjects.forEach(enemy => {
 
-			this.mesh.geometry.copy(outSideSphere);
+					if (
+						this.damagedEnemies.indexOf(enemy) < 0 &&
+						enemy.position.distanceTo(this.position) <= radius
+					) {
+						enemy.hit(this.force);
+						this.damagedEnemies.push(enemy);
+					}
 
+				});
 
-			enemiesObjects.forEach(enemy => {
-
-				if (
-					this.damagedEnemies.indexOf(enemy) < 0 &&
-					enemy.position.distanceTo(this.position) <= radius
-				) {
-					enemy.hit(this.force);
-					this.damagedEnemies.push(enemy);
-				}
-
-			});
+			}
 
 		}
 

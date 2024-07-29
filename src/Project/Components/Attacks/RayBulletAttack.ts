@@ -3,18 +3,20 @@ import {Object3D, Vector3} from "three";
 import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
+import HitBox from "../../Core/HitBox";
 
 export default class RayBulletAttack extends Attack
 {
 
 	protected to : Vector3;
+
 	protected color : any;
+	protected createTime : number;
+	protected duration : number = 400;
+	protected speed : number = 200;
 
 	protected mesh : THREE.Mesh;
 	protected glow : THREE.Sprite;
-	protected createTime : number;
-
-	protected speed : number = 200;
 
 	protected damageThrottler : AnimationThrottler = Animation.createThrottler(100);
 
@@ -34,7 +36,37 @@ export default class RayBulletAttack extends Attack
 		this.glow = this.createGlow();
 
 		this.mesh.add(this.glow);
+
 		this.add(this.mesh);
+
+	}
+
+	protected createBody() : THREE.Mesh
+	{
+
+		return new THREE.Mesh(
+			new THREE.CylinderGeometry(0.05, 0.05, 0, 32),
+			new THREE.MeshBasicMaterial({ color: this.color, transparent : true, opacity : 0.5 })
+		);
+
+	}
+
+	protected createGlow() : THREE.Sprite
+	{
+
+		let glowSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../../../assets/glow.png'),
+				opacity : 0,
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false
+			})
+		);
+
+		glowSprite.scale.set(4, 2, 2);
+
+		return glowSprite;
 
 	}
 
@@ -47,62 +79,31 @@ export default class RayBulletAttack extends Attack
 
 	}
 
-	protected createBody() : THREE.Mesh
+
+	protected noEffect() : void
 	{
-
-		let geometry = new THREE.CylinderGeometry(0.05, 0.05, 0, 32);
-		let material = new THREE.MeshBasicMaterial({ color: this.color, transparent : true, opacity : 0.5 });
-		let cylinder = new THREE.Mesh(geometry, material);
-
-		return cylinder;
-
-	}
-
-	protected createGlow() : THREE.Sprite
-	{
-
-		let glowTexture = new THREE.TextureLoader().load('../../../../assets/glow.png');
-
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			opacity : 0,
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false
-		});
-
-		let glowSprite = new THREE.Sprite(glowMaterial);
-		glowSprite.scale.set(4, 2, 2);
-
-		return glowSprite;
-
-	}
-
-	protected noEffect(){
 		this.glow.material.opacity = 0;
 	}
 
-	protected boom(){
+	protected boomEffect() : void
+	{
 		this.glow.material.color.set('#ff8b33');
 		this.glow.material.opacity = 1;
 	}
 
-	protected boof(){
-		this.glow.material.color.set('gray');
-		this.glow.material.opacity = 1;
-	}
-
-	public updateTarget(to : Vector3){
+	public updateTarget(to : Vector3) : void
+	{
 		this.to = to.clone();
 	}
 
-	public updateStartPoint(from : Vector3){
+	public updateStartPoint(from : Vector3) : void
+	{
 		this.from = from.clone();
 	}
 
 	public animate(peaceObjects: Object3D[], enemies: Hittable[]): void {
 
-		if(Date.now() - this.createTime > this.speed + 200){
+		if(Date.now() - this.createTime > this.duration){
 			this.hide();
 		}else {
 
@@ -114,38 +115,20 @@ export default class RayBulletAttack extends Attack
 
 			let direction = new THREE.Vector3().subVectors(this.from, this.to).normalize();
 
-			let boofed = peaceObjects.some(obj => {
+			enemies.some(enemy => {
 
-				let raycastler = new THREE.Raycaster(this.from, direction.clone().multiplyScalar(-1), 0, length);
-				let enemyBox = new THREE.Box3().setFromObject(obj);
+				let rayCaster = new THREE.Raycaster(
+					this.from,
+					direction.clone().multiplyScalar(-1),
+					0,
+					length
+				);
 
-				let vector = new Vector3();
-
-				if(raycastler.ray.intersectBox(enemyBox, vector)){
-
-					length = Math.min(
-						this.from.distanceTo(vector),
-						length
-					);
-
-					this.boof();
-
-					return true;
-
-				}
-
-				return false;
-
-			});
-
-			boofed || enemies.some(enemy => {
-
-				let raycastler = new THREE.Raycaster(this.from, direction.clone().multiplyScalar(-1), 0, length);
-				let enemyBox = new THREE.Box3().setFromObject(enemy);
+				let enemyBox = HitBox.getFor(enemy, false);
 
 				let vector = new Vector3();
 
-				if(raycastler.ray.intersectBox(enemyBox, vector)){
+				if(rayCaster.ray.intersectBox(enemyBox, vector)){
 
 					length = Math.min(
 						this.from.distanceTo(vector),
@@ -153,8 +136,7 @@ export default class RayBulletAttack extends Attack
 					);
 
 					this.damageThrottler(() => enemy.hit(this.force));
-
-					this.boom();
+					this.boomEffect();
 
 					return true;
 
@@ -165,8 +147,9 @@ export default class RayBulletAttack extends Attack
 			});
 
 
-			this.mesh.geometry.dispose();
-			this.mesh.geometry = new THREE.CylinderGeometry(0.05, 0.05, length, 32);
+			this.mesh.geometry.copy(
+				new THREE.CylinderGeometry(0.05, 0.05, length, 32)
+			);
 
 			this.position.copy(
 				this.from.clone().add(
