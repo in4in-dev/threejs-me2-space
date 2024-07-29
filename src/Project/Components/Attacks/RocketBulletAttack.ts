@@ -133,7 +133,7 @@ export default class RocketBulletAttack extends Attack
 
 					if(direction.length() > 0.1){
 
-						direction.normalize();
+						direction.normalize().setZ(0);
 
 						enemy.position.add(
 							direction.multiplyScalar(this.addictiveSpeed)
