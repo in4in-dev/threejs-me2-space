@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import MeshBasicTextureMaterial from "../../Three/MeshBasicTextureMaterial";
 import Component from "../Core/Component";
 import Random from "../../Three/Random";
+import GeometryGenerator from "../../Three/GeometryGenerator";
 
 export default class Background extends Component
 {
@@ -24,30 +25,37 @@ export default class Background extends Component
 	}
 
 
-	protected createSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
+	private createSmoke(path : string, color : any | null = null, opacity : number = 1) : THREE.Sprite
 	{
 
-		let smokeTexture = new THREE.TextureLoader().load(path);
+		let smokeSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load(path),
+				transparent: true,
+				blending : THREE.AdditiveBlending,
+				depthWrite:false,
+				opacity,
+				color
+			})
+		);
 
-		let smokeMaterial = new THREE.SpriteMaterial({
-			map: smokeTexture,
-			transparent: true,
-			blending : THREE.AdditiveBlending,
-			depthWrite:false,
-			opacity,
-			color
-		});
+		smokeSprite.position.set(
+			Random.int(-30, 30),
+			Random.int(-30, 30),
+			-1
+		);
 
-		let smokeSprite = new THREE.Sprite(smokeMaterial);
-
-		smokeSprite.position.set(Random.int(-30, 30), Random.int(-30, 30), -1);
-		smokeSprite.scale.set(Random.int(20, 100), Random.int(10, 40), 20);
+		smokeSprite.scale.set(
+			Random.int(20, 100),
+			Random.int(10, 40),
+			20
+		);
 
 		return smokeSprite;
 
 	}
 
-	protected createSprites() : THREE.Sprite[]
+	private createSprites() : THREE.Sprite[]
 	{
 
 		return [
@@ -58,55 +66,36 @@ export default class Background extends Component
 
 	}
 
-	protected createPoints(count : number) : THREE.Points
+	private createPoints(count : number) : THREE.Points
 	{
 
-		let positions = [];
+		return new THREE.Points(
+			GeometryGenerator.filledSphere(100, count),
 
-		for (let i = 0; i < count; i++) {
-
-			let phi = Math.acos(2 * Math.random() - 1);
-			let theta = 2 * Math.PI * Math.random();
-
-			let x = Random.int(0, 100) * Math.sin(phi) * Math.cos(theta);
-			let y = Random.int(0, 100) * Math.sin(phi) * Math.sin(theta);
-			let z = Random.int(0, 100) * Math.abs(Math.cos(phi));
-
-			positions.push(x, y, z);
-
-		}
-
-		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
-
-		let particleGeometry = new THREE.BufferGeometry();
-		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-		let material = new THREE.PointsMaterial({
-			map: particleTexture,
-			size: 0.1,
-			blending: THREE.AdditiveBlending,
-			depthTest: false,
-			transparent: true
-		});
-
-
-		return new THREE.Points(particleGeometry, material);
+			new THREE.PointsMaterial({
+				map: new THREE.TextureLoader().load('../../assets/sand.png'),
+				size: 0.1,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				transparent: true
+			})
+		);
 
 	}
 
-	protected createBody(picture : string, opacity : number) : THREE.Mesh
+	private createBody(picture : string, opacity : number) : THREE.Mesh
 	{
 
-		let spaceTexture = new THREE.TextureLoader().load(picture);
+		let spaceBackground = new THREE.Mesh(
+			new THREE.SphereGeometry(500, 14, 14),
+			new MeshBasicTextureMaterial(
+				new THREE.TextureLoader().load(picture),
+				opacity,
+				{side: THREE.BackSide}
+			)
+		);
 
-		let spaceMaterial = new MeshBasicTextureMaterial(spaceTexture, opacity, {side: THREE.BackSide});
-
-		let spaceGeometry = new THREE.SphereGeometry(500, 14, 14); // Большая сфера, окружающая сцену
-		let spaceBackground = new THREE.Mesh(spaceGeometry, spaceMaterial);
-
-		spaceBackground.rotation.x = 3000;
-		spaceBackground.rotation.z = 300;
-		spaceBackground.rotation.y = 300;
+		spaceBackground.rotation.set(3000, 300, 300);
 
 		return spaceBackground;
 

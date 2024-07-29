@@ -25,7 +25,7 @@ export default class AsteroidBelt extends Component
 
 	}
 
-	protected createAsteroid() : Asteroid
+	private createAsteroid() : Asteroid
 	{
 
 		let templates = [
@@ -51,7 +51,7 @@ export default class AsteroidBelt extends Component
 	}
 
 
-	protected createAsteroids(count : number) : Asteroid[]
+	private createAsteroids(count : number) : Asteroid[]
 	{
 
 		let asteroids = [];
@@ -68,7 +68,7 @@ export default class AsteroidBelt extends Component
 
 	}
 
-	protected createBelt(radius : number, thickness : number) : Belt
+	private createBelt(radius : number, thickness : number) : Belt
 	{
 		return new Belt(radius, thickness);
 	}

@@ -1,5 +1,5 @@
-import {Object3D} from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import * as THREE from 'three';
 
 //@ts-ignore
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
@@ -15,15 +15,15 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	public health : number;
 	public maxHealth : number;
+
 	public isVisible : boolean = true;
 
 	protected autoFireActive : boolean = false;
+	protected autoFireMinDistance : number = 50;
 	protected autoFireThrottler : AnimationThrottler = Animation.createThrottler(2000);
 
 	protected hp : CSS2DObject;
-	protected attackTarget : Object3D | null = null;
-
-	protected autoFireMinDistance : number = 50;
+	protected attackTarget : THREE.Object3D | null = null;
 
 	constructor(
 		health : number,
@@ -44,7 +44,7 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	}
 
-	protected createHp() : CSS2DObject
+	private createHp() : CSS2DObject
 	{
 
 		let wrap = document.createElement('div');
@@ -56,13 +56,14 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 		wrap.appendChild(bar);
 
 		let label = new CSS2DObject(wrap);
+
 		label.position.set(0, 0, 1);
 
 		return label;
 
 	}
 
-	protected createHitLabel(text : string) : CSS2DObject
+	private createHitLabel(text : string) : CSS2DObject
 	{
 
 		let div = document.createElement('div');
@@ -70,13 +71,15 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 		div.textContent = text;
 
 		let label = new CSS2DObject(div);
+
 		label.position.set(0, 0, 1);
 
 		return label;
 
 	}
 
-	protected explosion(){
+	protected explosion() : void
+	{
 
 		let props = {
 			rotationZ : this.rotation.z,
@@ -98,15 +101,17 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	}
 
-	public startAutoFire(){
+	public startAutoFire() : void
+	{
 		this.autoFireActive = true;
 	}
 
-	public stopAutoFire(){
+	public stopAutoFire() : void
+	{
 		this.autoFireActive = false;
 	}
 
-	public setNearestAttackTarget(objects : Object3D[], maxDistance : number = Infinity)
+	public setNearestAttackTarget(objects : THREE.Object3D[], maxDistance : number = Infinity) : void
 	{
 
 		let target = this.whoNearest(objects, maxDistance);
@@ -119,19 +124,23 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	}
 
-	public clearAttackTarget(){
+	public clearAttackTarget() : void
+	{
 		this.attackTarget = null;
 	}
 
-	public setAttackTarget(object : Object3D){
+	public setAttackTarget(object : THREE.Object3D) : void
+	{
 		this.attackTarget = object;
 	}
 
-	public hasAttackTarget(){
+	public hasAttackTarget() : boolean
+	{
 		return !!this.attackTarget;
 	}
 
-	public animate(){
+	public animate() : void
+	{
 
 		if(this.autoFireActive && this.attackTarget && this.attackTarget.position.distanceTo(this.position) < this.autoFireMinDistance){
 			this.autoFireThrottler(() => this.fire(this.attackTarget!.position));
@@ -171,8 +180,6 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 		}else{
 
 			this.remove(this.hp);
-
-			this.stop();
 			this.explosion();
 
 		}
@@ -181,7 +188,8 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 
 	}
 
-	public heal(h : number){
+	public heal(h : number) : void
+	{
 		this.health = Math.min(this.maxHealth, this.health + h);
 	}
 

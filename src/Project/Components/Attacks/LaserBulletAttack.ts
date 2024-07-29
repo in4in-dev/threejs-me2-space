@@ -39,7 +39,7 @@ export default class LaserBulletAttack extends Attack
 	}
 
 
-	protected createGlow(color : any) : THREE.Sprite
+	private createGlow(color : any) : THREE.Sprite
 	{
 
 		let glowSprite = new THREE.Sprite(
@@ -58,7 +58,7 @@ export default class LaserBulletAttack extends Attack
 
 	}
 
-	protected createMesh(color : any): THREE.Mesh
+	private createMesh(color : any): THREE.Mesh
 	{
 
 		let mesh = new THREE.Mesh(
@@ -77,7 +77,7 @@ export default class LaserBulletAttack extends Attack
 
 	}
 
-	protected checkCollisionWith(object : THREE.Object3D) : boolean
+	private checkCollisionWith(object : THREE.Object3D) : boolean
 	{
 		return HitBox.getFor(object, true).containsPoint(this.position);
 	}

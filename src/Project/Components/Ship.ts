@@ -23,16 +23,6 @@ export default class Ship extends Component
 		this.speed = speed;
 	}
 
-	public stop(){
-		this.moveToFast(this.position.x, this.position.y);
-	}
-
-	public moveToFast(x : number, y : number)
-	{
-		this.position.x = x;
-		this.position.y = y;
-	}
-
 	public rotateTo(cords : Vector3){
 
 		let direction = new THREE.Vector3().subVectors(cords, this.position);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Component from "../Core/Component";
 import Random from "../../Three/Random";
+import {BufferGeometry} from "three";
 
 export default class Sparks extends Component
 {
@@ -31,7 +32,7 @@ export default class Sparks extends Component
 
 	}
 
-	protected generateRandomPositions() : number[]
+	private generateRandomPositions() : number[]
 	{
 
 		let positions = [];
@@ -53,25 +54,31 @@ export default class Sparks extends Component
 
 	}
 
-	protected createPoints() : THREE.Points
+	private getGeometry() : THREE.BufferGeometry
 	{
 
-		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
-
 		let particleGeometry = new THREE.BufferGeometry();
+
 		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
 
-		let material = new THREE.PointsMaterial({
-			map: particleTexture,
-			size: this.size,
-			blending: THREE.AdditiveBlending,
-			depthTest: false,
-			transparent: true,
-			color : this.color
-		});
+		return particleGeometry;
 
+	}
 
-		return new THREE.Points(particleGeometry, material);
+	private createPoints() : THREE.Points
+	{
+
+		return new THREE.Points(
+			this.getGeometry(),
+			new THREE.PointsMaterial({
+				map: new THREE.TextureLoader().load('../../assets/sand.png'),
+				size: this.size,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				transparent: true,
+				color : this.color
+			})
+		);
 
 	}
 
@@ -103,10 +110,9 @@ export default class Sparks extends Component
 
 		}
 
-		let particleGeometry = new THREE.BufferGeometry();
-		particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
-
-		this.points.geometry.copy(particleGeometry);
+		this.points.geometry.copy(
+			this.getGeometry()
+		);
 
 	}
 

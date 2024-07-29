@@ -1,11 +1,11 @@
 import Mob from "./Mob";
 import Random from "../../Three/Random";
-import Heal from "./Heal";
+import Heal from "./Drops/Heal";
 import {Vector3} from "three";
 import DropContainer from "../Containers/DropContainer";
 import AttacksContainer from "./../Containers/AttacksContainer";
 import Healthy from "../Contracts/Healthy";
-import Experience from "./Experience";
+import Experience from "./Drops/Experience";
 import Experienced from "../Contracts/Experienced";
 
 export default abstract class Enemy extends Mob

@@ -14,7 +14,7 @@ export default class Planet extends Component
 	public radius : number;
 	public activeColor = 0xff0000;
 
-	public  moons : Moon[] = [];
+	public moons : Moon[] = [];
 
 	protected label : CSS2DObject;
 	protected mesh : THREE.Mesh;
@@ -60,7 +60,7 @@ export default class Planet extends Component
 
 	}
 
-	public setActive(active : boolean)
+	public setActive(active : boolean) : void
 	{
 
 		if(active){
@@ -78,22 +78,18 @@ export default class Planet extends Component
 		return this.mesh;
 	}
 
-	protected createRing(minRadius : number, maxRadius : number, color : any) : THREE.Mesh
+	private createRing(radius : number, thickness : number, color : any) : THREE.Mesh
 	{
 
-		let radius = Random.float(minRadius, maxRadius),
-			thickness = Random.float(0.1, 2);
-
-		// Создание колец
-		let ringGeometry = new THREE.RingGeometry(radius + thickness, radius, 32);
-		let ringMaterial = new THREE.MeshBasicMaterial({
-			color: color,
-			side: THREE.DoubleSide,
-			transparent: true,
-			opacity: 0.1,
-		});
-
-		let mesh = new THREE.Mesh(ringGeometry, ringMaterial);
+		let mesh = new THREE.Mesh(
+			new THREE.RingGeometry(radius + thickness, radius, 32),
+			new THREE.MeshBasicMaterial({
+				color: color,
+				side: THREE.DoubleSide,
+				transparent: true,
+				opacity: 0.1,
+			})
+		);
 
 		mesh.position.z = Random.float(-0.1, 0.1);
 
@@ -101,7 +97,7 @@ export default class Planet extends Component
 
 	}
 
-	protected createRings() : THREE.Group
+	private createRings() : THREE.Group
 	{
 
 		let group = new THREE.Group();
@@ -109,11 +105,11 @@ export default class Planet extends Component
 		let maxRadius = this.radius + Random.float(0.5, 2);
 
 		group.add(
-			this.createRing(this.radius + 0.5, maxRadius, '#f6f6f6'),
-			this.createRing(this.radius + 0.5, maxRadius, '#5e5555'),
-			this.createRing(this.radius + 0.5, maxRadius, '#070707'),
-			this.createRing(this.radius + 0.5, maxRadius, '#44401f'),
-			this.createRing(this.radius + 0.5, maxRadius, '#efea8f')
+			this.createRing(Random.float(this.radius + 0.5, maxRadius), Random.float(0.1, 2), '#f6f6f6'),
+			this.createRing(Random.float(this.radius + 0.5, maxRadius), Random.float(0.1, 2), '#5e5555'),
+			this.createRing(Random.float(this.radius + 0.5, maxRadius), Random.float(0.1, 2), '#070707'),
+			this.createRing(Random.float(this.radius + 0.5, maxRadius), Random.float(0.1, 2), '#44401f'),
+			this.createRing(Random.float(this.radius + 0.5, maxRadius), Random.float(0.1, 2), '#efea8f')
 		);
 
 		return group;
@@ -121,26 +117,22 @@ export default class Planet extends Component
 	}
 
 
-	protected createBody() : THREE.Mesh
+	private createBody() : THREE.Mesh
 	{
 
-		let planetTexturre = new THREE.TextureLoader().load(this.texture);
-		let planetMaterial = new THREE.MeshLambertMaterial({ map: planetTexturre });
-
-		let planet = new THREE.Mesh(
+		return new THREE.Mesh(
 			new THREE.SphereGeometry(this.radius, 200, 200),
-			planetMaterial
+			new THREE.MeshLambertMaterial({
+				map: new THREE.TextureLoader().load(this.texture)
+			})
 		);
-
-		return planet;
 
 	}
 
 
-	protected createLabel() : CSS2DObject
+	private createLabel() : CSS2DObject
 	{
 
-		// Создание метки для планеты
 		let div = document.createElement('div');
 		div.className = 'label';
 		div.textContent = this.name;

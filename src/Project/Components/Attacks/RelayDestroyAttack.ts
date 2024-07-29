@@ -4,7 +4,7 @@ import Attack from "../Attack";
 import Hittable from "../../Contracts/Hittable";
 import GeometryGenerator from "../../../Three/GeometryGenerator";
 
-export default class RelayDestoyAttack extends Attack
+export default class RelayDestroyAttack extends Attack
 {
 
 	protected mesh : THREE.Points;
@@ -30,12 +30,12 @@ export default class RelayDestoyAttack extends Attack
 
 	}
 
-	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
+	private generateShieldGeometry(radius : number) : THREE.BufferGeometry
 	{
 		return GeometryGenerator.emptySphere(radius, 50000);
 	}
 
-	protected createMesh(): THREE.Points
+	private createMesh(): THREE.Points
 	{
 
 		return new THREE.Points(

@@ -6,7 +6,7 @@ import ModelLoader from "../../../Three/ModelLoader";
 import {CSS3DObject} from "three/examples/jsm/renderers/CSS3DRenderer";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
 import Sparks from "../Sparks";
-import RelayDestoyAttack from "../Attacks/RelayDestoyAttack";
+import RelayDestroyAttack from "../Attacks/RelayDestroyAttack";
 import Random from "../../../Three/Random";
 import GeometryGenerator from "../../../Three/GeometryGenerator";
 
@@ -54,7 +54,7 @@ export default class FriendRelay extends Mob
 
 	}
 
-	protected createGlow() : THREE.Sprite
+	private createGlow() : THREE.Sprite
 	{
 
 		let textures = [
@@ -78,7 +78,7 @@ export default class FriendRelay extends Mob
 		return glowSprite;
 	}
 
-	protected createSparks() : Sparks
+	private createSparks() : Sparks
 	{
 		let sparks = new Sparks(0.2, '#04334f', 0.4);
 
@@ -87,7 +87,7 @@ export default class FriendRelay extends Mob
 		return sparks;
 	}
 
-	protected createLetter() : CSS3DObject
+	private createLetter() : CSS3DObject
 	{
 
 		let wrap = document.createElement('div');
@@ -104,18 +104,14 @@ export default class FriendRelay extends Mob
 
 	}
 
-	public rotateRelay(angle : number) : void
-	{
-		this.group.rotation.z= angle;
-		this.icon.rotation.y = -angle;
-	}
 
-	protected generateShieldGeometry(radius : number) : THREE.BufferGeometry
+
+	private generateShieldGeometry(radius : number) : THREE.BufferGeometry
 	{
 		return GeometryGenerator.emptySphere(radius, 3000);
 	}
 
-	protected createShield() : THREE.Points
+	private createShield() : THREE.Points
 	{
 
 		let particleTexture = new THREE.TextureLoader().load('../../../../assets/sand.png');
@@ -135,7 +131,7 @@ export default class FriendRelay extends Mob
 		);
 	}
 
-	protected createBody() : THREE.Group
+	private createBody() : THREE.Group
 	{
 
 		let mesh = new ModelLoader(
@@ -160,6 +156,12 @@ export default class FriendRelay extends Mob
 
 		});
 
+	}
+
+	public rotateRelay(angle : number) : void
+	{
+		this.group.rotation.z= angle;
+		this.icon.rotation.y = -angle;
 	}
 
 	public activateShield(time : number){
@@ -232,7 +234,7 @@ export default class FriendRelay extends Mob
 		this.remove(this.icon);
 
 		this.attacksContainer.addAttacks(
-			new RelayDestoyAttack(
+			new RelayDestroyAttack(
 				this.position,
 				200000
 			)

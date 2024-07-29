@@ -43,7 +43,7 @@ export default class PlanetWithOrbit extends Component
 
 	}
 
-	protected createOrbit() : Orbit
+	private createOrbit() : Orbit
 	{
 		return new Orbit(this.orbitRadius, '#a2a2a2', 0.008);
 	}

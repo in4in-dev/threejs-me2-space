@@ -10,14 +10,14 @@ interface HitBoxCacheItem{
 export default class HitBox extends Box3
 {
 
-	protected static cachedTargets : HitBoxCacheItem[] = [];
+	private static cachedTargets : HitBoxCacheItem[] = [];
 
-	protected static getBox3(object : THREE.Object3D) : Box3
+	private static getBox3(object : THREE.Object3D) : Box3
 	{
 		return new Box3().setFromObject(object)
 	}
 
-	protected static getCachedBox3(object : THREE.Object3D) : Box3
+	private static getCachedBox3(object : THREE.Object3D) : Box3
 	{
 
 		let item = HitBox.cachedTargets.find(cache => cache.target === object);

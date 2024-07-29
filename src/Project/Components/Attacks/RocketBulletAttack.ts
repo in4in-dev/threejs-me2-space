@@ -47,7 +47,7 @@ export default class RocketBulletAttack extends Attack
 	}
 
 
-	protected createGlow() : THREE.Sprite
+	private createGlow() : THREE.Sprite
 	{
 
 		return new THREE.Sprite(new THREE.SpriteMaterial({
@@ -61,7 +61,7 @@ export default class RocketBulletAttack extends Attack
 	}
 
 
-	protected createMesh(): THREE.Group
+	private createMesh(): THREE.Group
 	{
 
 		let group = new THREE.Group;

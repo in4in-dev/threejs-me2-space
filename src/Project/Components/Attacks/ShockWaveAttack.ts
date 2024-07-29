@@ -43,7 +43,7 @@ export default class ShockWaveAttack extends Attack
 
 	}
 
-	protected createLightning(from : Vector3, to : Vector3) : THREE.Line
+	private createLightning(from : Vector3, to : Vector3) : THREE.Line
 	{
 
 		let points = [];
@@ -70,7 +70,7 @@ export default class ShockWaveAttack extends Attack
 
 	}
 
-	protected hitEnemy(enemy : Hittable) : void
+	private hitEnemy(enemy : Hittable) : void
 	{
 
 		enemy.hit(this.force);
@@ -85,7 +85,7 @@ export default class ShockWaveAttack extends Attack
 
 	}
 
-	protected createLightnings(enemies : Hittable[], randomLightnings : number = 5) : THREE.Group
+	private createLightnings(enemies : Hittable[], randomLightnings : number = 5) : THREE.Group
 	{
 
 		let group = new THREE.Group;
@@ -123,7 +123,7 @@ export default class ShockWaveAttack extends Attack
 
 	}
 
-	protected replaceMesh(mesh : THREE.Group) : void
+	private replaceMesh(mesh : THREE.Group) : void
 	{
 		this.remove(this.mesh);
 		this.mesh = mesh;

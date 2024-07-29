@@ -40,52 +40,41 @@ export default class Sun extends Component
 	}
 
 
-	protected createGlow() : THREE.Sprite
+	private createGlow() : THREE.Sprite
 	{
 
-		// Загрузка текстуры для свечения
-		let glowTexture = new THREE.TextureLoader().load('../../assets/glow.png');
+		let glowSprite = new THREE.Sprite(
+			new THREE.SpriteMaterial({
+				map: new THREE.TextureLoader().load('../../assets/glow.png'),
+				color: this.glowColor, // Цвет свечения
+				transparent: true,
+				blending: THREE.AdditiveBlending,
+				depthWrite:false
+			})
+		);
 
-		// Создание материала для свечения
-		let glowMaterial = new THREE.SpriteMaterial({
-			map: glowTexture,
-			color: this.glowColor, // Цвет свечения
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite:false
-		});
-
-		// Создание спрайта для свечения
-		let glowSprite = new THREE.Sprite(glowMaterial);
 		glowSprite.scale.set(20, 10, 10);
 
 		return glowSprite;
 
 	}
 
-	protected createBody() : THREE.Mesh
+	private createBody() : THREE.Mesh
 	{
 
-		// Создание материала для солнца
-		let sunMaterial = new THREE.MeshBasicMaterial({color: 'white'});
-
-		let sunGeometry = new THREE.IcosahedronGeometry(this.radius, 64);
-
-		return new THREE.Mesh(sunGeometry, sunMaterial);
+		return new THREE.Mesh(
+			new THREE.IcosahedronGeometry(this.radius, 64),
+			new THREE.MeshBasicMaterial({color: 'white'})
+		);
 
 	}
 
-	protected createLight() : THREE.Light
+	private createLight() : THREE.Light
 	{
-
-		let sunLight = new THREE.PointLight('white', 2, 10000, 0.02); // Цвет, интенсивность и дистанция освещения
-		sunLight.position.set(0, 0, 0); // Положение в центре сцены (где солнце должно быть)
-
-		return sunLight;
-
+		return new THREE.PointLight(this.glowColor, 2, 10000, 0.02);
 	}
 
-	protected createSparks() : Sparks
+	private createSparks() : Sparks
 	{
 		return new Sparks(this.radius, this.color);
 	}

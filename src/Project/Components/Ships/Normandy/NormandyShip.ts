@@ -69,7 +69,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 		return 1200 * level;
 	}
 
-	protected createLight() : THREE.Light
+	private createLight() : THREE.Light
 	{
 
 		let light = new THREE.PointLight('white', 1, 10);
@@ -80,7 +80,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 	}
 
-	protected createBody() : THREE.Group
+	private createBody() : THREE.Group
 	{
 
 		let ship = new ModelLoader(
@@ -95,7 +95,7 @@ export class NormandyShip extends WarShip implements Hittable, Healthy, Experien
 
 	}
 
-	protected createEngines() : NormandyEngines
+	private createEngines() : NormandyEngines
 	{
 
 		let engineLeft1 = new NormandyEngine('#0d4379', '#1d64a6', 0.4, 1.5),

@@ -6,9 +6,9 @@ import RayBulletAttack from "../Attacks/RayBulletAttack";
 import DropContainer from "../../Containers/DropContainer";
 import Enemy from "../Enemy";
 import Healthy from "../../Contracts/Healthy";
-import Heal from "../Heal";
+import Heal from "../Drops/Heal";
 import Experienced from "../../Contracts/Experienced";
-import Experience from "../Experience";
+import Experience from "../Drops/Experience";
 
 export default class EnemyReaper extends Enemy
 {
@@ -38,7 +38,7 @@ export default class EnemyReaper extends Enemy
 
 	}
 
-	protected createBody() : THREE.Group
+	private createBody() : THREE.Group
 	{
 
 		let ship = new ModelLoader(
@@ -122,7 +122,6 @@ export default class EnemyReaper extends Enemy
 				}
 
 			}else{
-				this.stop();
 				this.rotateTo(this.attackTarget.position);
 			}
 

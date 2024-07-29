@@ -1,27 +1,31 @@
 import * as THREE from 'three';
-import Drop from "./Drop";
-import Healthy from "../Contracts/Healthy";
+import Drop from "./../Drop";
+import Experienced from "../../Contracts/Experienced";
 
-export default class Heal extends Drop<Healthy>
+export default class Experience extends Drop<Experienced>
 {
 
-	public healths : number;
+	public value : number;
 
 	protected mesh : THREE.Mesh;
 
-	constructor(healths : number, radius : number = 0.1) {
+	constructor(value : number, radius : number = 0.1) {
+
 		super();
-		this.healths = healths;
+
+		this.value = value;
+
 		this.mesh = this.createMesh(radius);
 
 		this.add(this.mesh);
+
 	}
 
-	protected createMesh(radius : number) : THREE.Mesh
+	private createMesh(radius : number) : THREE.Mesh
 	{
 
 		let sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(radius, 10, 10),
+			new THREE.SphereGeometry(radius, 2, 2),
 			new THREE.MeshBasicMaterial({color : 'white', transparent : true, opacity : 0.7})
 		);
 
@@ -29,13 +33,13 @@ export default class Heal extends Drop<Healthy>
 			new THREE.SpriteMaterial({
 				map: new THREE.TextureLoader().load('../../assets/glow.png'),
 				transparent: true,
-				color : 'green',
+				color : '#0477b4',
 				blending : THREE.AdditiveBlending,
 				depthWrite:false,
 			})
 		);
 
-		sprite.scale.set(radius * 10, radius * 10, radius * 10);
+		sprite.scale.set(1, 1, 1);
 
 		sphere.add(sprite);
 
@@ -43,8 +47,9 @@ export default class Heal extends Drop<Healthy>
 
 	}
 
-	public use(target : Healthy){
-		target.heal(this.healths);
+	public use(target : Experienced) : void
+	{
+		target.exp(this.value);
 	}
 
 }

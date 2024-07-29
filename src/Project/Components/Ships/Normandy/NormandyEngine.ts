@@ -47,7 +47,7 @@ export default class NormandyEngine extends Component
 		return this;
 	}
 
-	protected generatePositions() : number[]
+	private generatePositions() : number[]
 	{
 
 		let positions = [];
@@ -72,7 +72,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected getGeometry() : THREE.BufferGeometry
+	private getGeometry() : THREE.BufferGeometry
 	{
 
 		let pointsGeometry = new THREE.BufferGeometry();
@@ -83,7 +83,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected createGlow(color : any) : THREE.Sprite
+	private createGlow(color : any) : THREE.Sprite
 	{
 
 		let glowSprite = new THREE.Sprite(
@@ -102,7 +102,7 @@ export default class NormandyEngine extends Component
 
 	}
 
-	protected createBody(color : any) : THREE.Points
+	private createBody(color : any) : THREE.Points
 	{
 
 		let points = new THREE.Points(

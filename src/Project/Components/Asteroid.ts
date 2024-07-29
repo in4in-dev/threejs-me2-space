@@ -19,7 +19,7 @@ export default class Asteroid extends Component
 
 	}
 
-	protected createBody(texture : string, material : string) : THREE.Object3D
+	private createBody(texture : string, material : string) : THREE.Object3D
 	{
 
 		let asteroid = new ModelLoader(texture, material).loadInBackground();

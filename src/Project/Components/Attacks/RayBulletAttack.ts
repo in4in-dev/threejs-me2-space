@@ -41,7 +41,7 @@ export default class RayBulletAttack extends Attack
 
 	}
 
-	protected createBody() : THREE.Mesh
+	private createBody() : THREE.Mesh
 	{
 
 		return new THREE.Mesh(
@@ -51,7 +51,7 @@ export default class RayBulletAttack extends Attack
 
 	}
 
-	protected createGlow() : THREE.Sprite
+	private createGlow() : THREE.Sprite
 	{
 
 		let glowSprite = new THREE.Sprite(

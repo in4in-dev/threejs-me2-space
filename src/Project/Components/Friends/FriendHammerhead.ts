@@ -33,7 +33,7 @@ export default class FriendHammerhead extends Mob
 	}
 
 
-	protected createBody() : THREE.Group
+	private createBody() : THREE.Group
 	{
 
 		let ship = new ModelLoader(
@@ -55,7 +55,7 @@ export default class FriendHammerhead extends Mob
 
 	}
 
-	protected createAttack(x : number, to : Vector3) : LaserBulletAttack
+	private createAttack(x : number, to : Vector3) : LaserBulletAttack
 	{
 
 		return new LaserBulletAttack(
@@ -96,7 +96,6 @@ export default class FriendHammerhead extends Mob
 				}
 
 			}else{
-				this.stop();
 				this.rotateTo(this.attackTarget.position);
 			}
 

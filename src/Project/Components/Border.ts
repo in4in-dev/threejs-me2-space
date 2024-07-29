@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {Curve, Vector3} from 'three';
 import Component from "../Core/Component";
+import GeometryGenerator from "../../Three/GeometryGenerator";
 
 export default class Border extends Component
 {
@@ -26,34 +27,15 @@ export default class Border extends Component
 
 	}
 
-	protected createBody(radius : number, thickness : number, color: any) : THREE.Mesh
+	private createBody(radius : number, thickness : number, color: any) : THREE.Mesh
 	{
 
-		// Создание кривой эллипса для орбиты
-		let curve = new THREE.EllipseCurve(
-			0, 0,
-			radius, radius,
-			0, 2 * Math.PI,
-			false,
-			0
+		let mesh = new THREE.Mesh(
+			GeometryGenerator.rim(radius, thickness, 400, 8),
+			new THREE.MeshBasicMaterial({ color: color })
 		);
 
-		// Получение точек из кривой
-		let points = curve.getPoints(64);
-
-		// Создание кривой из точек
-		let curvePath = new THREE.CurvePath();
-		curvePath.add(new THREE.CatmullRomCurve3(
-			points.map(point => new THREE.Vector3(point.x, 0, point.y)))
-		);
-
-		// Создание трубчатой геометрии
-		let tubeGeometry = new THREE.TubeGeometry(<Curve<Vector3>>curvePath, 200, thickness, 8, true);
-
-		let material = new THREE.MeshBasicMaterial({ color: color });
-		let mesh = new THREE.Mesh(tubeGeometry, material);
-
-		mesh.rotation.x = Math.PI / 2; // Поворот орбиты, чтобы она лежала в плоскости XZ
+		mesh.rotation.x = Math.PI / 2;
 
 		return mesh;
 

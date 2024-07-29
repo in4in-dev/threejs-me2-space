@@ -4,17 +4,11 @@ import Component from "../Core/Component";
 export default class Belt extends Component
 {
 
-	public  radius : number;
-	public  thickness : number;
-
 	protected mesh : THREE.Points;
 
 	constructor(radius : number, thickness : number) {
 
 		super();
-
-		this.radius = radius;
-		this.thickness = thickness;
 
 		this.mesh = this.createBody(radius, thickness);
 
@@ -23,10 +17,8 @@ export default class Belt extends Component
 
 	}
 
-	protected createBody(radius : number, thickness : number) : THREE.Points
+	private generateGeometry(radius : number, thickness : number) : THREE.BufferGeometry
 	{
-
-		let particleTexture = new THREE.TextureLoader().load('../../assets/sand.png');
 
 		let particleCount = radius * 2000;
 
@@ -49,19 +41,28 @@ export default class Belt extends Component
 
 		// Создание буферной геометрии и добавление частиц
 		let particleGeometry = new THREE.BufferGeometry();
+
 		particleGeometry.setAttribute('position', new THREE.BufferAttribute(particles, 3));
 
-		// Создание материала для частиц
+		return particleGeometry;
+
+	}
+
+	private createBody(radius : number, thickness : number) : THREE.Points
+	{
+
 		let material = new THREE.PointsMaterial({
-			map: particleTexture,
+			map: new THREE.TextureLoader().load('../../assets/sand.png'),
 			size: 0.1, // Размер частиц
 			blending: THREE.AdditiveBlending,
 			depthTest: false,
 			transparent: true
 		});
 
-		// Создание точек (астероидов)
-		return new THREE.Points(particleGeometry, material);
+		return new THREE.Points(
+			this.generateGeometry(radius, thickness),
+			material
+		);
 
 	}
 
