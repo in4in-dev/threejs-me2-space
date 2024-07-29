@@ -49,8 +49,9 @@ export default class Game extends Engine
 
 	//Настройки врагов
 	protected enemyLevel : number = 1;
-	protected enemyCounter : number = 0;
-	protected enemyMaxCount : number = 7;
+	protected enemyDiedCount : number = 0;
+	protected enemySpawnCount : number = 7;
+	protected enemySpawnMaxCount : number = 13;
 	protected enemyKilledUpdateLevel : number = 15;
 	protected enemySpawnThrottler : AnimationThrottler = Animation.createThrottler(5000);
 
@@ -174,8 +175,9 @@ export default class Game extends Engine
 				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
 			})
 			.addSkill('shield', this.skillRelayShield, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
-				this.relaysLevel++;
-				this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
+				//@TODO
+				// this.relaysLevel++;
+				// this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
 			})
 			.addSkill('shield', this.skillShield, costCounter(() => this.ship.shieldLevel, [10000, 20000, 30000, 50000]), () => {
 				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
@@ -434,7 +436,7 @@ export default class Game extends Engine
 
 		this.enemiesContainer.addMobs(enemy);
 
-		this.enemyCounter++;
+		this.enemyDiedCount++;
 
 	}
 
@@ -621,16 +623,16 @@ export default class Game extends Engine
 
 		//Добавляем врагов
 
-		if(this.enemiesContainer.getAliveMobs().length < this.enemyMaxCount){
+		if(this.enemiesContainer.getAliveMobs().length < this.enemySpawnCount){
 
 			this.enemySpawnThrottler(() => {
 
-				if(this.enemyCounter > 0 && !(this.enemyCounter % this.enemyKilledUpdateLevel)){
+				if(this.enemyDiedCount > 0 && !(this.enemyDiedCount % this.enemyKilledUpdateLevel)){
 					this.ship.setHealthLevel(this.ship.healthLevel + 1);
 					this.enemyLevel++;
 					this.relaysLevel++;
-
-					//@TODO увеличить здоровье ретрансляторам
+					this.enemySpawnCount = Math.min(this.enemySpawnCount + 1, this.enemySpawnMaxCount);
+					this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel());
 				}
 
 				this.addEnemy();

@@ -88,17 +88,32 @@ body{
     }
 }
 
-.ship-hp{
+.top{
     position: fixed;
-    top: 10px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.ship-hp{
     width: 40vw;
     height: 5px;
     background: black;
     border-radius: 5px;
     overflow: hidden;
     display: block;
+}
+
+.ship-hp__level{
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+    font-style: normal;
+    left: 100%;
+    margin-left: 10px;
+    top: -10px;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.5);
 }
 
 .ship-hp__bar{

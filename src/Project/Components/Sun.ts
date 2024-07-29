@@ -71,7 +71,7 @@ export default class Sun extends Component
 
 	private createLight() : THREE.Light
 	{
-		return new THREE.PointLight(this.glowColor, 2, 10000, 0.02);
+		return new THREE.PointLight('white', 2, 10000, 0.02);
 	}
 
 	private createSparks() : Sparks

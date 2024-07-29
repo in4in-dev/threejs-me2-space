@@ -35,7 +35,7 @@ export default class FriendRelay extends Mob
 		level : number,
 		bulletsContainer : AttacksContainer
 	) {
-		super(7000 * level,0.00001, bulletsContainer);
+		super(7000,0.00001, bulletsContainer);
 
 		this.level = level;
 		this.letter = letter;
@@ -104,8 +104,6 @@ export default class FriendRelay extends Mob
 
 	}
 
-
-
 	private generateShieldGeometry(radius : number) : THREE.BufferGeometry
 	{
 		return GeometryGenerator.emptySphere(radius, 3000);
@@ -146,7 +144,7 @@ export default class FriendRelay extends Mob
 
 	}
 
-	protected indicateHit(){
+	private indicateHit(){
 
 		this.relayHelpThrottler(() => {
 
@@ -155,6 +153,17 @@ export default class FriendRelay extends Mob
 			setTimeout(() => this.icon.element.classList.remove('relay-letter--red'), 100);
 
 		});
+
+	}
+
+	public upLevel() : void
+	{
+
+		let proportion = this.health / this.maxHealth;
+
+		this.level++;
+		this.maxHealth = 7000 * this.level;
+		this.health = proportion * this.maxHealth;
 
 	}
 
