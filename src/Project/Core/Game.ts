@@ -184,9 +184,8 @@ export default class Game extends Engine
 				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
 			})
 			.addSkill('shield', this.skillRelayShield, costCounter(() => this.relaysLevel, [50000, 100000, 200000, 500000]), () => {
-				//@TODO
-				// this.relaysLevel++;
-				// this.relaysContainer.getAliveMobs().forEach(relay => relay.level++);
+				this.relaysLevel++;
+				this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel())
 			})
 			.addSkill('shield', this.skillShield, costCounter(() => this.ship.shieldLevel, [10000, 20000, 30000, 50000]), () => {
 				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
@@ -254,7 +253,7 @@ export default class Game extends Engine
 	}
 
 	protected initHtml(){
-		//@TODO не круто
+
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
 		document.body.appendChild(this.expIndicator.element);
