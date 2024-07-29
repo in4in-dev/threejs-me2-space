@@ -18,6 +18,7 @@ export default class FriendRelay extends Mob
 
 	protected group : THREE.Group;
 	protected mesh : THREE.Group;
+	protected track : THREE.Mesh;
 	protected icon : CSS3DObject;
 	protected shield : THREE.Points;
 	protected sparks : Sparks;
@@ -47,10 +48,25 @@ export default class FriendRelay extends Mob
 		this.icon = this.createLetter();
 		this.sparks = this.createSparks();
 		this.glow = this.createGlow();
+		this.track = this.createTrack();
 
 		this.group.add(this.shield, this.mesh, this.sparks, this.glow);
 
-		this.add(this.icon, this.group);
+		this.add(this.icon, this.group, this.track);
+
+	}
+
+	private createTrack() : THREE.Mesh
+	{
+
+		let mesh = new THREE.Mesh(
+			new THREE.CircleGeometry(0.2, 1, 1),
+			new THREE.MeshBasicMaterial({transparent : true, opacity : 0})
+		);
+
+		mesh.position.z = 6;
+
+		return mesh;
 
 	}
 
@@ -165,6 +181,11 @@ export default class FriendRelay extends Mob
 		this.maxHealth = 7000 * this.level;
 		this.health = proportion * this.maxHealth;
 
+	}
+
+	public getTrack() : THREE.Mesh
+	{
+		return this.track
 	}
 
 	public rotateRelay(angle : number) : void

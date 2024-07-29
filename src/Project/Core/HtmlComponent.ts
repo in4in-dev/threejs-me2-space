@@ -1,6 +1,8 @@
 export default abstract class HtmlComponent
 {
 
+	public abstract element : HTMLElement;
+
 	protected createElement(html : string) : HTMLElement
 	{
 

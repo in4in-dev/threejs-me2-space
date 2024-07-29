@@ -2,7 +2,7 @@ import HtmlComponent from "../Core/HtmlComponent";
 import Skill from "../Core/Skill";
 import Experienced from "../Contracts/Experienced";
 
-class SkillsHtmlRow
+class SkillsHtmlRow extends HtmlComponent
 {
 
 	public element : HTMLElement;
@@ -14,6 +14,8 @@ class SkillsHtmlRow
 	protected onUpgrade : () => void;
 
 	constructor(ship : Experienced, code : string, cost : () => number, skill : Skill, onUpgrade : () => void) {
+
+		super();
 
 		let row = document.createElement('div');
 		row.className = `skills__row skills__row--${code}`;
