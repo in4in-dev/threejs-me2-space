@@ -66,7 +66,7 @@ export default class Game extends Engine
 	//Настройки для отладки
 	protected showAxis : boolean = false;
 	protected showTimeCodes : boolean = false;
-	protected showFps : boolean = false;
+	protected showFps : boolean = true;
 	protected showTechInfo : boolean = false;
 
 	protected background : Background;

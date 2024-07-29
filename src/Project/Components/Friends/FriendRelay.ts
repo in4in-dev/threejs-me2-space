@@ -183,11 +183,6 @@ export default class FriendRelay extends Mob
 
 	}
 
-	public getTrack() : THREE.Mesh
-	{
-		return this.track
-	}
-
 	public rotateRelay(angle : number) : void
 	{
 		this.group.rotation.z= angle;
