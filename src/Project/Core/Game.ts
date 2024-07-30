@@ -435,11 +435,15 @@ export default class Game extends Engine
 			this.expContainer
 		);
 
-		enemy.position.set(
-			Random.int(-this.border.radius, this.border.radius),
-			Random.int(-this.border.radius, this.border.radius),
-			0
-		)
+		do{
+
+			enemy.position.set(
+				Random.int(-this.border.radius, this.border.radius),
+				Random.int(-this.border.radius, this.border.radius),
+				0
+			)
+
+		}while(enemy.position.distanceTo(this.ship.position) < 15);
 
 		this.enemiesContainer.addMobs(enemy);
 
