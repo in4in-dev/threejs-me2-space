@@ -13,6 +13,11 @@ export default abstract class HtmlComponent
 
 	}
 
+	protected find(selector : string) : HTMLElement | null
+	{
+		return this.element.querySelector(selector);
+	}
+
 	public abstract updateView() : void;
 
 

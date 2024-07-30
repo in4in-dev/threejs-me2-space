@@ -17,6 +17,7 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 	public maxHealth : number;
 
 	public isVisible : boolean = true;
+	public isAlive : boolean = true;
 
 	protected autoFireActive : boolean = false;
 	protected autoFireMinDistance : number = 50;
@@ -178,6 +179,8 @@ export default abstract class Mob extends WarShip implements Hittable, Healthy
 			this.hp.element.children[0].style.width = percent + '%';
 
 		}else{
+
+			this.isAlive = false;
 
 			this.remove(this.hp);
 			this.explosion();

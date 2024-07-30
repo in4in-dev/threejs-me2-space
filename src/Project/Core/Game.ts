@@ -37,12 +37,12 @@ export default class Game extends Engine
 	protected shipMovingActive : boolean = false;
 
 	//Скиллы корабля
-	protected skillFire : Skill;
-	protected skillShockwave : Skill;
-	protected skillRocket : Skill;
-	protected skillSpawnFriend : Skill;
-	protected skillRelayShield : Skill;
-	protected skillShield : Skill;
+	protected skillFire : Skill         = new Skill;
+	protected skillShockwave : Skill    = new Skill;
+	protected skillRocket : Skill       = new Skill;
+	protected skillSpawnFriend : Skill  = new Skill;
+	protected skillRelayShield : Skill  = new Skill;
+	protected skillShield : Skill       = new Skill;
 
 	//Позиция мыши
 	protected mousePositionX : number = 0;
@@ -140,38 +140,13 @@ export default class Game extends Engine
 			.addParam('Enemies Alive', () => this.enemiesContainer.getAliveMobs().length)
 			.addParam('Relays level', () => this.relaysLevel);
 
-
-		//Создаем скиллы
-		//@TODO убрать отсюда
-		this.skillFire           = new Skill('SPACE', 'Space', 100, [100, 1000, 3000, 5000, 10000, 20000, 50000], true, Infinity);
-		this.skillShockwave      = new Skill('Q', 'KeyQ', 5000, [2000, 5000, 10000, 20000, 50000, 100000], false, Infinity);
-		this.skillSpawnFriend    = new Skill('F', 'KeyF', 5000, [10000, 20000, 50000, 100000, 200000], false, this.friendsMaxCount);
-		this.skillRocket         = new Skill('E', 'KeyE', 20000, [5000, 10000, 20000, 50000, 100000, 200000], false, Infinity);
-		this.skillRelayShield    = new Skill('G', 'KeyG', 90000, [50000, 100000, 200000, 500000], false, Infinity);
-		this.skillShield         = new Skill('Z', 'KeyZ', 30000, [10000, 20000, 30000, 50000], false, Infinity);
-
 		this.skillsIndicator = new SkillsHtmlViewer(this.ship)
-			.addSkill('fire', this.skillFire, () => {
-				this.ship.setFireLevel(this.ship.fireLevel + 1);
-			})
-			.addSkill('wave', this.skillShockwave, () => {
-				this.ship.setShockwaveLevel(this.ship.shockWaveLevel + 1);
-			})
-			.addSkill('rocket', this.skillRocket, () => {
-				this.ship.setRocketLevel(this.ship.rocketLevel + 1);
-			})
-			.addSkill('friend', this.skillSpawnFriend, () => {
-				this.friendsLevel++
-				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
-				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
-			})
-			.addSkill('shield', this.skillRelayShield, () => {
-				this.relaysLevel++;
-				this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel())
-			})
-			.addSkill('shield', this.skillShield,() => {
-				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
-			});
+			.addSkill('fire', 'SPACE', 'Space', true, this.skillFire)
+			.addSkill('wave', 'Q', 'KeyQ', false, this.skillShockwave)
+			.addSkill('rocket', 'E', 'KeyE', false, this.skillRocket)
+			.addSkill('friend', 'F', 'KeyF', false, this.skillSpawnFriend)
+			.addSkill('shield', 'G', 'KeyG', false, this.skillRelayShield)
+			.addSkill('shield', 'Z', 'KeyZ', false, this.skillShield);
 
 
 	}
@@ -181,6 +156,7 @@ export default class Game extends Engine
 	 */
 	public init(){
 
+		this.initSkills();
 		this.initScene();
 		this.initHtml();
 		this.initListeners();
@@ -223,17 +199,76 @@ export default class Game extends Engine
 
 		});
 
-		[
-			this.skillSpawnFriend,
-			this.skillRocket,
-			this.skillFire,
-			this.skillShockwave,
-			this.skillRelayShield,
-			this.skillShield
-		].forEach(skill => skill.initListeners());
+		this.skillsIndicator.initListeners();
 
 	}
 
+	protected initSkills(){
+
+		this.skillFire
+			.setCooldown(100)
+			.setCosts([100, 1000, 3000, 5000, 10000, 20000, 50000])
+			.setOnUse(() => this.ship.fire())
+			.setOnLevelUp(() => {
+				this.ship.setFireLevel(this.ship.fireLevel + 1);
+			})
+
+		this.skillShockwave
+			.setCooldown(5000)
+			.setCosts([2000, 5000, 10000, 20000, 50000, 100000])
+			.setOnUse(() => this.ship.shockwaveFire())
+			.setOnLevelUp(() => {
+				this.ship.setShockwaveLevel(this.ship.shockWaveLevel + 1);
+			})
+
+		this.skillRocket
+			.setCooldown(20000)
+			.setCosts([5000, 10000, 20000, 50000, 100000, 200000])
+			.setEnabled(() => !!this.enemiesContainer.getAliveMobs().length)
+			.setOnUse(() => this.ship.rocketFire(this.ship.whoNearest(this.enemiesContainer.getAliveMobs())!))
+			.setOnLevelUp(() => {
+				this.ship.setRocketLevel(this.ship.rocketLevel + 1);
+			})
+
+		this.skillSpawnFriend
+			.setCooldown(5000)
+			.setCosts([2000, 5000, 10000, 20000, 50000, 100000])
+			.setMaxUses(() => this.friendsMaxCount)
+			.setAvailableUses(() => this.friendsMaxCount - this.friendsContainer.getAliveMobs().length)
+			.setOnUse(() => this.addFriend())
+			.setOnLevelUp(() => {
+
+				this.friendsLevel++
+				this.friendsMaxCount = Math.min(this.friendsMaxCount + 1, 7);
+
+				this.skillSpawnFriend.setMaxUses(this.friendsMaxCount);
+
+			})
+
+		this.skillRelayShield
+			.setCooldown(90000)
+			.setCosts([50000, 100000, 200000, 500000])
+			.setOnUse(() => {
+				this.relaysContainer.getAliveMobs().forEach(relay => relay.activateShield(10000))
+			})
+			.setOnLevelUp(() => {
+				this.relaysLevel++;
+				this.relaysContainer.getAliveMobs().forEach(relay => relay.upLevel())
+			})
+
+		this.skillShield
+			.setCooldown(30000)
+			.setCosts([10000, 20000, 30000, 50000])
+			.setOnUse(() => this.ship.activateShield(this.ship.shieldLevel * 4000))
+			.setOnLevelUp(() => {
+				this.ship.setShieldLevel(this.ship.shieldLevel + 1);
+			})
+
+	}
+
+	/**
+	 * Добавление в DOM HTML-интерфейса
+	 */
 	protected initHtml(){
 
 		document.body.appendChild(this.shipHpIndicator.element);
@@ -531,52 +566,6 @@ export default class Game extends Engine
 		this.relaysContainer.animate();
 	}
 
-	protected animateSkills(){
-
-		//@TODO не красиво
-
-		//Щит
-		this.skillShield.useIfNeed(() => this.ship.activateShield(this.ship.shieldLevel * 4000))
-
-		//Стрельба из корабля
-		this.skillFire.useIfNeed(() => this.ship.fire());
-
-		//Шоковая волна
-		this.skillShockwave.useIfNeed(() => this.ship.shockwaveFire());
-
-		//Ракета
-		let enemies = this.enemiesContainer.getAliveMobs();
-
-		if(enemies.length){
-
-			let target = this.ship.whoNearest(enemies);
-
-			if(target){
-				this.skillRocket.on().useIfNeed(() => this.ship.rocketFire(target));
-			}
-
-		}else{
-
-			this.skillRocket.off();
-
-		}
-
-		//Spawn союзников
-		this.skillSpawnFriend
-			.setAvailableUses(this.friendsMaxCount - this.friendsContainer.getAliveMobs().length)
-			.useIfNeed(() => this.addFriend());
-
-
-		//Щит ретранслятора
-		this.skillRelayShield.useIfNeed(() => {
-			this.relaysContainer.getAliveMobs().forEach(relay => relay.activateShield(10000))
-		});
-
-		//Анимируем кд
-		this.skillsIndicator.updateView();
-
-	}
-
 	protected animateDrops(){
 		this.healsContainer.animate();
 		this.expContainer.animate();
@@ -633,7 +622,7 @@ export default class Game extends Engine
 		this.analyzeWrap('HTML_SHIP_HP', () => this.shipHpIndicator.updateView());
 
 		//Анимируем скиллы
-		this.analyzeWrap('HTML_SHIP_SKILLS', () => this.animateSkills());
+		this.analyzeWrap('HTML_SHIP_SKILLS', () => this.skillsIndicator.updateView());
 
 		//Спавн случайных аптечек
 		this.healSpawnThrottler(() => this.spawnRandomHeal());

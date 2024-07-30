@@ -23,9 +23,9 @@ export default class HpHtmlViewer extends HtmlComponent
 
 	public updateView(){
 
-		(<HTMLElement>this.element.querySelector('.ship-hp')).classList.toggle('ship-hp--danger', this.ship.health / this.ship.maxHealth <= 0.25);
-		(<HTMLElement>this.element.querySelector('.ship-hp__bar')).style.width = (this.ship.health / this.ship.maxHealth * 100).toFixed(2) + '%';
-		(<HTMLElement>this.element.querySelector('.ship-hp__level')).textContent = 'Level ' + this.ship.healthLevel;
+		this.find('.ship-hp')!.classList.toggle('ship-hp--danger', this.ship.health / this.ship.maxHealth <= 0.25);
+		this.find('.ship-hp__bar')!.style.width = (this.ship.health / this.ship.maxHealth * 100).toFixed(2) + '%';
+		this.find('.ship-hp__level')!.textContent = 'Level ' + this.ship.healthLevel;
 
 	}
 

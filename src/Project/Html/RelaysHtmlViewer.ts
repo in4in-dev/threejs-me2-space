@@ -28,8 +28,8 @@ class RelayHtmlViewer extends HtmlComponent
 
 	public updateView(){
 
-		let bar = (<HTMLElement>this.element.querySelector('.relays__item-health-bar')),
-			letter = (<HTMLElement>this.element.querySelector('.relays__item-letter')),
+		let bar = this.find('.relays__item-health-bar')!,
+			letter = this.find('.relays__item-letter')!,
 			percent = this.relay.health / this.relay.maxHealth;
 
 		bar.style.width = (percent * 100).toFixed(2) + '%';

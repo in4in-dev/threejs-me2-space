@@ -1,47 +1,56 @@
-import {Animation, AnimationThrottler} from "../../Three/Animation";
+interface SkillLevelUpCallback{
+	() : void
+}
+
+interface SkillUseCallback{
+	() : void
+}
+
+interface SkillNumberGetter{
+	() : number
+}
+
+interface SkillBooleanGetter{
+	() : boolean
+}
 
 export default class Skill
 {
 
-	public key : string;
-	public keyCode : string;
-	public availableUses : number;
-	public maximumUses : number;
-	public cooldown : number;
+
+
 	public level : number = 1;
 	public costs : number[];
 
-	protected throttler : AnimationThrottler;
+	protected lastActivity : number = 0;
 
-	protected isEnabled : boolean = true;
-	protected isKeyHold : boolean = false;
-	protected isKeyPressed : boolean = false;
+	protected cooldown : number | SkillNumberGetter;
+	protected enabled : boolean | SkillBooleanGetter = true;
+	protected availableUses : number | SkillNumberGetter;
+	protected maximumUses : number | SkillNumberGetter;
 
-	protected canBeHold : boolean = true;
+	protected onUse : SkillUseCallback | null = null;
+	protected onLevelUp : SkillLevelUpCallback | null = null;
 
 	constructor(
-		key : string,
-		keyCode : string,
-		cooldown : number,
-		costs : number[],
-		canBeHold : boolean = false,
+		cooldown : number = 0,
+		costs : number[] = [],
 		maximumUses : number = Infinity
 	) {
 
-		this.key = key;
-		this.keyCode = keyCode;
 		this.costs = costs;
 		this.cooldown = cooldown;
 		this.availableUses = maximumUses;
 		this.maximumUses = maximumUses;
-		this.canBeHold = canBeHold;
-
-		this.throttler = Animation.createThrottler(cooldown);
 
 	}
 
 	public getCostNextLevel() : number
 	{
+
+		if(!this.costs.length){
+			return Infinity;
+		}
 
 		if(this.costs.length >= this.level){
 			return this.costs[this.level - 1];
@@ -51,14 +60,29 @@ export default class Skill
 
 	}
 
+	public getCooldown() : number
+	{
+		return this.cooldown instanceof Function ? this.cooldown() : this.cooldown;
+	}
+
 	public getCooldownTime() : number
 	{
-		return this.throttler.getBeforeCall();
+		return Math.max(0, this.lastActivity + this.getCooldown() - Date.now());
 	}
 
 	public getCooldownPercent() : number
 	{
-		return 1 - this.getCooldownTime() / this.throttler.getDelay();
+		return 1 - this.getCooldownTime() / this.getCooldown();
+	}
+
+	public getAvailableUses() : number
+	{
+		return this.availableUses instanceof Function ? this.availableUses() : this.availableUses;
+	}
+
+	public getMaximumUses() : number
+	{
+		return this.maximumUses instanceof Function ? this.maximumUses() : this.maximumUses;
 	}
 
 	public isReady(): boolean
@@ -66,92 +90,86 @@ export default class Skill
 		return !this.getCooldownTime();
 	}
 
+	public isEnabled() : boolean
+	{
+		return this.enabled instanceof Function ? this.enabled() : this.enabled;
+	}
+
 	public isAvailable() : boolean
 	{
-		return this.isEnabled && this.availableUses > 0;
+		return this.getAvailableUses() > 0;
 	}
 
-	public toggle(b : boolean) : this
+	public isCanBeUsedNow() : boolean
 	{
-		this.isEnabled = b;
+		return this.isReady() && this.isAvailable() && this.isEnabled();
+	}
+
+	public setEnabled(b : boolean | SkillBooleanGetter) : this
+	{
+		this.enabled = b;
 		return this;
 	}
-
-	public on() : this
-	{
-		this.isEnabled = true;
-		return this;
-	}
-
-	public off() : this
-	{
-		this.isEnabled = false;
-		return this;
-	}
-
 
 	public upLevel() : this
 	{
+
 		this.level++;
+
+		this.onLevelUp && this.onLevelUp();
+
 		return this;
+
 	}
 
-	public setAvailableUses(x : number) : this
+	public setAvailableUses(x : number | SkillNumberGetter) : this
 	{
-		this.availableUses = Math.min(x, this.maximumUses);
+		this.availableUses = x;
 		return this;
 	}
 
-	public setMaxUses(x : number) : this
+	public setMaxUses(x : number | SkillNumberGetter) : this
 	{
 		this.maximumUses = x;
 		return this;
 	}
 
-	public useIfNeed(fn : () => void){
+	public setCosts(costs : number[]) : this
+	{
+		this.costs = costs;
+		return this;
+	}
 
-		(this.isKeyHold || this.isKeyPressed) && this.isAvailable() && this.throttler(() => {
+	public setCooldown(cd : number | SkillNumberGetter) : this
+	{
+		this.cooldown = cd;
+		return this;
+	}
 
-			if(this.availableUses !== Infinity){
-				this.availableUses--;
-			}
+	public setOnLevelUp(cb : SkillLevelUpCallback | null) : this
+	{
+		this.onLevelUp = cb;
+		return this;
+	}
 
-			fn();
+	public setOnUse(cb : SkillUseCallback | null) : this
+	{
+		this.onUse = cb;
+		return this;
+	}
 
-		});
+	public useIfCan(){
 
-		this.isKeyPressed = false;
+		if(this.isCanBeUsedNow()){
+			this.use();
+		}
 
 	}
 
-	public initListeners(){
-
-
-		window.addEventListener('keydown', (event) => {
-
-			if (event.code === this.keyCode) {
-
-				event.preventDefault();
-
-				if(this.canBeHold) {
-					this.isKeyHold = this.isAvailable();
-				}
-
-				this.isKeyPressed = this.isAvailable();
-
-			}
-
-		});
-
-		window.addEventListener('keyup', (event) => {
-
-			if (event.code === this.keyCode) {
-				this.isKeyHold = false;
-			}
-
-		});
-
-
+	public use(){
+		this.lastActivity = Date.now();
+		this.onUse && this.onUse();
 	}
+
 
 }

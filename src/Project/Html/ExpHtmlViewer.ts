@@ -15,14 +15,14 @@ export default class ExpHtmlViewer extends HtmlComponent
 		this.ship = ship;
 
 		this.element = this.createElement(`
-			<div class="ship-exp"><i class="ship-exp__icon"></i><span class="ship-exp__value"></span></div>
+			<div class="ship-exp"><i class="ship-exp__icon"></i><span class="ship-exp__value"></span><span class="ship-exp__profit"></span></div>
 		`)
 
 	}
 
 	public updateView(){
 
-		(<HTMLElement>this.element.querySelector('.ship-exp__value')).textContent = this.ship.experience.toString();
+		this.find('.ship-exp__value')!.textContent = this.ship.experience.toString();
 
 	}
 
