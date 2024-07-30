@@ -113,13 +113,13 @@ export default class RayBulletAttack extends Attack
 				maxLength = this.from.distanceTo(this.to),
 				length = progress * maxLength;
 
-			let direction = new THREE.Vector3().subVectors(this.from, this.to).normalize();
+			let direction = new THREE.Vector3().subVectors(this.to, this.from).normalize();
 
 			enemies.some(enemy => {
 
 				let rayCaster = new THREE.Raycaster(
 					this.from,
-					direction.clone().multiplyScalar(-1),
+					direction.clone(),
 					0,
 					length
 				);
@@ -163,7 +163,7 @@ export default class RayBulletAttack extends Attack
 
 			this.mesh.setRotationFromQuaternion(quaternion);
 
-			this.glow.position.set(0, -length / 2, 0);
+			this.glow.position.set(0, length / 2, 0);
 
 		}
 
