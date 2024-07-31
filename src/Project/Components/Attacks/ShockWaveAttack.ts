@@ -1,6 +1,6 @@
 import Attack from "../Attack";
 import * as THREE from "three";
-import {Object3D, Vector3} from "three";
+import {AxesHelper, Object3D, Vector3} from "three";
 import Hittable from "../../Contracts/Hittable";
 import Random from "../../../Three/Random";
 import {Animation, AnimationThrottler} from "../../../Three/Animation";
@@ -91,12 +91,38 @@ export default class ShockWaveAttack extends Attack
 		let group = new THREE.Group;
 
 		let lines = enemies.map(enemy => {
+
 			return this.createLightning(
 				new Vector3(0, 0, 0),
 				new Vector3().subVectors(enemy.position, this.from).setZ(-1)
 			);
+
 		});
 
+		let damageLines : THREE.Line[] = [];
+
+		enemies.forEach(enemy => {
+
+			for(let i = 0; i < 10; i++) {
+
+				let from = new Vector3().subVectors(enemy.position, this.from).setZ(-1);
+
+				let direction = new Vector3(
+					Random.float(-1.5, 1.5),
+					Random.float(-1.5, 1.5),
+					1
+				);
+
+				let line = this.createLightning(
+					from,
+					new Vector3().addVectors(from, direction)
+				);
+
+				damageLines.push(line);
+
+			}
+
+		});
 
 		for(let i = 0; i < randomLightnings; i++){
 
@@ -115,8 +141,8 @@ export default class ShockWaveAttack extends Attack
 		}
 
 
-		if(lines.length){
-			group.add(...lines);
+		if(lines.length || damageLines.length){
+			group.add(...lines, ...damageLines);
 		}
 
 		return group;
