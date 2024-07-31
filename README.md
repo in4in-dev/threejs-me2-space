@@ -6,9 +6,9 @@ You can run this:
 
 ```
 npm i
-npx vite
+npm start
 ```
 
 # [DEMO HERE](https://stackblitz.com/~/github.com/in4in-dev/threejs-me2-space)
 
-[![Intro](https://github.com/in4in-dev/threejs-me2-space/raw/main/intro_video.png)](https://www.youtube.com/watch?v=nNJ0ZOiwGiA)
+[![Intro](https://github.com/in4in-dev/threejs-me2-space/raw/main/intro_video.png)](https://www.youtube.com/watch?v=S7GbG8zqtzc)
