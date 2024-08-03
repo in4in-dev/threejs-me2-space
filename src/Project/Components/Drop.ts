@@ -40,26 +40,6 @@ export default abstract class Drop<T extends THREE.Object3D> extends Component
 
 		if(this.isUsed){
 
-		}else if(this.movingTarget) {
-
-			let direction = new Vector3().subVectors(this.movingTarget.position, this.position),
-				distance = direction.length();
-
-			if(distance < 2) {
-
-				this.use(this.movingTarget);
-				this.trash();
-
-			}else{
-
-				direction.normalize();
-
-				this.position.add(
-					direction.multiplyScalar(0.1)
-				);
-
-			}
-
 		}else if(this.spawnMovingActive && this.spawnMovingPoint) {
 
 			let direction = new Vector3().subVectors(this.spawnMovingPoint, this.position),
@@ -76,6 +56,26 @@ export default abstract class Drop<T extends THREE.Object3D> extends Component
 			}else{
 
 				this.cancelSpawnMoving();
+
+			}
+
+		}else if(this.movingTarget) {
+
+			let direction = new Vector3().subVectors(this.movingTarget.position, this.position),
+				distance = direction.length();
+
+			if (distance < 2) {
+
+				this.use(this.movingTarget);
+				this.trash();
+
+			} else {
+
+				direction.normalize();
+
+				this.position.add(
+					direction.multiplyScalar(0.1)
+				);
 
 			}
 
