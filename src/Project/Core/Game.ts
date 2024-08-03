@@ -29,6 +29,8 @@ import ExpHtmlViewer from "../Html/ExpHtmlViewer";
 import FpsHtmlViewer from "../Html/FpsHtmlViewer";
 import RelaysHtmlViewer from "../Html/RelaysHtmlViewer";
 import TechInfoHtmlViewer from "../Html/TechInfoHtmlViewer";
+import NavigatorHtmlViewer from "../Html/Navigator/NavigatorHtmlViewer";
+import RelayNavigatorTracker from "../Html/Navigator/RelayNavigatorTracker";
 
 export default class Game extends Engine
 {
@@ -96,6 +98,7 @@ export default class Game extends Engine
 	protected fpsIndicator : FpsHtmlViewer;
 	protected relaysIndicator : RelaysHtmlViewer;
 	protected techInfoIndicator : TechInfoHtmlViewer;
+	protected navigator : NavigatorHtmlViewer;
 
 	constructor(
 		background : Background,
@@ -129,10 +132,11 @@ export default class Game extends Engine
 		this.expContainer   = new DropContainer<Experienced, Experience>([this.ship]);
 
 		//HTML-интерфейс
+		this.navigator = new NavigatorHtmlViewer;
+		this.relaysIndicator = new RelaysHtmlViewer;
 		this.shipHpIndicator = new HpHtmlViewer(this.ship);
 		this.expIndicator = new ExpHtmlViewer(this.ship);
 		this.fpsIndicator = new FpsHtmlViewer(this);
-		this.relaysIndicator = new RelaysHtmlViewer();
 		this.techInfoIndicator = new TechInfoHtmlViewer()
 			.addParam('Enemies Level', () => this.enemyLevel)
 			.addParam('Enemies Spawned', () => this.enemySpawned)
@@ -271,6 +275,7 @@ export default class Game extends Engine
 	 */
 	protected initHtml(){
 
+		document.body.appendChild(this.navigator.element);
 		document.body.appendChild(this.shipHpIndicator.element);
 		document.body.appendChild(this.skillsIndicator.element);
 		document.body.appendChild(this.expIndicator.element);
@@ -456,6 +461,10 @@ export default class Game extends Engine
 
 		this.relaysContainer.addMobs(relay);
 
+		this.navigator.addTrackers(
+			new RelayNavigatorTracker(relay, this.ship, this.camera)
+		);
+
 	}
 
 	/**
@@ -605,6 +614,9 @@ export default class Game extends Engine
 	 * То, что нужно обновлять по реже
 	 */
 	protected slowTick(){
+
+		//Навигатор
+		this.analyzeWrap('HTML_NAVIGATOR', () => this.navigator.updateView());
 
 		//Вывод фпс
 		this.analyzeWrap('HTML_FPS', () => this.fpsIndicator.updateView());

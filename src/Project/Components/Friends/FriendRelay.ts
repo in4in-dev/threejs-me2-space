@@ -272,4 +272,9 @@ export default class FriendRelay extends Mob
 
 	}
 
+	public getTrack() : THREE.Mesh
+	{
+		return this.track;
+	}
+
 }

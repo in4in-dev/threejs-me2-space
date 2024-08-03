@@ -11,7 +11,7 @@ class RelayHtmlViewer extends HtmlComponent
 
 	public element : HTMLElement;
 
-	protected helpSignalThrottler : AnimationThrottler = Animation.createThrottler(200);
+	protected helpSignalThrottler : AnimationThrottler = Animation.createThrottler(300);
 
 	constructor(relay : FriendRelay) {
 		super();
@@ -40,7 +40,7 @@ class RelayHtmlViewer extends HtmlComponent
 			bar.className = 'relays__item-health-bar relays__item-health-bar--red';
 		}
 
-		if(this.lastHealth !== this.relay.health){
+		if(this.lastHealth > this.relay.health){
 			this.helpSignalThrottler(() => {
 				letter.classList.add('relays__item-letter--red');
 				setTimeout(() => letter.classList.remove('relays__item-letter--red'), 100)
