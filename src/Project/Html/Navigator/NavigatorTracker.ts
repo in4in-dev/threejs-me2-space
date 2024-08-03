@@ -7,15 +7,14 @@ export default abstract class NavigatorTracker extends HtmlComponent
 {
 
 	protected target : THREE.Object3D;
-	protected ship : Ship;
-	protected camera : THREE.Camera;
 
-	constructor(target : THREE.Object3D, camera : THREE.Camera, ship : Ship) {
+	protected ship : Ship | null = null;
+	protected camera : THREE.Camera  | null = null;
+
+	constructor(target : THREE.Object3D) {
 		super();
 
 		this.target = target;
-		this.camera = camera;
-		this.ship = ship;
 	}
 
 	protected isObjectInView() {
@@ -23,8 +22,8 @@ export default abstract class NavigatorTracker extends HtmlComponent
 		let frustum = new THREE.Frustum();
 		let cameraViewProjectionMatrix = new THREE.Matrix4();
 
-		this.camera.updateMatrixWorld();
-		cameraViewProjectionMatrix.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse);
+		this.camera!.updateMatrixWorld();
+		cameraViewProjectionMatrix.multiplyMatrices(this.camera!.projectionMatrix, this.camera!.matrixWorldInverse);
 		frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
 
 		return frustum.intersectsObject(this.target);
@@ -34,7 +33,7 @@ export default abstract class NavigatorTracker extends HtmlComponent
 	{
 
 		let positionShip = new THREE.Vector3();
-		this.ship.getWorldPosition(positionShip);
+		this.ship!.getWorldPosition(positionShip);
 
 		const positionTarget = new THREE.Vector3();
 		this.target.getWorldPosition(positionTarget);
@@ -83,9 +82,21 @@ export default abstract class NavigatorTracker extends HtmlComponent
 
 	}
 
+	public setCamera(camera : THREE.Camera) : this
+	{
+		this.camera = camera;
+		return this;
+	}
+
+	public setShip(ship : Ship) : this
+	{
+		this.ship = ship;
+		return this;
+	}
+
 	public updateView(){
 
-		if (!this.isObjectInView()) {
+		if (this.camera && this.ship && !this.isObjectInView()) {
 
 			const flagPosition = this.getFlagPositionFor(
 				this.getDirection()

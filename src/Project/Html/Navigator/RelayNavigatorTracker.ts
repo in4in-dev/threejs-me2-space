@@ -14,9 +14,9 @@ export default class RelayNavigatorTracker extends NavigatorTracker
 
 	protected helpSignalThrottler : AnimationThrottler = Animation.createThrottler(300);
 
-	constructor(relay : FriendRelay, ship : Ship, camera : THREE.Camera) {
+	constructor(relay : FriendRelay) {
 
-		super(relay.getTrack(), camera, ship);
+		super(relay.getTrack());
 
 		this.relay = relay;
 		this.lastHealth = relay.health;

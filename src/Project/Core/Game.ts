@@ -132,7 +132,7 @@ export default class Game extends Engine
 		this.expContainer   = new DropContainer<Experienced, Experience>([this.ship]);
 
 		//HTML-интерфейс
-		this.navigator = new NavigatorHtmlViewer;
+		this.navigator = new NavigatorHtmlViewer(this.camera, this.ship);
 		this.relaysIndicator = new RelaysHtmlViewer;
 		this.shipHpIndicator = new HpHtmlViewer(this.ship);
 		this.expIndicator = new ExpHtmlViewer(this.ship);
@@ -462,7 +462,7 @@ export default class Game extends Engine
 		this.relaysContainer.addMobs(relay);
 
 		this.navigator.addTrackers(
-			new RelayNavigatorTracker(relay, this.ship, this.camera)
+			new RelayNavigatorTracker(relay)
 		);
 
 	}
