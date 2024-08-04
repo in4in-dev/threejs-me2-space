@@ -70,7 +70,10 @@ export default class SinglePlayerGame extends Game
 
 			orbitRadius += Random.int(5, 10);
 
-			let planetRadius = Random.float(0.2, 1.5);
+			let planetRadius = Random.float(
+				0.2,
+				Math.min(3, 0.5 * (i + 1))
+			);
 
 			let moons = [];
 			for(let m = 0, moonsCount = Random.int(0, 3); m < moonsCount; m++){

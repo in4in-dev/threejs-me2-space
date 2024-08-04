@@ -31,6 +31,7 @@ import RelaysHtmlViewer from "../Html/RelaysHtmlViewer";
 import TechInfoHtmlViewer from "../Html/TechInfoHtmlViewer";
 import NavigatorHtmlViewer from "../Html/Navigator/NavigatorHtmlViewer";
 import RelayNavigatorTracker from "../Html/Navigator/RelayNavigatorTracker";
+import EnemyGeth from "../Components/Enemies/EnemyGeth";
 
 export default class Game extends Engine
 {
@@ -472,12 +473,19 @@ export default class Game extends Engine
 	 */
 	protected addEnemy(){
 
-		let enemy = new EnemyReaper(
-			this.enemyLevel,
-			this.enemiesAttacks,
-			this.healsContainer,
-			this.expContainer
-		);
+		let enemy = Random.int(0, 5) > 0
+			? new EnemyReaper(
+				this.enemyLevel,
+				this.enemiesAttacks,
+				this.healsContainer,
+				this.expContainer
+			)
+			: new EnemyGeth(
+				this.enemyLevel,
+				this.enemiesAttacks,
+				this.healsContainer,
+				this.expContainer
+			);
 
 		do{
 
