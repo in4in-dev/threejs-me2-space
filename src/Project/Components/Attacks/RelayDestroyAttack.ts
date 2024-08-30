@@ -74,7 +74,7 @@ export default class RelayDestroyAttack extends Attack
 				enemiesObjects.forEach(enemy => {
 
 					if (
-						this.damagedEnemies.indexOf(enemy) < 0 &&
+						!this.damagedEnemies.includes(enemy) &&
 						enemy.position.distanceTo(this.position) <= radius
 					) {
 						enemy.hit(this.force);

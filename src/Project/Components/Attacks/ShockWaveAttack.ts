@@ -173,7 +173,7 @@ export default class ShockWaveAttack extends Attack
 
 			availableEnemies.forEach(enemy => {
 
-				if (this.hitEnemies.indexOf(enemy) < 0) {
+				if (!this.hitEnemies.includes(enemy)) {
 
 					this.hitEnemies.push(enemy);
 					this.hitEnemy(enemy);

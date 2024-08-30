@@ -53,7 +53,7 @@ export default class ModelLoader
 
 		let loader;
 
-		if(path.indexOf('.obj')){
+		if(path.includes('.obj')){
 
 			loader = new OBJLoader();
 

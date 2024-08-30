@@ -118,7 +118,7 @@ export default class RocketBulletAttack extends Attack
 
 				let distance = enemy.position.distanceTo(this.explosionPoint!);
 
-				if(this.damagedEnemies.indexOf(enemy) < 0 && distance <= radius){
+				if(!this.damagedEnemies.includes(enemy) && distance <= radius){
 
 					enemy.hit(Math.ceil(this.force * damageMultiplier));
 
